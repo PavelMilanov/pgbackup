@@ -22,11 +22,13 @@ func init() {
 
 func main() {
 	router := gin.Default()
-	api := router.Group("/api")
-	{
-		api.POST("/login", loginUser)
-
-	}
+	router.LoadHTMLGlob("templates/*")
+	router.Static("/static/", "./static")
+	router.GET("/", loginUser)
+	// api := router.Group("/api")
+	// {
+	// 	api.GET("")
+	// }
 
 	srv := &http.Server{
 		Addr:         ":8080",

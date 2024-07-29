@@ -1,3 +1,4 @@
 .env
 go.sum
 pgbackup
+.DS_Store
