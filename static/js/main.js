@@ -1,1 +1,1 @@
-var App = angular.module("PgBackupWeb", []);
+var App = angular.module("PGWebApp", []);

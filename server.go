@@ -25,13 +25,14 @@ func main() {
 	router.LoadHTMLGlob("templates/*")
 	router.Static("/static/", "./static")
 	router.GET("/", loginUser)
+	router.POST("/dashboard", submitLoginForm)
 	// api := router.Group("/api")
 	// {
 	// 	api.GET("")
 	// }
 
 	srv := &http.Server{
-		Addr:         ":8080",
+		Addr:         "192.168.1.6:8080",
 		Handler:      router.Handler(),
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,

@@ -1,5 +1,21 @@
 {{ define "login" }}
-<div>
-    <p>login page</p>
+<div class="loginPage border border-secondary-subtle shadow-lg bg-body-tertiary rounded-3 p-3" ng-controller="LoginController">
+    <form name="loginForm" action="/dashboard" method="post">
+        <div class="mb-3">
+            <label for="username" class="form-label">Логин</label>
+            <input type="text" class="form-control" id="username" name="username" aria-describedby="loginHelp"
+                placeholder="Введите логин" ng-model="user.login" required>
+            <!-- <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div> -->
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label">Пароль</label>
+            <input type="password" class="form-control" id="password" name="password" placeholder="Введите пароль"
+                ng-model="user.password" required>
+        </div>
+        <div class="d-flex justify-content-center form-floating">
+            <button type="submit" class="btn btn-primary" ng-click="save(user, loginForm)">Войти</button>
+        </div>
+    </form>
+    <script src="/static/js/controllers/LoginController.js"></script>
 </div>
 {{ end }}
