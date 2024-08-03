@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 )
@@ -12,9 +13,7 @@ type LoginForm struct {
 }
 
 func loginUser(c *gin.Context) {
-	c.HTML(http.StatusOK, "index.html", gin.H{
-		"title": "pgbackup",
-	})
+	c.HTML(http.StatusOK, "index.html", nil)
 }
 
 func submitLoginForm(c *gin.Context) {
@@ -23,10 +22,17 @@ func submitLoginForm(c *gin.Context) {
 		c.HTML(http.StatusBadRequest, "login.html", gin.H{"error": err.Error()})
 		return
 	}
+	username := os.Getenv("USER_LOGIN")
+	password := os.Getenv("USER_PASSWORD")
+	if formData.Username != username && formData.Password != password {
+		c.HTML(http.StatusBadRequest, "index.html", gin.H{
+			"data": "неправильные логин или пароль",
+		})
+		return
+	}
 
 	c.HTML(http.StatusOK, "index.html", gin.H{
-		"auth":  true,
-		"title": "pgbackup",
+		"auth": true,
 	})
 
 }
