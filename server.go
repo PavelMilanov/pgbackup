@@ -32,7 +32,7 @@ func main() {
 	// }
 
 	srv := &http.Server{
-		Addr:         "192.168.1.6:8080",
+		Addr:         ":8080",
 		Handler:      router.Handler(),
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
