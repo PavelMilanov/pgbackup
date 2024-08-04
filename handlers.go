@@ -12,7 +12,7 @@ type LoginForm struct {
 	Password string `form:"password" binding:"required"`
 }
 
-func loginUser(c *gin.Context) {
+func authView(c *gin.Context) {
 	c.HTML(http.StatusOK, "login.html", gin.H{})
 }
 

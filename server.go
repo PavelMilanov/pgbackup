@@ -16,7 +16,7 @@ import (
 func init() {
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		log.Fatal(".env файл не найден")
 	}
 }
 
@@ -24,15 +24,19 @@ func main() {
 	router := gin.Default()
 	router.LoadHTMLGlob("templates/**/*")
 	router.Static("/static/", "./static")
-	router.GET("/", loginUser)
-	router.POST("/home", submitLoginForm)
-	router.GET("/home", dashboardView)
-	router.GET("/bases", basesView)
-	router.GET("/backups", backupsView)
-	// api := router.Group("/api")
-	// {
-	// 	api.GET("")
-	// }
+	web := router.Group("/")
+	{
+		web.GET("/", authView)
+		web.GET("/logout", authView)
+		web.POST("/home", submitLoginForm)
+		web.GET("/home", dashboardView)
+		web.GET("/bases", basesView)
+		web.GET("/backups", backupsView)
+	}
+	api := router.Group("/api")
+	{
+		api.GET("/check")
+	}
 
 	srv := &http.Server{
 		Addr:         ":8080",
@@ -42,7 +46,6 @@ func main() {
 	}
 
 	go func() {
-		// service connections
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("listen: %s\n", err)
 		}
@@ -51,9 +54,6 @@ func main() {
 	// Wait for interrupt signal to gracefully shutdown the server with
 	// a timeout of 5 seconds.
 	quit := make(chan os.Signal, 1)
-	// kill (no param) default send syscall.SIGTERM
-	// kill -2 is syscall.SIGINT
-	// kill -9 is syscall. SIGKILL but can"t be catch, so don't need add it
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 	log.Println("Shutdown Server ...")
@@ -63,7 +63,6 @@ func main() {
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Fatal("Server Shutdown:", err)
 	}
-	// catching ctx.Done(). timeout of 5 seconds.
 	select {
 	case <-ctx.Done():
 		log.Println("timeout of 1 seconds.")
