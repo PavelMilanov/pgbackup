@@ -1,0 +1,25 @@
+{{ template "header"}}
+<body>
+<main>
+    <div class="loginPage border border-secondary-subtle shadow-lg bg-body-tertiary rounded-3 p-3"
+        ng-controller="LoginController">
+        <form name="loginForm" action="/home" method="post">
+            <div class="mb-3">
+                <label for="username" class="form-label">Логин</label>
+                <input type="text" class="form-control" id="username" name="username" placeholder="Введите логин"
+                    ng-model="user.login" required>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Пароль</label>
+                <input type="password" class="form-control" id="password" name="password" placeholder="Введите пароль"
+                    aria-describedby="loginHelp" ng-model="user.password" required>
+            </div>
+            <div class="d-flex justify-content-center form-floating">
+                <button type="submit" class="btn btn-primary" ng-click="save(user, loginForm)">Войти</button>
+            </div>
+        </form>
+    </div>
+</main>
+<script src="/static/js/controllers/LoginController.js"></script>
+</body>
+</html>

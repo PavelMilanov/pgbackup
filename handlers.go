@@ -13,7 +13,7 @@ type LoginForm struct {
 }
 
 func loginUser(c *gin.Context) {
-	c.HTML(http.StatusOK, "index.html", nil)
+	c.HTML(http.StatusOK, "login.html", gin.H{})
 }
 
 func submitLoginForm(c *gin.Context) {
@@ -25,14 +25,28 @@ func submitLoginForm(c *gin.Context) {
 	username := os.Getenv("USER_LOGIN")
 	password := os.Getenv("USER_PASSWORD")
 	if formData.Username != username && formData.Password != password {
-		c.HTML(http.StatusBadRequest, "index.html", gin.H{
+		c.HTML(http.StatusBadRequest, "login.html", gin.H{
 			"data": "неправильные логин или пароль",
 		})
 		return
 	}
 
-	c.HTML(http.StatusOK, "index.html", gin.H{
-		"auth": true,
-	})
+	c.HTML(http.StatusOK, "home.html", gin.H{})
 
+}
+
+func dashboardView(c *gin.Context) {
+	c.HTML(http.StatusOK, "home.html", gin.H{})
+}
+
+func basesView(c *gin.Context) {
+	c.HTML(http.StatusOK, "bases.html", gin.H{
+		"data": nil,
+	})
+}
+
+func backupsView(c *gin.Context) {
+	c.HTML(http.StatusOK, "backups.html", gin.H{
+		"data": nil,
+	})
 }

@@ -22,10 +22,13 @@ func init() {
 
 func main() {
 	router := gin.Default()
-	router.LoadHTMLGlob("templates/*")
+	router.LoadHTMLGlob("templates/**/*")
 	router.Static("/static/", "./static")
 	router.GET("/", loginUser)
-	router.POST("/dashboard", submitLoginForm)
+	router.POST("/home", submitLoginForm)
+	router.GET("/home", dashboardView)
+	router.GET("/bases", basesView)
+	router.GET("/backups", backupsView)
 	// api := router.Group("/api")
 	// {
 	// 	api.GET("")
