@@ -24,7 +24,7 @@ func submitLoginForm(c *gin.Context) {
 	}
 	username := os.Getenv("USER_LOGIN")
 	password := os.Getenv("USER_PASSWORD")
-	if formData.Username != username && formData.Password != password {
+	if formData.Username != username || formData.Password != password {
 		c.HTML(http.StatusBadRequest, "login.html", gin.H{
 			"data": "неправильные логин или пароль",
 		})
