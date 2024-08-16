@@ -30,18 +30,37 @@ func submitLoginForm(c *gin.Context) {
 		})
 		return
 	}
-
-	c.HTML(http.StatusOK, "home.html", gin.H{})
-
+	db := Database{
+		User:     "admin",
+		Password: "admin",
+		Dbname:   "dev",
+		Port:     5432,
+	}
+	databases := db.getDBs()
+	c.HTML(http.StatusOK, "home.html", gin.H{"databases": databases})
 }
 
-func dashboardView(c *gin.Context) {
-	c.HTML(http.StatusOK, "home.html", gin.H{})
+func homeView(c *gin.Context) {
+	db := Database{
+		User:     "admin",
+		Password: "admin",
+		Dbname:   "dev",
+		Port:     5432,
+	}
+	databases := db.getDBs()
+	c.HTML(http.StatusOK, "home.html", gin.H{"databases": databases})
 }
 
 func basesView(c *gin.Context) {
+	db := Database{
+		User:     "admin",
+		Password: "admin",
+		Dbname:   "dev",
+		Port:     5432,
+	}
+	databases := db.getDBs()
 	c.HTML(http.StatusOK, "bases.html", gin.H{
-		"data": nil,
+		"databases": databases,
 	})
 }
 

@@ -29,7 +29,7 @@ func main() {
 		web.GET("/", authView)
 		web.GET("/logout", authView)
 		web.POST("/home", submitLoginForm)
-		web.GET("/home", dashboardView)
+		web.GET("/home", homeView)
 		web.GET("/bases", basesView)
 		web.GET("/backups", backupsView)
 	}

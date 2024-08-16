@@ -6,9 +6,22 @@
                 {{ template "dashboard" }}
             </div>
             <div class="col-10">
-                <p>
-                    home page
-                </p>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">БД</th>
+                        </tr>
+                    </thead>
+                    {{ range .databases }}
+                    <tbody>
+                        <tr>
+                            <th scope="row">1</th>
+                            <td>{{. }}</td>
+                        </tr>
+                    </tbody>
+                    {{ end }}
+                </table>
             </div>
         </div>
     </div>
