@@ -47,6 +47,7 @@ func (conn *Database) getDBs() []string {
 	return dbList
 }
 
+// Проверка подключения к базе данных
 func (conn *Database) checkConnection() {
 	command := fmt.Sprintf("pg_isready -U %s -d %s -p %d", conn.User, conn.Dbname, conn.Port)
 	cmd, err := exec.Command("bash", "-c", command).Output()
@@ -59,7 +60,7 @@ func (conn *Database) checkConnection() {
 
 // Выполнение задания бекапа базы данных
 func (conn *Database) backup() {
-	currTime := time.Now().Format("2006-01-02") // шаблон GO для формата ГГГГ-мм-дд
+	currTime := time.Now().Format("2006-01-02") // шаблон GO для формата ГГГГ-мм-дд "2006-01-02 15:04:05" со временем
 	command := fmt.Sprintf("pg_dump -U %s %s > %s/%s.dump", conn.User, conn.Dbname, BACKUP_DIR, conn.Dbname+"-"+currTime)
 	cmd, err := exec.Command("bash", "-c", command).Output()
 	if err != nil {
