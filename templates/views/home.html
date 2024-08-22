@@ -13,11 +13,11 @@
                             <th scope="col">БД</th>
                         </tr>
                     </thead>
-                    {{ range .databases }}
+                {{ range $index, $element := .databases }}
                     <tbody>
                         <tr>
-                            <th scope="row">1</th>
-                            <td>{{. }}</td>
+                            <th scope="row">{{ $index 1 }}</th>
+                            <td>{{ $element }}</td>
                         </tr>
                     </tbody>
                     {{ end }}

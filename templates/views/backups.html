@@ -6,9 +6,65 @@
                 {{ template "dashboard" }}
             </div>
             <div class="col-10">
-                <p>
-                    backups page
-                </p>
+                <div class="container text-center mb-5 mt-3 p-2 bg-light border">
+                    <form>
+                        <div class="mb-3">
+                            <label for="DbSelect" class="form-label">Базы данных</label>
+                            <select class="form-select" aria-label="Default select example" id="DbSelect">
+                                <option selected>Выбери базу данных</option>
+                                {{ range $index, $element := .databases }}
+                                <option value="{{ $index }}">{{ $element }}</option>
+                                {{ end}}
+                            </select>
+                        </div>
+                        <div class="row g-3 align-items-center">
+                            <div class="col-auto">
+                                <input type="checkbox" class="form-check-input" id="CronBackupInput">
+                                <label class="form-check-label" for="CronBackupInput">Создать расписание</label>
+                            </div>
+                            <div class="col-auto">
+                                <span id="passwordHelpInline" class="form-text">
+                                    Must be 8-20 characters long.
+                                </span>
+                            </div>
+                        </div>
+                        <!-- <div class="mb-3 form-check g-3">
+                            <input type="checkbox" class="form-check-input" id="CronBackupInput">
+                            <label class="form-check-label" for="CronBackupInput">Создать расписание</label>
+                        </div> -->
+                        <!-- <div class="mb-3">
+                            <label for="exampleInputPassword1" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="exampleInputPassword1">
+                        </div> -->
+                        <button type="submit" class="btn btn-primary">Создать бекап</button>
+                    </form>
+                </div>
+                <div class="container text-center p-2 bg-light border">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Бекап</th>
+                                <th scope="col">Статус</th>
+                                <!-- <th scope="col">Handle</th> -->
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th scope="row">1</th>
+                                <td>Mark</td>
+                                <td>Otto</td>
+                                <!-- <td>@mdo</td> -->
+                            </tr>
+                            <tr>
+                                <th scope="row">2</th>
+                                <td>Jacob</td>
+                                <td>Thornton</td>
+                                <!-- <td>@fat</td> -->
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>

@@ -1,0 +1,22 @@
+FROM golang:1.22-alpine AS builder
+
+WORKDIR /build
+
+COPY . /build
+
+RUN go build .
+
+FROM alpine
+
+RUN apk --update --no-cache add postgresql-client
+
+WORKDIR /app
+
+COPY --from=builder /build/pgbackup /app
+COPY .env /app/
+COPY templates/ /app/templates/
+VOLUME [ "/backups" ]
+
+EXPOSE 8080
+
+ENTRYPOINT [ "./pgbackup" ]
