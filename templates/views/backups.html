@@ -14,7 +14,7 @@
                                 <option selected>Выбери базу данных</option>
                                 {{ range $index, $element := .databases }}
                                 <option value="{{ $index }}">{{ $element }}</option>
-                                {{ end}}
+                                {{ end }}
                             </select>
                         </div>
                         <div class="row g-3 align-items-center">
@@ -50,18 +50,12 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <th scope="row">1</th>
-                                <td>Mark</td>
-                                <td>Otto</td>
-                                <!-- <td>@mdo</td> -->
-                            </tr>
-                            <tr>
-                                <th scope="row">2</th>
-                                <td>Jacob</td>
-                                <td>Thornton</td>
-                                <!-- <td>@fat</td> -->
-                            </tr>
+                        {{ range $index, $element := .backups }}
+                        <tr>
+                            <th scope="row">{{ add $index 1 }}</th>
+                            <td>{{ $element }}</td>
+                        </tr>
+                        {{ end }}
                         </tbody>
                     </table>
                 </div>

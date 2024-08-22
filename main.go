@@ -1,15 +1,19 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/PavelMilanov/pgbackup/db"
 	"github.com/PavelMilanov/pgbackup/handlers"
 	"github.com/joho/godotenv"
 )
+
+var duration = 1
 
 func main() {
 	if err := godotenv.Load(); err != nil {
@@ -24,8 +28,8 @@ func main() {
 		DBName:   os.Getenv("POSTGRES_DB"),
 	}
 
-	postgres, err := db.NewPostgreDB(config)
-	handler := handlers.NewHandler(postgres)
+	postgres, err := db.NewPostgreDB(&config)
+	handler := handlers.NewHandler(postgres, &config)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -38,9 +42,9 @@ func main() {
 	}()
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-
 	<-quit
-	if err := srv.Shutdown(1); err != nil {
+	fmt.Printf("Shutdown signal of %d seconds\n", duration)
+	if err := srv.Shutdown(time.Duration(duration)); err != nil {
 		log.Fatalf("error occured on server shutting down: %s", err.Error())
 	}
 	db.Close(postgres)

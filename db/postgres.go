@@ -17,7 +17,7 @@ type Config struct {
 	DBName   string
 }
 
-func (cfg Config) portToInt(port string) int {
+func (cfg *Config) portToInt(port string) int {
 	intPort, err := strconv.Atoi(port)
 	if err != nil {
 		log.Fatal(err)
@@ -25,7 +25,7 @@ func (cfg Config) portToInt(port string) int {
 	return intPort
 }
 
-func NewPostgreDB(cfg Config) (*gorm.DB, error) {
+func NewPostgreDB(cfg *Config) (*gorm.DB, error) {
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable TimeZone=Europe/Moscow", cfg.Host, cfg.User, cfg.Password, cfg.DBName, cfg.portToInt(cfg.Port))
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	log.Println("Connected to db")

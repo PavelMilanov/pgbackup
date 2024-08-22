@@ -13,17 +13,13 @@ type Handler struct {
 	CONFIG *db.Config
 }
 
-func NewHandler(db *gorm.DB) *Handler {
-	return &Handler{DB: db}
-}
-
-// Функция add для шаблонов
-func add(x, y int) int {
-	return x + y
+func NewHandler(db *gorm.DB, config *db.Config) *Handler {
+	return &Handler{DB: db, CONFIG: config}
 }
 
 func (h *Handler) InitRouters() *gin.Engine {
 	router := gin.Default()
+	router.SetFuncMap(template.FuncMap{"add": func(x, y int) int { return x + y }})
 	router.LoadHTMLGlob("templates/**/*")
 	router.Static("/static/", "./static")
 	web := router.Group("/")
@@ -39,6 +35,5 @@ func (h *Handler) InitRouters() *gin.Engine {
 	{
 		api.GET("/check")
 	}
-	router.SetFuncMap(template.FuncMap{"add": add})
 	return router
 }
