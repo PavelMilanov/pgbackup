@@ -1,7 +1,25 @@
 package db
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 func TestCheckConnection(t *testing.T) {
 
+}
+
+func TestCreateBackup(t *testing.T) {
+	config := Config{
+		Host:     "localhost",
+		Port:     "5432",
+		User:     "admin",
+		Password: "admin",
+		DBName:   "dev",
+	}
+	newTestBackup, err := CreateBackup(config, "dev")
+	if err != nil {
+		t.Error(err)
+	}
+	fmt.Println(newTestBackup)
 }

@@ -6,14 +6,16 @@
                 {{ template "dashboard" }}
             </div>
             <div class="col-10">
-                <div class="container text-center mb-5 mt-3 p-2 bg-light border">
-                    <form>
+                <div class="container text-center mb-5 mt-3 p-2 bg-light border" ng-controller="CreateBackupController">
+                    <form name="createBackup" action="/backups/create" method="post">
                         <div class="mb-3">
-                            <label for="DbSelect" class="form-label">Базы данных</label>
-                            <select class="form-select" aria-label="Default select example" id="DbSelect">
+                            <label for="dbname" class="form-label">Базы данных</label>
+                            <select class="form-select" aria-label="Default select example" id="dbname" name="dbname">
                                 <option selected>Выбери базу данных</option>
-                                {{ range $index, $element := .databases }}
-                                <option value="{{ $index }}">{{ $element }}</option>
+                                {{ range .}}
+                                {{ range $index, $element := .DBnames }}
+                                <option value="{{ $element }}">{{ $element }}</option>
+                                {{ end }}
                                 {{ end }}
                             </select>
                         </div>
@@ -46,15 +48,17 @@
                                 <th scope="col">#</th>
                                 <th scope="col">Бекап</th>
                                 <th scope="col">Статус</th>
-                                <!-- <th scope="col">Handle</th> -->
                             </tr>
                         </thead>
                         <tbody>
-                        {{ range $index, $element := .backups }}
+                        {{ range .}}
+                        {{ range $index, $element := .Backups }}
                         <tr>
                             <th scope="row">{{ add $index 1 }}</th>
-                            <td>{{ $element }}</td>
+                            <td>{{ $element.Alias }}</td>
+                            <td>{{ $element.Status }}</td>
                         </tr>
+                        {{ end }}
                         {{ end }}
                         </tbody>
                     </table>
@@ -62,5 +66,6 @@
             </div>
         </div>
     </div>
+<script src="/static/js/controllers/CreateBackupController.js"></script>
 </body>
 </html>

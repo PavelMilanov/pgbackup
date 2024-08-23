@@ -29,7 +29,12 @@ func (h *Handler) InitRouters() *gin.Engine {
 		web.POST("/home", h.submitLoginForm)
 		web.GET("/home", h.homeView)
 		web.GET("/bases", h.basesView)
-		web.GET("/backups", h.backupsView)
+
+		backups := web.Group("/backups")
+		{
+			backups.GET("/", h.backupsView)
+			backups.POST("/create", h.createBackup)
+		}
 	}
 	api := router.Group("/api")
 	{

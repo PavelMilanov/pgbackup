@@ -20,14 +20,18 @@ func CheckConnection(cfg Config) {
 }
 
 // Выполнение задания бекапа базы данных
-func Backup(cfg Config) {
+// cfg - данные для подключения к PostgreSQL.
+// db - имя базы данных, которой сделать бекап - указывается пользователем.
+func CreateBackup(cfg Config, db string) (string, error) {
 	currTime := time.Now().Format("2006-01-02") // шаблон GO для формата ГГГГ-мм-дд "2006-01-02 15:04:05" со временем
-	command := fmt.Sprintf("pg_dump -U %s %s > %s/%s.dump", cfg.User, cfg.DBName, BACKUP_DIR, cfg.DBName+"-"+currTime)
+	backupName := cfg.DBName + "-" + currTime
+	command := fmt.Sprintf("pg_dump -U %s %s > %s/%s.dump", cfg.User, db, BACKUP_DIR, backupName)
 	cmd, err := exec.Command("bash", "-c", command).Output()
 	if err != nil {
 		panic(err)
 	}
 	fmt.Println(cmd)
+	return backupName, nil
 }
 
 // Выполение задания восстановления базы данных
