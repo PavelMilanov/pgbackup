@@ -17,7 +17,7 @@ var duration = 1
 
 func main() {
 	if err := godotenv.Load(); err != nil {
-		log.Fatal(".env файл не найден")
+		log.Println(".env файл не найден")
 	}
 
 	config := db.Config{

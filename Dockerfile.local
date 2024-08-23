@@ -13,8 +13,10 @@ RUN apk --update --no-cache add postgresql-client
 WORKDIR /app
 
 COPY --from=builder /build/pgbackup /app
-COPY .env /app/
+
 COPY templates/ /app/templates/
+COPY static/ /app/static/
+
 VOLUME [ "/backups" ]
 
 EXPOSE 8080

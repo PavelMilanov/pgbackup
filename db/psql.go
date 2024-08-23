@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-var BACKUP_DIR = "/backups"
+var BACKUP_DIR = "backups"
 
 // Проверка подключения к базе данных
 func CheckConnection(cfg Config) {
@@ -25,7 +25,7 @@ func CheckConnection(cfg Config) {
 func CreateBackup(cfg Config, db string) (string, error) {
 	currTime := time.Now().Format("2006-01-02") // шаблон GO для формата ГГГГ-мм-дд "2006-01-02 15:04:05" со временем
 	backupName := cfg.DBName + "-" + currTime
-	command := fmt.Sprintf("pg_dump -U %s %s > %s/%s.dump", cfg.User, db, BACKUP_DIR, backupName)
+	command := fmt.Sprintf("export PGPASSWORD=%s && pg_dump -U %s %s > %s/%s.dump", cfg.Password, cfg.User, db, BACKUP_DIR, backupName)
 	cmd, err := exec.Command("bash", "-c", command).Output()
 	if err != nil {
 		panic(err)
