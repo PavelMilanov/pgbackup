@@ -1,18 +1,19 @@
 {{ define "dashboard" }}
-<div class="dashboardPage border-end shadow-sm bg-light vh-100">
+<div class="dashboardPage border-end shadow-sm bg-light vh-100" ng-controller="DashboardController">
     <ul class="nav flex-column nav-pills">
         <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="/home">Главная</a>
+            <a class="nav-link" id="home" href="/home">Главная</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="/bases">Базы данных</a>
+            <a class="nav-link" id="bases" href="/bases">Базы данных</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="/backups">Бекапы</a>
+            <a class="nav-link" id="backups" href="/backups">Бекапы</a>
         </li>
         <li class="nav-item">
             <a class="nav-link" href="/logout">Выход</a>
         </li>
     </ul>
-</div>  
+    <script src="/static/js/controllers/DashboardController.js"></script>
+</div>
 {{ end}}
