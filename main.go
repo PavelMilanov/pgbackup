@@ -15,6 +15,19 @@ import (
 
 var duration = 1
 
+func init() {
+	if err := os.Mkdir(db.BACKUP_DIR, 0755); err != nil {
+		if !os.IsExist(err) {
+			log.Fatal(err.Error())
+		}
+	}
+	if err := os.Mkdir(db.BACKUPDATA_DIR, 0755); err != nil {
+		if !os.IsExist(err) {
+			log.Fatal(err.Error())
+		}
+	}
+}
+
 func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Println(".env файл не найден")

@@ -3,10 +3,10 @@ package db
 import (
 	"fmt"
 	"os/exec"
-	"time"
 )
 
-var BACKUP_DIR = "backups"
+var BACKUP_DIR = "dumps"
+var BACKUPDATA_DIR = "data"
 
 // Проверка подключения к базе данных
 func CheckConnection(cfg Config) {
@@ -22,15 +22,12 @@ func CheckConnection(cfg Config) {
 // Выполнение задания бекапа базы данных
 // cfg - данные для подключения к PostgreSQL.
 // db - имя базы данных, которой сделать бекап - указывается пользователем.
-func CreateBackup(cfg Config, db string) (string, error) {
-	currTime := time.Now().Format("2006-01-02") // шаблон GO для формата ГГГГ-мм-дд "2006-01-02 15:04:05" со временем
-	backupName := cfg.DBName + "-" + currTime
-	command := fmt.Sprintf("export PGPASSWORD=%s && pg_dump -U %s %s > %s/%s.dump", cfg.Password, cfg.User, db, BACKUP_DIR, backupName)
-	cmd, err := exec.Command("bash", "-c", command).Output()
+func CreateBackup(cfg Config, db string, backupName string) (string, error) {
+	command := fmt.Sprintf("export PGPASSWORD=%s && pg_dump -h %s -U %s %s > %s/%s.dump", cfg.Password, cfg.Host, cfg.User, db, BACKUP_DIR, backupName)
+	_, err := exec.Command("bash", "-c", command).Output()
 	if err != nil {
-		panic(err)
+		return backupName, err
 	}
-	fmt.Println(cmd)
 	return backupName, nil
 }
 

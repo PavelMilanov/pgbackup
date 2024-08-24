@@ -1,0 +1,24 @@
+{{ define "b-table" }}
+<div class="container text-center p-2 bg-light border">
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Бекап</th>
+                <th scope="col">Статус</th>
+                <th scope="col">Запуск</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{ range $index, $element := . }}
+            <tr>
+                <th scope="row">{{ add $index 1 }}</th>
+                <td>{{ $element.Alias }}</td>
+                <td>{{ $element.Status }}</td>
+                <td>{{ $element.Run }}</td>
+            </tr>
+            {{ end }}
+        </tbody>
+    </table>
+</div>
+{{ end}}

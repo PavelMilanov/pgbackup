@@ -33,7 +33,7 @@ func (h *Handler) InitRouters() *gin.Engine {
 		backups := web.Group("/backups")
 		{
 			backups.GET("/", h.backupsView)
-			backups.POST("/create", h.createBackup)
+			backups.POST("/", h.createBackup)
 		}
 	}
 	api := router.Group("/api")

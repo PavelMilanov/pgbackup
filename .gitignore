@@ -2,5 +2,5 @@
 go.sum
 pgbackup
 .DS_Store
-backups/
+dumps/
 data/
