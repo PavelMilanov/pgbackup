@@ -56,14 +56,15 @@ func (h *Handler) createBackup(c *gin.Context) {
 		}
 
 	}
-	if err := db.CreateBackup(*h.CONFIG, dbname, backupName); err != nil {
+	timer, err := db.CreateBackup(*h.CONFIG, dbname, backupName)
+	if err != nil {
 		log.Fatal(err)
 	}
 	newBackup := Backup{
 		Alias:    dbname,
 		Date:     currTime,
 		Size:     "0 kb",
-		LeadTime: "00:00",
+		LeadTime: timer,
 		Status:   "создан",
 		Run:      "без расписания",
 	}
