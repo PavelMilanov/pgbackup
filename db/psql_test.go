@@ -1,7 +1,6 @@
 package db
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -17,9 +16,8 @@ func TestCreateBackup(t *testing.T) {
 		Password: "admin",
 		DBName:   "dev",
 	}
-	newTestBackup, err := CreateBackup(config, "dev", "dev-2024-08-24")
+	err := CreateBackup(config, "dev", "dev-2024-08-24")
 	if err != nil {
 		t.Error(err)
 	}
-	fmt.Println(newTestBackup)
 }

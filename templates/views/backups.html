@@ -1,16 +1,15 @@
 {{ template "header"}}
-<body>
-    <div class="container-fluid text-center">
-        <div class="row">
-            <div class="no-padding-left col-2">
-                {{ template "dashboard" }}
-            </div>
-            <div class="col-10">
-                {{ template "backups/view" .databases }}
-                {{ if .error }}{{ .error}}{{ end}}
-                {{ template "backups/table" .backups }}
-            </div>
+<div class="container-fluid text-center">
+    <div class="row">
+        <div class="no-padding-left col-2">
+            {{ template "dashboard" }}
+        </div>
+        <div class="col-10">
+            {{ template "backups/view" .databases }}
+            {{ template "modal/backup-error"}}
+            {{ template "backups/table" .backups }}
         </div>
     </div>
-</body>
-</html>
+    <script src="/static/js/createBackup.js"></script>
+</div>
+{{ template "futher"}}

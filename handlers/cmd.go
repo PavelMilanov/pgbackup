@@ -11,9 +11,12 @@ import (
 func createBackupData(backup *Backup, dir string) []Backup {
 	backups := getBackupData(dir)
 	backups = append(backups, Backup{
-		Alias:  backup.Alias,
-		Status: backup.Status,
-		Run:    backup.Run,
+		Alias:    backup.Alias,
+		Date:     backup.Date,
+		Size:     backup.Size,
+		LeadTime: backup.LeadTime,
+		Status:   backup.Status,
+		Run:      backup.Run,
 	})
 	jsonInfo, err := json.MarshalIndent(backups, "", "\t")
 	if err != nil {

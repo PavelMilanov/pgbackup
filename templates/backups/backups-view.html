@@ -1,36 +1,33 @@
 {{ define "backups/view" }}
-<div class="container text-center mb-5 mt-3 p-2 bg-light border" ng-controller="CreateBackupController">
-    <form name="createBackup" action="/backups" method="post">
-        <div class="mb-3">
-            <label for="dbname" class="form-label">Базы данных</label>
-            <select class="form-select" aria-label="Default select example" id="dbname" name="dbname">
-                <option selected>Выбери базу данных</option>
-                <p>{{ . }}</p>
-                {{ range $index, $element := . }}
-                <option value="{{ $element }}">{{ $element }}</option>
-                {{ end }}
-            </select>
-        </div>
-        <div class="row g-3 align-items-center">
-            <div class="col-auto">
-                <input type="checkbox" class="form-check-input" id="CronBackupInput">
-                <label class="form-check-label" for="CronBackupInput">Создать расписание</label>
-            </div>
-            <div class="col-auto">
-                <span id="passwordHelpInline" class="form-text">
-                    Must be 8-20 characters long.
-                </span>
+<div class="container text-center mb-5 mt-3 p-2 bg-light border">
+    <div class="row g-2 align-items-center">
+        <label class="form-label">Управление бекапами</label>
+        <div class="col-4">
+            <div class="input-group">
+                <span class="input-group-text">База данных</span>
+                <select class="form-select" aria-label="dbname" id="dbname" name="dbname">
+                    {{ range $index, $element := . }}
+                    <option value="{{ $element }}">{{ $element }}</option>
+                    {{ end }}
+                </select>
             </div>
         </div>
-        <!-- <div class="mb-3 form-check g-3">
-                            <input type="checkbox" class="form-check-input" id="CronBackupInput">
-                            <label class="form-check-label" for="CronBackupInput">Создать расписание</label>
-                        </div> -->
-        <!-- <div class="mb-3">
-                            <label for="exampleInputPassword1" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="exampleInputPassword1">
-                        </div> -->
-        <button type="submit" class="btn btn-primary">Создать бекап</button>
-    </form>
+        <div class="col-auto">
+            <div class="input-group">
+                <div class="row g-3 align-items-center">
+                    <div class="col-auto">
+                        <input type="checkbox" class="form-check-input" id="CronBackupInput">
+                        <label class="form-check-label" for="CronBackupInput">Создать расписание</label>
+                    </div>
+                    <div class="col-auto">
+                        <span id="passwordHelpInline" class="form-text">
+                            Must be 8-20 characters long.
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <button id="createBackup" type="submit" class="btn btn-primary">Создать бекап</button>
 </div>
 {{ end }}

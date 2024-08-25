@@ -12,9 +12,16 @@ import (
 )
 
 type Backup struct {
-	Alias  string
-	Status string
-	Run    string
+	Alias    string
+	Date     string
+	Size     string
+	LeadTime string
+	Status   string
+	Run      string
+}
+
+type Data struct {
+	Message string `json:"message"`
 }
 
 func (h *Handler) backupsView(c *gin.Context) {
@@ -27,47 +34,44 @@ func (h *Handler) backupsView(c *gin.Context) {
 }
 
 func (h *Handler) createBackup(c *gin.Context) {
-	dbname := c.PostForm("dbname")
-
-	dbInfo := db.GetDBInfo(h.DB)
+	var json Data
+	if err := c.ShouldBindJSON(&json); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+	dbname := json.Message
 
 	currTime := time.Now().Format("2006-01-02") // шаблон GO для формата ГГГГ-мм-дд "2006-01-02 15:04:05" со временем
 	backupName := dbname + "-" + currTime
 
 	curBackups := checkBackup(db.BACKUP_DIR)
-	backupIsExist := false
 	for _, item := range curBackups {
 		if strings.Contains(item, backupName) {
-			backupIsExist = true
-			break
+			errStr := fmt.Sprintf("Бекап %s уже существует!", backupName)
+			log.Println(errStr)
+			c.JSON(http.StatusOK, gin.H{
+				"error": errStr,
+			})
+			return
 		}
 
 	}
-	switch backupIsExist {
-	case false:
-		newBackupAlias, err := db.CreateBackup(*h.CONFIG, dbname, backupName)
-		fmt.Println(newBackupAlias)
-		if err != nil {
-			log.Fatal(err)
-		}
-		newBackup := Backup{
-			Alias:  newBackupAlias,
-			Status: "создан",
-			Run:    "без расписания",
-		}
-
-		backupsInfo := createBackupData(&newBackup, db.BACKUPDATA_DIR)
-		c.HTML(http.StatusOK, "backups.html", gin.H{
-			"databases": dbInfo,
-			"backups":   backupsInfo,
-		})
-	case true:
-		errStr := fmt.Sprintf("Бекап %s уже существует!", backupName)
-		backupsInfo := getBackupData(db.BACKUPDATA_DIR)
-		c.HTML(http.StatusOK, "backups.html", gin.H{
-			"databases": dbInfo,
-			"backups":   backupsInfo,
-			"error":     errStr,
-		})
+	if err := db.CreateBackup(*h.CONFIG, dbname, backupName); err != nil {
+		log.Fatal(err)
 	}
+	newBackup := Backup{
+		Alias:    dbname,
+		Date:     currTime,
+		Size:     "0 kb",
+		LeadTime: "00:00",
+		Status:   "создан",
+		Run:      "без расписания",
+	}
+
+	backupsInfo := createBackupData(&newBackup, db.BACKUPDATA_DIR)
+	log.Println(backupsInfo)
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": newBackup,
+	})
 }

@@ -22,13 +22,13 @@ func CheckConnection(cfg Config) {
 // Выполнение задания бекапа базы данных
 // cfg - данные для подключения к PostgreSQL.
 // db - имя базы данных, которой сделать бекап - указывается пользователем.
-func CreateBackup(cfg Config, db string, backupName string) (string, error) {
+func CreateBackup(cfg Config, db string, backupName string) error {
 	command := fmt.Sprintf("export PGPASSWORD=%s && pg_dump -h %s -U %s %s > %s/%s.dump", cfg.Password, cfg.Host, cfg.User, db, BACKUP_DIR, backupName)
 	_, err := exec.Command("bash", "-c", command).Output()
 	if err != nil {
-		return backupName, err
+		return err
 	}
-	return backupName, nil
+	return nil
 }
 
 // Выполение задания восстановления базы данных

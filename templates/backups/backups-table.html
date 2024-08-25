@@ -1,10 +1,13 @@
 {{ define "backups/table" }}
 <div class="container text-center p-2 bg-light border">
-    <table class="table">
+    <table id="backupsTable" class="table">
         <thead>
             <tr>
                 <th scope="col">#</th>
+                <th scope="col">База</th>
                 <th scope="col">Бекап</th>
+                <th scope="col">Размер</th>
+                <th scope="col">Время выполнения</th>
                 <th scope="col">Статус</th>
                 <th scope="col">Запуск</th>
             </tr>
@@ -14,6 +17,9 @@
             <tr>
                 <th scope="row">{{ add $index 1 }}</th>
                 <td>{{ $element.Alias }}</td>
+                <td>{{ $element.Date }}</td>
+                <td>{{ $element.Size }}</td>
+                <td>{{ $element.LeadTime }}</td>
                 <td>{{ $element.Status }}</td>
                 <td>{{ $element.Run }}</td>
             </tr>
