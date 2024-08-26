@@ -10,14 +10,13 @@ var BACKUP_DIR = "dumps"
 var BACKUPDATA_DIR = "data"
 
 // Проверка подключения к базе данных
-func CheckConnection(cfg Config) {
-	command := fmt.Sprintf("pg_isready -U %s -d %s -p %d", cfg.User, cfg.DBName, cfg.portToInt(cfg.Port))
+func CheckConnection(cfg Config) string {
+	command := fmt.Sprintf("pg_isready -h %s -U %s -d %s -p %d", cfg.Host, cfg.User, cfg.DBName, cfg.portToInt(cfg.Port))
 	cmd, err := exec.Command("bash", "-c", command).Output()
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(cmd)
-	// return true
+	return string(cmd)
 }
 
 // Выполнение задания бекапа базы данных
@@ -27,11 +26,12 @@ func CreateBackup(cfg Config, db string, backupName string) (string, error) {
 	command := fmt.Sprintf("export PGPASSWORD=%s && pg_dump -h %s -U %s %s > %s/%s.dump", cfg.Password, cfg.Host, cfg.User, db, BACKUP_DIR, backupName)
 	start := time.Now()
 	_, err := exec.Command("bash", "-c", command).Output()
-	timer := time.Since(start).Seconds()
-	elapsed := fmt.Sprintf("%.3f сек", timer)
 	if err != nil {
+		fmt.Println(err)
 		return "0", err
 	}
+	timer := time.Since(start).Seconds()
+	elapsed := fmt.Sprintf("%.3f сек", timer)
 	return elapsed, nil
 }
 

@@ -2,10 +2,7 @@ package handlers
 
 import (
 	"fmt"
-	"os"
 	"testing"
-
-	"github.com/PavelMilanov/pgbackup/db"
 )
 
 func TestCreateBackupData(t *testing.T) {
@@ -14,17 +11,15 @@ func TestCreateBackupData(t *testing.T) {
 		Status: "running",
 		Run:    "manual",
 	}
-	data := createBackupData(&backup, ".")
+	data := createBackupData(&backup, "../data")
 	fmt.Println(data)
 }
 
 func TestGetBackupData(t *testing.T) {
-	data := getBackupData(".")
+	data := getBackupData("../data")
 	fmt.Println(data)
 }
 
 func TestCheckBackup(t *testing.T) {
-	path := fmt.Sprintf("../%s", db.BACKUP_DIR)
-	_ = os.Chdir(path)
-	checkBackup(".")
+	checkBackup("../data")
 }
