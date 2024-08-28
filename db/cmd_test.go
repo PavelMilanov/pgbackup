@@ -1,4 +1,4 @@
-package handlers
+package db
 
 import (
 	"fmt"
@@ -11,15 +11,20 @@ func TestCreateBackupData(t *testing.T) {
 		Status: "running",
 		Run:    "manual",
 	}
-	data := createBackupData(&backup, "../data")
+	data := CreateBackupData(&backup, "../data")
 	fmt.Println(data)
 }
 
 func TestGetBackupData(t *testing.T) {
-	data := getBackupData("../data")
+	data := GetBackupData("../data")
 	fmt.Println(data)
 }
 
 func TestCheckBackup(t *testing.T) {
-	checkBackup("../data")
+	CheckBackup("../data")
+}
+
+func TestGetBackupSize(t *testing.T) {
+	data := GetBackupSize("../dumps", "postgres-2024-08-28.dump")
+	fmt.Print(data)
 }

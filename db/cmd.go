@@ -1,15 +1,16 @@
-package handlers
+package db
 
 import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"os/exec"
 	"strings"
 )
 
 // Получает текущий список структур Backup и добавляет новый.
-func createBackupData(backup *Backup, dir string) []Backup {
-	backups := getBackupData(dir)
+func CreateBackupData(backup *Backup, dir string) []Backup {
+	backups := GetBackupData(dir)
 	backups = append(backups, Backup{
 		Alias:    backup.Alias,
 		Date:     backup.Date,
@@ -30,7 +31,7 @@ func createBackupData(backup *Backup, dir string) []Backup {
 }
 
 // Парсинт json-файл и возращает список структуры Backup.
-func getBackupData(dir string) []Backup {
+func GetBackupData(dir string) []Backup {
 	var backups []Backup
 	file := fmt.Sprintf("%s/backups.json", dir)
 	jsonInfo, err := os.ReadFile(file)
@@ -45,7 +46,7 @@ func getBackupData(dir string) []Backup {
 }
 
 // Возвращает список названий бекапов.
-func checkBackup(dir string) []string {
+func CheckBackup(dir string) []string {
 	files, err := os.ReadDir(dir)
 	if err != nil {
 		panic(err)
@@ -56,4 +57,14 @@ func checkBackup(dir string) []string {
 		backups = append(backups, backup)
 	}
 	return backups
+}
+
+func GetBackupSize(dir string, filename string) string {
+	command := fmt.Sprintf("du -h %s/%s.dump | awk '{print $1}'", dir, filename)
+	cmd, err := exec.Command("sh", "-c", command).Output()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(command, cmd)
+	return string(cmd)
 }

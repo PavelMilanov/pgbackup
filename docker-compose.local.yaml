@@ -17,6 +17,9 @@ services:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
       POSTGRES_DB: dev
+    volumes:
+      - ./data:/app/data
+      - ./dumps:/app/dumps
     ports:
     - 8080:8080
   

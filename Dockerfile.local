@@ -17,7 +17,8 @@ COPY --from=builder /build/pgbackup /app
 COPY templates/ /app/templates/
 COPY static/ /app/static/
 
-VOLUME [ "/backups" ]
+VOLUME [ "/app/data" ]
+VOLUME [ "/app/dumpls" ]
 
 EXPOSE 8080
 
