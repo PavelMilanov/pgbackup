@@ -5,7 +5,7 @@
             {{ template "dashboard" }}
         </div>
         <div class="col-10">
-            {{ template "backups/view" .databases }}
+            {{ template "backups/view" . }}
             {{ template "modal/backup-error"}}
             {{ template "backups/table" .backups }}
         </div>

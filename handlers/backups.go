@@ -12,7 +12,8 @@ import (
 )
 
 type Data struct {
-	Message string `json:"message"`
+	SelectedDB       string `json:"db"`
+	SelectedSchedule string `json:"schedule"`
 }
 
 func (h *Handler) backupsView(c *gin.Context) {
@@ -21,6 +22,7 @@ func (h *Handler) backupsView(c *gin.Context) {
 	c.HTML(http.StatusOK, "backups.html", gin.H{
 		"databases": dbInfo,
 		"backups":   backupsInfo,
+		"schedules": db.BACKUP_SCHEDULE,
 	})
 }
 
@@ -30,7 +32,9 @@ func (h *Handler) createBackup(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
-	dbname := json.Message
+	dbname := json.SelectedDB
+	schedule := json.SelectedSchedule
+	fmt.Println(dbname, schedule)
 
 	currTime := time.Now().Format("2006-01-02") // шаблон GO для формата ГГГГ-мм-дд "2006-01-02 15:04:05" со временем
 	backupName := dbname + "-" + currTime
@@ -58,7 +62,7 @@ func (h *Handler) createBackup(c *gin.Context) {
 		Size:     size,
 		LeadTime: timer,
 		Status:   "создан",
-		Run:      "без расписания",
+		Run:      schedule,
 	}
 
 	backupsInfo := db.CreateBackupData(&newBackup, db.BACKUPDATA_DIR)

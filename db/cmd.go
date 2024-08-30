@@ -65,6 +65,5 @@ func GetBackupSize(dir string, filename string) string {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(command, cmd)
 	return string(cmd)
 }

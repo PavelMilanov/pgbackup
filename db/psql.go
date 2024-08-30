@@ -9,6 +9,7 @@ import (
 
 var BACKUP_DIR = "dumps"
 var BACKUPDATA_DIR = "data"
+var BACKUP_SCHEDULE = []string{"в ручную", "расписание"}
 
 type Backup struct {
 	Alias    string
