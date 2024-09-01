@@ -12,8 +12,11 @@ import (
 )
 
 type Data struct {
-	SelectedDB       string `json:"db"`
-	SelectedSchedule string `json:"schedule"`
+	SelectedDB    string `json:"db"`
+	SelectedRun   string `json:"run"`
+	SelectedCount string `json:"count"`
+	SelectedTime  string `json:"time"`
+	SelectedCron  string `json:"cron"`
 }
 
 func (h *Handler) backupsView(c *gin.Context) {
@@ -22,7 +25,8 @@ func (h *Handler) backupsView(c *gin.Context) {
 	c.HTML(http.StatusOK, "backups.html", gin.H{
 		"databases": dbInfo,
 		"backups":   backupsInfo,
-		"schedules": db.BACKUP_SCHEDULE,
+		"run":       db.BACKUP_RUN,
+		"schedule":  db.BACKUP_SCHEDULE,
 	})
 }
 
@@ -33,8 +37,19 @@ func (h *Handler) createBackup(c *gin.Context) {
 		return
 	}
 	dbname := json.SelectedDB
-	schedule := json.SelectedSchedule
-	fmt.Println(dbname, schedule)
+	backupRun := json.SelectedRun
+	backupCount := json.SelectedCount
+	backupTime := json.SelectedTime
+	backupCron := json.SelectedCron
+
+	if backupRun == db.BACKUP_RUN[1] && (backupCount == "" || backupCron == "nil" || backupTime == "nil") {
+		c.JSON(http.StatusOK, gin.H{
+			"error": "расписание не может быть пустым",
+		})
+		return
+	}
+
+	log.Println(dbname, backupRun, backupCount, backupTime, backupCron)
 
 	currTime := time.Now().Format("2006-01-02") // шаблон GO для формата ГГГГ-мм-дд "2006-01-02 15:04:05" со временем
 	backupName := dbname + "-" + currTime
@@ -62,7 +77,12 @@ func (h *Handler) createBackup(c *gin.Context) {
 		Size:     size,
 		LeadTime: timer,
 		Status:   "создан",
-		Run:      schedule,
+		Schedule: db.BackupSchedule{
+			Run:   backupRun,
+			Count: backupCount,
+			Time:  backupTime,
+			Cron:  backupCron,
+		},
 	}
 
 	backupsInfo := db.CreateBackupData(&newBackup, db.BACKUPDATA_DIR)

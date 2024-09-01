@@ -1,13 +1,22 @@
 $(function () {
     $("#createBackup").click(function () {
-        var selectedDatabase = $('#dbname').val(); // получаем значение тега select dbanme
-        var selectedSchedule = $('#schedule').val(); // получаем значение тега select schedule
+        var selectedDatabase = $('#dbname').val()
+        var selectedRun = $('#backupRun').val()
+        var selectedCount = $('#backupScheduleCount').val()
+        var selectedTime = $('#backupScheduleTime').val()
+        var selectedSchedule = $('#backupSchedule').val()
         $.ajax({
             url: "http://localhost:8080/backups/create",
             type: "POST",
             dataType: "json",
             contentType: "application/json",
-            data: JSON.stringify({ db: selectedDatabase, schedule: selectedSchedule }),
+            data: JSON.stringify({
+                db: selectedDatabase,
+                run: selectedRun,
+                count: selectedCount,
+                time: selectedTime,
+                cron: selectedSchedule
+            }),
             success: function (response) {
                 if (response.error) {
                     $("#backupErrorText").text(response.error) // вставляем текст в элемент по id="backupEror"
@@ -21,7 +30,7 @@ $(function () {
                         .append($("<td>").text(response.message["Size"]))
                         .append($("<td>").text(response.message["LeadTime"]))
                         .append($("<td>").text(response.message["Status"]))
-                        .append($("<td>").text(response.message["Run"]))
+                        .append($("<td>").text(response.message["Schedule"]["Run"]))
 
                     // Добавляем новую строку в таблицу
                     $("#backupsTable tbody").append(newRow)

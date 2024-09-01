@@ -6,10 +6,11 @@
         </div>
         <div class="col-10">
             {{ template "backups/view" . }}
-            {{ template "modal/backup-error"}}
+            {{ template "modal/error"}}
             {{ template "backups/table" .backups }}
         </div>
     </div>
     <script src="/static/js/createBackup.js"></script>
+    <script src="/static/js/scheduleMenu.js"></script>
 </div>
 {{ template "futher"}}

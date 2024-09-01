@@ -7,9 +7,9 @@ import (
 
 func TestCreateBackupData(t *testing.T) {
 	backup := Backup{
-		Alias:  "test",
-		Status: "running",
-		Run:    "manual",
+		Alias:    "test",
+		Status:   "running",
+		Schedule: BackupSchedule{"manual", "test", "test", "test"},
 	}
 	data := CreateBackupData(&backup, "../data")
 	fmt.Println(data)

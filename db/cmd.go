@@ -17,7 +17,7 @@ func CreateBackupData(backup *Backup, dir string) []Backup {
 		Size:     backup.Size,
 		LeadTime: backup.LeadTime,
 		Status:   backup.Status,
-		Run:      backup.Run,
+		Schedule: backup.Schedule,
 	})
 	jsonInfo, err := json.MarshalIndent(backups, "", "\t")
 	if err != nil {

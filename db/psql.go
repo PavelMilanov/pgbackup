@@ -9,7 +9,8 @@ import (
 
 var BACKUP_DIR = "dumps"
 var BACKUPDATA_DIR = "data"
-var BACKUP_SCHEDULE = []string{"в ручную", "расписание"}
+var BACKUP_RUN = []string{"в ручную", "расписание"}
+var BACKUP_SCHEDULE = []string{"ежедневно", "еженедельно", "ежемесячно"}
 
 type Backup struct {
 	Alias    string
@@ -17,7 +18,14 @@ type Backup struct {
 	Size     string
 	LeadTime string
 	Status   string
-	Run      string
+	Schedule BackupSchedule
+}
+
+type BackupSchedule struct {
+	Run   string
+	Count string
+	Time  string
+	Cron  string
 }
 
 // Проверка подключения к базе данных
