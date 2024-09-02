@@ -7,9 +7,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// type Base struct {
+// 	Name string
+// 	Size string
+// }
+
 func (h *Handler) basesView(c *gin.Context) {
-	dbInfo := db.GetDBInfo(h.DB)
+	dbData := db.GetDBData(h.DB)
 	c.HTML(http.StatusOK, "bases.html", gin.H{
-		"databases": dbInfo,
+		"databases": dbData,
 	})
 }

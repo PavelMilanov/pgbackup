@@ -28,6 +28,11 @@ type BackupSchedule struct {
 	Cron  string
 }
 
+type PsqlBase struct {
+	Name string
+	Size string
+}
+
 // Проверка подключения к базе данных
 func CheckConnection(cfg Config) string {
 	command := fmt.Sprintf("pg_isready -h %s -U %s -d %s -p %d", cfg.Host, cfg.User, cfg.DBName, cfg.portToInt(cfg.Port))
