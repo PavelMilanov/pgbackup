@@ -6,7 +6,7 @@
             <div class="form-floating">
                 <select class="form-select" aria-label="dbname" id="dbname" name="dbname">
                     {{ range $index, $element := .databases }}
-                    <option value="{{ $element }}">{{ $element }}</option>
+                    <option value="{{ $element }}">{{ $element.Name }}</option>
                     {{ end }}
                 </select>
                 <label for="dbname">База данных</label>

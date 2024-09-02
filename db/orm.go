@@ -10,16 +10,16 @@ import (
 // Вывод информации обо всех базах данных
 func GetDBData(db *gorm.DB) []PsqlBase {
 	var dataBases = []PsqlBase{}
-	dbNames := GetDBName(db)
+	dbNames := getDBName(db)
 	for _, item := range dbNames {
-		size := GetDBSize(db, item)
+		size := getDBSize(db, item)
 		dataBases = append(dataBases, PsqlBase{Name: item, Size: size})
 	}
 	return dataBases
 }
 
 // Получение списка всех баз данных в экземпляре PostgreSQL.
-func GetDBName(db *gorm.DB) []string {
+func getDBName(db *gorm.DB) []string {
 	var databases []struct {
 		Name string `gorm:"column:datname"` // Alias для столбца `datname`
 	}
@@ -34,7 +34,7 @@ func GetDBName(db *gorm.DB) []string {
 }
 
 // получение размера базы данных по имени.
-func GetDBSize(db *gorm.DB, dbName string) string {
+func getDBSize(db *gorm.DB, dbName string) string {
 	var size string
 	query := fmt.Sprintf("SELECT pg_size_pretty(pg_database_size('%s'))", dbName)
 	if err := db.Raw(query).Scan(&size).Error; err != nil {

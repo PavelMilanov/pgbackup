@@ -31,6 +31,6 @@ func (h *Handler) submitLoginForm(c *gin.Context) {
 		})
 		return
 	}
-	dbInfo := db.GetDBName(h.DB)
+	dbInfo := db.GetDBData(h.DB)
 	c.HTML(http.StatusOK, "bases.html", gin.H{"databases": dbInfo})
 }
