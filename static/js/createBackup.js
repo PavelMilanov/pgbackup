@@ -4,7 +4,7 @@ $(function () {
         var selectedRun = $('#backupRun').val()
         var selectedCount = $('#backupScheduleCount').val()
         var selectedTime = $('#backupScheduleTime').val()
-        var selectedSchedule = $('#backupSchedule').val()
+        var selectedCron = $('#backupScheduleCron').val()
         $.ajax({
             url: "http://localhost:8080/backups/create",
             type: "POST",
@@ -15,7 +15,7 @@ $(function () {
                 run: selectedRun,
                 count: selectedCount,
                 time: selectedTime,
-                cron: selectedSchedule
+                cron: selectedCron
             }),
             success: function (response) {
                 if (response.error) {

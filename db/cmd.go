@@ -3,13 +3,14 @@ package db
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"strings"
 )
 
 // Получает текущий список структур Backup и добавляет новый.
-func CreateBackupData(backup *Backup, dir string) []Backup {
+func сreateBackupData(backup *Backup, dir string) []Backup {
 	backups := GetBackupData(dir)
 	backups = append(backups, Backup{
 		Alias:    backup.Alias,
@@ -21,7 +22,7 @@ func CreateBackupData(backup *Backup, dir string) []Backup {
 	})
 	jsonInfo, err := json.MarshalIndent(backups, "", "\t")
 	if err != nil {
-		fmt.Println("Ошибка записи данных:", err)
+		log.Println("Ошибка записи данных:", err)
 	}
 	file := fmt.Sprintf("%s/backups.json", dir)
 	if err := os.WriteFile(file, jsonInfo, 0640); err != nil {
@@ -46,7 +47,7 @@ func GetBackupData(dir string) []Backup {
 }
 
 // Возвращает список названий бекапов.
-func CheckBackup(dir string) []string {
+func checkBackup(dir string) []string {
 	files, err := os.ReadDir(dir)
 	if err != nil {
 		panic(err)
@@ -59,7 +60,7 @@ func CheckBackup(dir string) []string {
 	return backups
 }
 
-func GetBackupSize(dir string, filename string) string {
+func getBackupSize(dir string, filename string) string {
 	command := fmt.Sprintf("du -h %s/%s.dump | awk '{print $1}'", dir, filename)
 	cmd, err := exec.Command("sh", "-c", command).Output()
 	if err != nil {

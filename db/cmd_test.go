@@ -11,7 +11,7 @@ func TestCreateBackupData(t *testing.T) {
 		Status:   "running",
 		Schedule: BackupSchedule{"manual", "test", "test", "test"},
 	}
-	data := CreateBackupData(&backup, "../data")
+	data := сreateBackupData(&backup, "../data")
 	fmt.Println(data)
 }
 
@@ -21,10 +21,10 @@ func TestGetBackupData(t *testing.T) {
 }
 
 func TestCheckBackup(t *testing.T) {
-	CheckBackup("../data")
+	checkBackup("../data")
 }
 
 func TestGetBackupSize(t *testing.T) {
-	data := GetBackupSize("../dumps", "postgres-2024-08-28.dump")
+	data := getBackupSize("../dumps", "postgres-2024-08-28.dump")
 	fmt.Print(data)
 }

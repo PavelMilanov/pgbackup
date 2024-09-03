@@ -6,7 +6,7 @@
             <div class="form-floating">
                 <select class="form-select" aria-label="dbname" id="dbname" name="dbname">
                     {{ range $index, $element := .databases }}
-                    <option value="{{ $element }}">{{ $element.Name }}</option>
+                    <option value="{{ $element.Name }}">{{ $element.Name }}</option>
                     {{ end }}
                 </select>
                 <label for="dbname">База данных</label>
@@ -39,7 +39,7 @@
         <div class="col-3">
             <div class="form-floating">
             <input type="text" class="form-control" id="backupScheduleCron" placeholder="1">
-            <label for="backupScheduleCron">Периодичность дней</label>
+            <label for="backupScheduleCron">Каждые N дней</label>
             </div>
         </div>
     </div>

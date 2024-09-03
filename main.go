@@ -11,6 +11,7 @@ import (
 	"github.com/PavelMilanov/pgbackup/db"
 	"github.com/PavelMilanov/pgbackup/handlers"
 	"github.com/joho/godotenv"
+	"github.com/robfig/cron/v3"
 )
 
 var duration = 1
@@ -42,7 +43,12 @@ func main() {
 	}
 
 	postgres, err := db.NewPostgreDB(&config)
-	handler := handlers.NewHandler(postgres, &config)
+
+	jakartaTime, _ := time.LoadLocation("Europe/Moscow")
+	scheduler := cron.New(cron.WithLocation(jakartaTime))
+	defer scheduler.Stop()
+
+	handler := handlers.NewHandler(postgres, &config, scheduler)
 	if err != nil {
 		log.Fatal(err)
 	}
