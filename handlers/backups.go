@@ -44,15 +44,34 @@ func (h *Handler) backupHandler(c *gin.Context) {
 		})
 		return
 	}
-	newBackup, err := db.CreateBackup(*h.CONFIG, dbname, backupRun, backupCount, backupTime, backupCron)
-	if err != nil {
-		log.Fatal(err)
+	switch backupRun {
+	case db.BACKUP_RUN[0]: // вручную
+		newBackup, err := db.CreateBackup(*h.CONFIG, dbname, backupRun, backupCount, backupTime, backupCron)
+		if err != nil {
+			log.Print(err)
+			c.JSON(http.StatusOK, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
 		c.JSON(http.StatusOK, gin.H{
-			"error": err,
+			"message": newBackup,
+		})
+	case db.BACKUP_RUN[1]: // по расписанию
+		c.JSON(http.StatusOK, gin.H{
+			"error": "расписание создано",
 		})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"message": newBackup,
-	})
+	// newBackup, err := db.CreateBackup(*h.CONFIG, dbname, backupRun, backupCount, backupTime, backupCron)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// 	c.JSON(http.StatusOK, gin.H{
+	// 		"error": err,
+	// 	})
+	// 	return
+	// }
+	// c.JSON(http.StatusOK, gin.H{
+	// 	"message": newBackup,
+	// })
 }
