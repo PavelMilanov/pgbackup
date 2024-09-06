@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -63,4 +64,11 @@ func (h *Handler) backupHandler(c *gin.Context) {
 		})
 		return
 	}
+}
+
+// загрузка указанного бекапа
+func (h *Handler) downloadBackupHandler(c *gin.Context) {
+	var backup = c.Param("backup")
+	filePath := fmt.Sprintf("%s/%s", db.BACKUP_DIR, backup)
+	c.FileAttachment(filePath, backup)
 }
