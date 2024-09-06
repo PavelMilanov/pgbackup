@@ -23,6 +23,19 @@ $(function () {
                     $("#backupError").modal("show") // вызываем элемент по id="backupEror"
                 } else {
                     var index = $('#backupsTable tr:eq(1) th:eq(0)').text() // Получаем индекс последней строки
+
+                    // генерируем td с кнопками как в разметке
+                    var downloadButton = $('<button>', {
+                        type: 'button',
+                        class: 'btn btn-success btn-sm',
+                        text: 'Скачать',
+                    })
+                    var deleteButton = $('<button>', {
+                        type: 'button',
+                        class: 'btn btn-danger btn-sm',
+                        text: 'Удалить',
+                    })
+
                     var newRow = $("<tr>")
                         .append($("<th>").text(parseInt(index) + 1))
                         .append($("<td>").text(response.message["Alias"]))
@@ -31,6 +44,7 @@ $(function () {
                         .append($("<td>").text(response.message["LeadTime"]))
                         .append($("<td>").text(response.message["Status"]))
                         .append($("<td>").text(response.message["Schedule"]["Run"]))
+                        .append($("<td>").append(downloadButton).append(deleteButton))
 
                     // Добавляем новую строку в таблицу
                     $("#backupsTable tbody").append(newRow)

@@ -63,15 +63,4 @@ func (h *Handler) backupHandler(c *gin.Context) {
 		})
 		return
 	}
-	// newBackup, err := db.CreateBackup(*h.CONFIG, dbname, backupRun, backupCount, backupTime, backupCron)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// 	c.JSON(http.StatusOK, gin.H{
-	// 		"error": err,
-	// 	})
-	// 	return
-	// }
-	// c.JSON(http.StatusOK, gin.H{
-	// 	"message": newBackup,
-	// })
 }
