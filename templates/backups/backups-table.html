@@ -10,6 +10,7 @@
                 <th scope="col">Время выполнения</th>
                 <th scope="col">Статус</th>
                 <th scope="col">Запуск</th>
+                <th scope="col">Комментарий</th>
                 <th scope="col">Опции</th>
             </tr>
         </thead>
@@ -23,6 +24,7 @@
                 <td>{{ $element.LeadTime }}</td>
                 <td>{{ $element.Status }}</td>
                 <td>{{ $element.Schedule.Run }}</td>
+                <td>{{ $element.Comment }}</td>
                 <td>
                     <button type="button" class="btn btn-success btn-sm">Скачать</button>
                     <button type="button" class="btn btn-danger btn-sm">Удалить</button>

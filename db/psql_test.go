@@ -25,7 +25,7 @@ func TestCreateBackup(t *testing.T) {
 		Password: "admin",
 		DBName:   "dev",
 	}
-	backup, err := CreateBackup(config, "dev", "dev", "dev", "dev", "dev")
+	backup, err := CreateBackup(config, "dev", "dev", "dev", "dev", "dev", "dev")
 	if err != nil {
 		t.Error(err)
 	}

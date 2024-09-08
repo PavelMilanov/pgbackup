@@ -2,6 +2,7 @@ $(function () {
     $("#createBackup").click(function () {
         var selectedDatabase = $('#dbname').val()
         var selectedRun = $('#backupRun').val()
+        var selectedComment = $('#backupComment').val()
         var selectedCount = $('#backupScheduleCount').val()
         var selectedTime = $('#backupScheduleTime').val()
         var selectedCron = $('#backupScheduleCron').val()
@@ -13,6 +14,7 @@ $(function () {
             data: JSON.stringify({
                 db: selectedDatabase,
                 run: selectedRun,
+                comment: selectedComment,
                 count: selectedCount,
                 time: selectedTime,
                 cron: selectedCron
@@ -44,6 +46,7 @@ $(function () {
                         .append($("<td>").text(response.message["LeadTime"]))
                         .append($("<td>").text(response.message["Status"]))
                         .append($("<td>").text(response.message["Schedule"]["Run"]))
+                        .append($("<td>").text(response.message["Comment"]))
                         .append($("<td>").append(downloadButton).append(deleteButton))
 
                     // Добавляем новую строку в таблицу

@@ -18,6 +18,7 @@ type Backup struct {
 	Size     string
 	LeadTime string
 	Status   string
+	Comment  string
 	Schedule BackupSchedule
 }
 
@@ -49,7 +50,7 @@ func CheckConnection(cfg Config) string {
 // cfg - данные для подключения к PostgreSQL.
 // db - имя базы данных, которой сделать бекап - указывается пользователем.
 // []string{время выполения, размер бекапа}
-func CreateBackup(cfg Config, dbname, backupRun, backupCount, backupTime, backupCron string) (Backup, error) {
+func CreateBackup(cfg Config, dbname, backupRun, backupComment, backupCount, backupTime, backupCron string) (Backup, error) {
 	start := time.Now()
 	currTime := start.Format("2006-01-02-15:04") // шаблон GO для формата ГГГГ-мм-дд "2006-01-02 15:04:05" со временем
 	backupName := dbname + "-" + currTime
@@ -69,6 +70,7 @@ func CreateBackup(cfg Config, dbname, backupRun, backupCount, backupTime, backup
 		Size:     size,
 		LeadTime: elapsed,
 		Status:   "завершен",
+		Comment:  backupComment,
 		Schedule: BackupSchedule{
 			Run:   backupRun,
 			Count: backupCount,

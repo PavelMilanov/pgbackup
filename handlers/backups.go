@@ -10,11 +10,12 @@ import (
 )
 
 type Data struct {
-	SelectedDB    string `json:"db"`
-	SelectedRun   string `json:"run"`
-	SelectedCount string `json:"count"`
-	SelectedTime  string `json:"time"`
-	SelectedCron  string `json:"cron"`
+	SelectedDB      string `json:"db"`
+	SelectedRun     string `json:"run"`
+	SelectedComment string `json:"comment"`
+	SelectedCount   string `json:"count"`
+	SelectedTime    string `json:"time"`
+	SelectedCron    string `json:"cron"`
 }
 
 func (h *Handler) backupsView(c *gin.Context) {
@@ -33,8 +34,10 @@ func (h *Handler) backupHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
+	log.Println(json)
 	dbname := json.SelectedDB
 	backupRun := json.SelectedRun
+	backupComment := json.SelectedComment
 	backupCount := json.SelectedCount
 	backupTime := json.SelectedTime
 	backupCron := json.SelectedCron
@@ -47,7 +50,7 @@ func (h *Handler) backupHandler(c *gin.Context) {
 	}
 	switch backupRun {
 	case db.BACKUP_RUN[0]: // вручную
-		newBackup, err := db.CreateBackup(*h.CONFIG, dbname, backupRun, backupCount, backupTime, backupCron)
+		newBackup, err := db.CreateBackup(*h.CONFIG, dbname, backupRun, backupComment, backupCount, backupTime, backupCron)
 		if err != nil {
 			log.Print(err)
 			c.JSON(http.StatusOK, gin.H{
