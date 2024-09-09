@@ -51,7 +51,7 @@ func CheckConnection(cfg Config) string {
 // Выполнение задания бекапа базы данных
 // cfg - данные для подключения к PostgreSQL.
 func (model *Backup) CreateBackup(cfg Config) (Backup, error) {
-	model.createBackupDir(model.Directory)
+	createBackupDir(model.Directory)
 	start := time.Now()
 	currTime := start.Format("2006-01-02-15:04") // шаблон GO для формата ГГГГ-мм-дд "2006-01-02 15:04:05" со временем
 	backupName := model.Alias + "-" + currTime

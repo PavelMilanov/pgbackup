@@ -32,7 +32,7 @@ func (model *Backup) сreateBackupData() []Backup {
 	return backups
 }
 
-func (model *Backup) createBackupDir(dir string) {
+func createBackupDir(dir string) {
 	if err := os.Mkdir(dir, 0755); err != nil {
 		if !os.IsExist(err) {
 			log.Printf("%s - директория проинициализирована", dir)
