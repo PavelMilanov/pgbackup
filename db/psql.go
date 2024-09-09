@@ -55,7 +55,7 @@ func (model *Backup) CreateBackup(cfg Config) (Backup, error) {
 	start := time.Now()
 	currTime := start.Format("2006-01-02-15:04") // шаблон GO для формата ГГГГ-мм-дд "2006-01-02 15:04:05" со временем
 	backupName := model.Alias + "-" + currTime
-	command := fmt.Sprintf("export PGPASSWORD=%s && pg_dump -h %s -U %s %s > %s/%s.dump", cfg.Password, cfg.Host, cfg.User, model.Alias, DEFAULT_BACKUP_DIR, backupName)
+	command := fmt.Sprintf("export PGPASSWORD=%s && pg_dump -h %s -U %s %s > %s/%s.dump", cfg.Password, cfg.Host, cfg.User, model.Alias, model.Directory, backupName)
 	_, err := exec.Command("sh", "-c", command).Output()
 	if err != nil {
 		log.Println(err)
