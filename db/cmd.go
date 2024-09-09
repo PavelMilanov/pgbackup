@@ -35,6 +35,7 @@ func (model *Backup) сreateBackupData() []Backup {
 	return backups
 }
 
+// Создает указанную директорию.
 func createBackupDir(dir string) {
 	if err := os.Mkdir(dir, 0755); err != nil {
 		if !os.IsExist(err) {
@@ -45,12 +46,12 @@ func createBackupDir(dir string) {
 	}
 }
 
-// генерирует случайную строку из цифр от 0 до 10000.
+// Генерирует случайную строку из цифр от 0 до 10000.
 func GenerateRandomBackupDir() string {
 	s1 := rand.NewSource(time.Now().UnixNano())
 	r1 := rand.New(s1)
 	dirName := strconv.Itoa(r1.Intn(10000))
-	return dirName
+	return BACKUP_DIR + "/" + dirName
 }
 
 // Парсинт json-файл и возращает список структуры Backup.

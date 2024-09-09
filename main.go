@@ -43,6 +43,7 @@ func main() {
 
 	jakartaTime, _ := time.LoadLocation("Europe/Moscow")
 	scheduler := cron.New(cron.WithLocation(jakartaTime))
+	go scheduler.Start()
 	defer scheduler.Stop()
 
 	handler := handlers.NewHandler(postgres, &config, scheduler)

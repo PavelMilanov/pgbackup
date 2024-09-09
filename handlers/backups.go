@@ -84,7 +84,7 @@ func (h *Handler) backupHandler(c *gin.Context) {
 				Cron:  backupCron,
 			},
 		}
-		go backupModel.CreateBackup(*h.CONFIG)
+		h.CRON.AddFunc("*/1 * * * *", func() { backupModel.CreateBackup(*h.CONFIG) })
 		c.JSON(http.StatusOK, gin.H{
 			"error": "расписание создано",
 		})

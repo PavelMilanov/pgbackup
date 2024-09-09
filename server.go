@@ -5,10 +5,13 @@ import (
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/robfig/cron/v3"
 )
 
 type Server struct {
 	httpServer *http.Server
+	scheduler  *cron.Cron
 }
 
 func (s *Server) Run(handler http.Handler) error {
@@ -18,7 +21,6 @@ func (s *Server) Run(handler http.Handler) error {
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
-
 	return s.httpServer.ListenAndServe()
 }
 
