@@ -4,8 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math/rand"
 	"os"
 	"os/exec"
+	"strconv"
+	"time"
 )
 
 // Получает текущий список структур Backup и добавляет новый.
@@ -40,6 +43,14 @@ func createBackupDir(dir string) {
 			log.Printf("%s - директория создана", dir)
 		}
 	}
+}
+
+// генерирует случайную строку из цифр от 0 до 10000.
+func GenerateRandomBackupDir() string {
+	s1 := rand.NewSource(time.Now().UnixNano())
+	r1 := rand.New(s1)
+	dirName := strconv.Itoa(r1.Intn(10000))
+	return dirName
 }
 
 // Парсинт json-файл и возращает список структуры Backup.

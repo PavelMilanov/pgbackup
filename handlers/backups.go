@@ -3,9 +3,7 @@ package handlers
 import (
 	"fmt"
 	"log"
-	"math/rand"
 	"net/http"
-	"time"
 
 	"github.com/PavelMilanov/pgbackup/db"
 	"github.com/gin-gonic/gin"
@@ -74,21 +72,19 @@ func (h *Handler) backupHandler(c *gin.Context) {
 			"message": newBackup,
 		})
 	case db.BACKUP_RUN[1]: // по расписанию
-		s1 := rand.NewSource(time.Now().UnixNano())
-		r1 := rand.New(s1)
-		fmt.Println(r1.Intn(100))
-		// var backupModel = db.Backup{
-		// 	Alias:     backupName,
-		// 	Comment:   backupComment,
-		// 	Directory: db.DEFAULT_BACKUP_DIR,
-		// 	Schedule: db.BackupSchedule{
-		// 		Run:   backupRun,
-		// 		Count: backupCount,
-		// 		Time:  backupTime,
-		// 		Cron:  backupCron,
-		// 	},
-		// }
-		// go backupModel.CreateBackup(*h.CONFIG)
+		dirName := db.GenerateRandomBackupDir()
+		var backupModel = db.Backup{
+			Alias:     backupName,
+			Comment:   backupComment,
+			Directory: dirName,
+			Schedule: db.BackupSchedule{
+				Run:   backupRun,
+				Count: backupCount,
+				Time:  backupTime,
+				Cron:  backupCron,
+			},
+		}
+		go backupModel.CreateBackup(*h.CONFIG)
 		c.JSON(http.StatusOK, gin.H{
 			"error": "расписание создано",
 		})
