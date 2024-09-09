@@ -32,7 +32,7 @@ func (h *Handler) submitLoginForm(c *gin.Context) {
 		return
 	}
 	dbInfo := db.GetDBData(h.DB)
-	backupsInfo := db.GetBackupData(db.BACKUPDATA_DIR)
+	backupsInfo := db.GetBackupData()
 	c.HTML(http.StatusOK, "backups.html", gin.H{
 		"databases": dbInfo,
 		"backups":   backupsInfo,

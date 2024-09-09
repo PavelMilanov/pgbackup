@@ -16,16 +16,13 @@ import (
 
 var duration = 1
 
+// создаем дефолтные директории
 func init() {
 	if err := os.Mkdir(db.BACKUP_DIR, 0755); err != nil {
-		if !os.IsExist(err) {
-			log.Fatal(err.Error())
-		}
+	}
+	if err := os.Mkdir(db.DEFAULT_BACKUP_DIR, 0755); err != nil {
 	}
 	if err := os.Mkdir(db.BACKUPDATA_DIR, 0755); err != nil {
-		if !os.IsExist(err) {
-			log.Fatal(err.Error())
-		}
 	}
 }
 

@@ -20,7 +20,7 @@ type Data struct {
 
 func (h *Handler) backupsView(c *gin.Context) {
 	dbInfo := db.GetDBData(h.DB)
-	backupsInfo := db.GetBackupData(db.BACKUPDATA_DIR)
+	backupsInfo := db.GetBackupData()
 	c.HTML(http.StatusOK, "backups.html", gin.H{
 		"databases": dbInfo,
 		"backups":   backupsInfo,
@@ -34,8 +34,7 @@ func (h *Handler) backupHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
-	log.Println(json)
-	dbname := json.SelectedDB
+	backupName := json.SelectedDB
 	backupRun := json.SelectedRun
 	backupComment := json.SelectedComment
 	backupCount := json.SelectedCount
@@ -50,7 +49,18 @@ func (h *Handler) backupHandler(c *gin.Context) {
 	}
 	switch backupRun {
 	case db.BACKUP_RUN[0]: // вручную
-		newBackup, err := db.CreateBackup(*h.CONFIG, dbname, backupRun, backupComment, backupCount, backupTime, backupCron)
+		var backupModel = db.Backup{
+			Alias:     backupName,
+			Comment:   backupComment,
+			Directory: db.DEFAULT_BACKUP_DIR,
+			Schedule: db.BackupSchedule{
+				Run:   backupRun,
+				Count: backupCount,
+				Time:  backupTime,
+				Cron:  backupCron,
+			},
+		}
+		newBackup, err := backupModel.CreateBackup(*h.CONFIG)
 		if err != nil {
 			log.Print(err)
 			c.JSON(http.StatusOK, gin.H{
@@ -69,7 +79,7 @@ func (h *Handler) backupHandler(c *gin.Context) {
 	}
 }
 
-// загрузка указанного бекапа
+// скачивание указанного бекапа
 func (h *Handler) downloadBackupHandler(c *gin.Context) {
 	var backup = c.Param("backup")
 	filePath := fmt.Sprintf("%s/%s", db.BACKUP_DIR, backup)
