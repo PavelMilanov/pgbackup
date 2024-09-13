@@ -13,7 +13,7 @@ import (
 )
 
 // Возвращает строку в формате cron для модели Task.
-func (task *Task) ToCron() string {
+func (task *Task) toCron() string {
 	// минуты часы день(*/1 каждый день) * *
 	crontime := strings.Split(task.Schedule.Time, ":") // 22:45 => ["22", "45"]
 	cron := fmt.Sprintf("%s %s */%s * *", crontime[1], crontime[0], task.Schedule.Cron)
@@ -21,7 +21,7 @@ func (task *Task) ToCron() string {
 }
 
 // Получает текущий список структур Backup и добавляет новый.
-func CreateBackupData(model *Backup) []Backup {
+func (model *Backup) createBackupData() []Backup {
 	backups := GetBackupData()
 	backups = append(backups, Backup{
 		Alias:     model.Alias,
@@ -103,7 +103,7 @@ func GetTaskData() []Task {
 }
 
 // Получает текущий список структур Tasks и добавляет новый.
-func CreateTaskData(model *Task) []Task {
+func (model *Task) CreateTaskData() []Task {
 	tasks := GetTaskData()
 	tasks = append(tasks, Task{
 		Alias:     model.Alias,

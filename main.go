@@ -51,30 +51,8 @@ func main() {
 	tasks := db.GetTaskData()
 	for _, task := range tasks {
 		if task.Schedule.Run == db.BACKUP_RUN[1] {
-			cron := task.ToCron()
-			scheduler.AddFunc(cron, func() {
-				var backupModel = db.Backup{
-					Alias:     task.Alias,
-					Comment:   task.Comment,
-					Directory: task.Directory,
-					Schedule: db.BackupSchedule{
-						Run:   task.Schedule.Run,
-						Count: task.Schedule.Count,
-						Time:  task.Schedule.Time,
-						Cron:  task.Schedule.Cron,
-					},
-				}
-				newBackup, err := backupModel.CreateBackup(config)
-				if err != nil {
-					log.Println(err)
-				}
-				db.CreateBackupData(newBackup)
-			})
+			task.CreateCronBackup(scheduler, config)
 		}
-	}
-	jobs := scheduler.Entries()
-	for _, job := range jobs {
-		log.Printf("Job ID: %d, Next Run: %s\n", job.ID, job.Next)
 	}
 	///
 

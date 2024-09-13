@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/PavelMilanov/pgbackup/db"
@@ -61,10 +60,8 @@ func (h *Handler) backupHandler(c *gin.Context) {
 				Cron:  backupCron,
 			},
 		}
-		newBackup, err := backupModel.CreateBackup(*h.CONFIG)
-		db.CreateBackupData(newBackup)
+		newBackup, err := backupModel.CreateManualBackup(*h.CONFIG)
 		if err != nil {
-			log.Println(err)
 			c.JSON(http.StatusOK, gin.H{
 				"error": err.Error(),
 			})
@@ -87,30 +84,8 @@ func (h *Handler) backupHandler(c *gin.Context) {
 				Cron:  backupCron,
 			},
 		}
-		db.CreateTaskData(&task)
-		cron := task.ToCron()
-		h.CRON.AddFunc(cron, func() {
-			var backupModel = db.Backup{
-				Alias:     task.Alias,
-				Comment:   task.Comment,
-				Directory: task.Directory,
-				Schedule: db.BackupSchedule{
-					Run:   task.Schedule.Run,
-					Count: task.Schedule.Count,
-					Time:  task.Schedule.Time,
-					Cron:  task.Schedule.Cron,
-				},
-			}
-			newBackup, err := backupModel.CreateBackup(*h.CONFIG)
-			if err != nil {
-				log.Println(err)
-			}
-			db.CreateBackupData(newBackup)
-		})
-		jobs := h.CRON.Entries()
-		for _, job := range jobs {
-			log.Printf("Job ID: %d, Next Run: %s\n", job.ID, job.Next)
-		}
+		task.CreateTaskData()
+		task.CreateCronBackup(h.CRON, *h.CONFIG)
 		c.JSON(http.StatusOK, gin.H{
 			"error": "расписание создано",
 		})

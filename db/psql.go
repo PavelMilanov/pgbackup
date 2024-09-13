@@ -5,6 +5,8 @@ import (
 	"log"
 	"os/exec"
 	"time"
+
+	"github.com/robfig/cron/v3"
 )
 
 var BACKUP_DIR = "dumps"
@@ -69,7 +71,7 @@ func CheckConnection(cfg Config) string {
 //		Time:  backupTime,
 //		Cron:  backupCron,
 //	}
-func (model *Backup) CreateBackup(cfg Config) (*Backup, error) {
+func (model *Backup) createBackupSQL(cfg Config) (*Backup, error) {
 	start := time.Now()
 	currTime := start.Format("2006-01-02-15:04") // шаблон GO для формата ГГГГ-мм-дд "2006-01-02 15:04:05" со временем
 	backupName := model.Alias + "-" + currTime
@@ -98,4 +100,43 @@ func Restore(cfg Config, dbBackup string) {
 		panic(err)
 	}
 	log.Println(cmd)
+}
+
+// Выполнение бекапов по расписанию.
+func (task *Task) CreateCronBackup(scheduler *cron.Cron, cfg Config) {
+	cron := task.toCron()
+	scheduler.AddFunc(cron, func() {
+		var backupModel = Backup{
+			Alias:     task.Alias,
+			Comment:   task.Comment,
+			Directory: task.Directory,
+			Schedule: BackupSchedule{
+				Run:   task.Schedule.Run,
+				Count: task.Schedule.Count,
+				Time:  task.Schedule.Time,
+				Cron:  task.Schedule.Cron,
+			},
+		}
+		newBackup, err := backupModel.createBackupSQL(cfg)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		newBackup.createBackupData()
+	})
+	jobs := scheduler.Entries()
+	for _, job := range jobs {
+		log.Printf("Job ID: %d, Next Run: %s\n", job.ID, job.Next)
+	}
+}
+
+// Выполнение бекапа вручную.
+func (model *Backup) CreateManualBackup(cfg Config) (*Backup, error) {
+	newBackup, err := model.createBackupSQL(cfg)
+	if err != nil {
+		log.Println(err)
+		return &Backup{}, err
+	}
+	newBackup.createBackupData()
+	return newBackup, nil
 }
