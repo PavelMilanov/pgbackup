@@ -12,6 +12,14 @@ var BACKUPDATA_DIR = "data"
 var DEFAULT_BACKUP_DIR = BACKUP_DIR + "/" + "default_backup"
 var BACKUP_RUN = []string{"вручную", "по расписанию"}
 
+// Модель расписания.
+type Task struct {
+	Alias     string
+	Comment   string
+	Directory string
+	Schedule  BackupSchedule
+}
+
 // Модель бекапа.
 type Backup struct {
 	Alias     string
@@ -50,8 +58,18 @@ func CheckConnection(cfg Config) string {
 
 // Выполнение задания бекапа базы данных
 // cfg - данные для подключения к PostgreSQL.
-func (model *Backup) CreateBackup(cfg Config) (Backup, error) {
-	createBackupDir(model.Directory)
+// Входная модель:
+// Alias:     backupName,
+// Comment:   backupComment,
+// Directory: dirName,
+//
+//	Schedule: db.BackupSchedule{
+//		Run:   backupRun,
+//		Count: backupCount,
+//		Time:  backupTime,
+//		Cron:  backupCron,
+//	}
+func (model *Backup) CreateBackup(cfg Config) (*Backup, error) {
 	start := time.Now()
 	currTime := start.Format("2006-01-02-15:04") // шаблон GO для формата ГГГГ-мм-дд "2006-01-02 15:04:05" со временем
 	backupName := model.Alias + "-" + currTime
@@ -59,7 +77,7 @@ func (model *Backup) CreateBackup(cfg Config) (Backup, error) {
 	_, err := exec.Command("sh", "-c", command).Output()
 	if err != nil {
 		log.Println(err)
-		return Backup{}, err
+		return &Backup{}, err
 	}
 	timer := time.Since(start).Seconds()
 	elapsed := fmt.Sprintf("%.3f сек", timer)
@@ -69,8 +87,7 @@ func (model *Backup) CreateBackup(cfg Config) (Backup, error) {
 	model.Size = size
 	model.LeadTime = elapsed
 	model.Status = "завершен"
-	model.сreateBackupData()
-	return *model, nil
+	return model, nil
 }
 
 // Выполение задания восстановления базы данных

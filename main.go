@@ -16,8 +16,8 @@ import (
 
 var duration = 1
 
-// создаем дефолтные директории
 func init() {
+	// создаем дефолтные директории
 	if err := os.Mkdir(db.BACKUP_DIR, 0755); err != nil {
 	}
 	if err := os.Mkdir(db.DEFAULT_BACKUP_DIR, 0755); err != nil {
@@ -43,8 +43,40 @@ func main() {
 
 	jakartaTime, _ := time.LoadLocation("Europe/Moscow")
 	scheduler := cron.New(cron.WithLocation(jakartaTime))
+
+	/// фоновые задачи
 	go scheduler.Start()
 	defer scheduler.Stop()
+
+	tasks := db.GetTaskData()
+	for _, task := range tasks {
+		if task.Schedule.Run == db.BACKUP_RUN[1] {
+			cron := task.ToCron()
+			scheduler.AddFunc(cron, func() {
+				var backupModel = db.Backup{
+					Alias:     task.Alias,
+					Comment:   task.Comment,
+					Directory: task.Directory,
+					Schedule: db.BackupSchedule{
+						Run:   task.Schedule.Run,
+						Count: task.Schedule.Count,
+						Time:  task.Schedule.Time,
+						Cron:  task.Schedule.Cron,
+					},
+				}
+				newBackup, err := backupModel.CreateBackup(config)
+				if err != nil {
+					log.Println(err)
+				}
+				db.CreateBackupData(newBackup)
+			})
+		}
+	}
+	jobs := scheduler.Entries()
+	for _, job := range jobs {
+		log.Printf("Job ID: %d, Next Run: %s\n", job.ID, job.Next)
+	}
+	///
 
 	handler := handlers.NewHandler(postgres, &config, scheduler)
 	if err != nil {

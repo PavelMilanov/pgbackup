@@ -8,11 +8,20 @@ import (
 	"os"
 	"os/exec"
 	"strconv"
+	"strings"
 	"time"
 )
 
+// Возвращает строку в формате cron для модели Task.
+func (task *Task) ToCron() string {
+	// минуты часы день(*/1 каждый день) * *
+	crontime := strings.Split(task.Schedule.Time, ":") // 22:45 => ["22", "45"]
+	cron := fmt.Sprintf("%s %s */%s * *", crontime[1], crontime[0], task.Schedule.Cron)
+	return cron
+}
+
 // Получает текущий список структур Backup и добавляет новый.
-func (model *Backup) сreateBackupData() []Backup {
+func CreateBackupData(model *Backup) []Backup {
 	backups := GetBackupData()
 	backups = append(backups, Backup{
 		Alias:     model.Alias,
@@ -36,7 +45,7 @@ func (model *Backup) сreateBackupData() []Backup {
 }
 
 // Создает указанную директорию.
-func createBackupDir(dir string) {
+func СreateBackupDir(dir string) {
 	if err := os.Mkdir(dir, 0755); err != nil {
 		if !os.IsExist(err) {
 			log.Printf("%s - директория проинициализирована", dir)
@@ -68,20 +77,6 @@ func GetBackupData() []Backup {
 	return backups
 }
 
-// // Возвращает список названий бекапов.
-// func checkBackup(dir string) []string {
-// 	files, err := os.ReadDir(dir)
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// 	var backups []string
-// 	for _, entry := range files {
-// 		backup := strings.Split(entry.Name(), ".")[0] // dev-2024-08024.dump > dev-2024-08024
-// 		backups = append(backups, backup)
-// 	}
-// 	return backups
-// }
-
 // Возвращает размер файла бекапа.
 // filename - название файла бекапа.
 func (model *Backup) getBackupSize(filename string) string {
@@ -91,4 +86,38 @@ func (model *Backup) getBackupSize(filename string) string {
 		panic(err)
 	}
 	return string(cmd)
+}
+
+// Парсинт json-файл и возращает список структуры Task.
+func GetTaskData() []Task {
+	var tasks []Task
+	file := fmt.Sprintf("%s/tasks.json", BACKUPDATA_DIR)
+	jsonInfo, err := os.ReadFile(file)
+	if err != nil {
+		os.Create(file)
+	}
+	if err := json.Unmarshal(jsonInfo, &tasks); err != nil {
+		return []Task{}
+	}
+	return tasks
+}
+
+// Получает текущий список структур Tasks и добавляет новый.
+func CreateTaskData(model *Task) []Task {
+	tasks := GetTaskData()
+	tasks = append(tasks, Task{
+		Alias:     model.Alias,
+		Comment:   model.Comment,
+		Directory: model.Directory,
+		Schedule:  model.Schedule,
+	})
+	jsonInfo, err := json.MarshalIndent(tasks, "", "\t")
+	if err != nil {
+		log.Println("Ошибка записи данных:", err)
+	}
+	file := fmt.Sprintf("%s/tasks.json", BACKUPDATA_DIR)
+	if err := os.WriteFile(file, jsonInfo, 0640); err != nil {
+		return []Task{}
+	}
+	return tasks
 }

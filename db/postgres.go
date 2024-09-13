@@ -28,7 +28,7 @@ func (cfg *Config) portToInt(port string) int {
 func NewPostgreDB(cfg *Config) (*gorm.DB, error) {
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable TimeZone=Europe/Moscow", cfg.Host, cfg.User, cfg.Password, cfg.DBName, cfg.portToInt(cfg.Port))
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	log.Println("Connected to db")
+	log.Println("база данных подключена")
 	if err != nil {
 		return nil, err
 	}
@@ -40,6 +40,6 @@ func Close(db *gorm.DB) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println("Connection db closed")
+	log.Println("база данных отключена")
 	t.Close()
 }

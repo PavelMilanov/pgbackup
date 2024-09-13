@@ -49,6 +49,7 @@ func (h *Handler) backupHandler(c *gin.Context) {
 	}
 	switch backupRun {
 	case db.BACKUP_RUN[0]: // вручную
+		db.СreateBackupDir(db.DEFAULT_BACKUP_DIR)
 		var backupModel = db.Backup{
 			Alias:     backupName,
 			Comment:   backupComment,
@@ -61,8 +62,9 @@ func (h *Handler) backupHandler(c *gin.Context) {
 			},
 		}
 		newBackup, err := backupModel.CreateBackup(*h.CONFIG)
+		db.CreateBackupData(newBackup)
 		if err != nil {
-			log.Print(err)
+			log.Println(err)
 			c.JSON(http.StatusOK, gin.H{
 				"error": err.Error(),
 			})
@@ -73,7 +75,8 @@ func (h *Handler) backupHandler(c *gin.Context) {
 		})
 	case db.BACKUP_RUN[1]: // по расписанию
 		dirName := db.GenerateRandomBackupDir()
-		var backupModel = db.Backup{
+		db.СreateBackupDir(dirName)
+		var task = db.Task{
 			Alias:     backupName,
 			Comment:   backupComment,
 			Directory: dirName,
@@ -84,7 +87,30 @@ func (h *Handler) backupHandler(c *gin.Context) {
 				Cron:  backupCron,
 			},
 		}
-		h.CRON.AddFunc("*/1 * * * *", func() { backupModel.CreateBackup(*h.CONFIG) })
+		db.CreateTaskData(&task)
+		cron := task.ToCron()
+		h.CRON.AddFunc(cron, func() {
+			var backupModel = db.Backup{
+				Alias:     task.Alias,
+				Comment:   task.Comment,
+				Directory: task.Directory,
+				Schedule: db.BackupSchedule{
+					Run:   task.Schedule.Run,
+					Count: task.Schedule.Count,
+					Time:  task.Schedule.Time,
+					Cron:  task.Schedule.Cron,
+				},
+			}
+			newBackup, err := backupModel.CreateBackup(*h.CONFIG)
+			if err != nil {
+				log.Println(err)
+			}
+			db.CreateBackupData(newBackup)
+		})
+		jobs := h.CRON.Entries()
+		for _, job := range jobs {
+			log.Printf("Job ID: %d, Next Run: %s\n", job.ID, job.Next)
+		}
 		c.JSON(http.StatusOK, gin.H{
 			"error": "расписание создано",
 		})
