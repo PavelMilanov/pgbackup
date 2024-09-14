@@ -21,8 +21,8 @@ func NewHandler(db *gorm.DB, config *db.Config, scheduler *cron.Cron) *Handler {
 }
 
 func (h *Handler) InitRouters() *gin.Engine {
-
 	router := gin.Default()
+	// gin.SetMode(gin.ReleaseMode)
 	router.SetFuncMap(template.FuncMap{"add": func(x, y int) int { return x + y }})
 	router.LoadHTMLGlob("templates/**/*")
 	router.Static("/static/", "./static")
@@ -38,7 +38,7 @@ func (h *Handler) InitRouters() *gin.Engine {
 		{
 			backups.GET("/", h.backupsView)
 			backups.POST("/create", h.backupHandler)
-			backups.GET("/download/:backup", h.downloadBackupHandler)
+			backups.GET("/download/:alias/:date", h.downloadBackupHandler)
 		}
 	}
 	api := router.Group("/api")

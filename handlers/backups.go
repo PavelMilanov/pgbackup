@@ -94,7 +94,20 @@ func (h *Handler) backupHandler(c *gin.Context) {
 
 // скачивание указанного бекапа
 func (h *Handler) downloadBackupHandler(c *gin.Context) {
-	var backup = c.Param("backup")
-	filePath := fmt.Sprintf("%s/%s", db.BACKUP_DIR, backup)
-	c.FileAttachment(filePath, backup)
+	var alias = c.Param("alias")
+	var date = c.Param("date")
+	backups := db.GetBackupData()
+	for _, backup := range backups {
+		if backup.Alias == alias && backup.Date == date {
+			filename := backup.Alias + "-" + backup.Date + ".dump"
+			filePath := fmt.Sprintf("%s/%s", backup.Directory, filename)
+			fileHeader := fmt.Sprintf("attachment; filename=%s", filename)
+			c.Header("Content-Disposition", fileHeader)
+			c.File(filePath)
+			return
+		}
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"error": "ошибка при скачивании файла",
+	})
 }

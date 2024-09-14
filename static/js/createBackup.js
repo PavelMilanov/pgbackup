@@ -29,6 +29,7 @@ $(function () {
                     // генерируем td с кнопками как в разметке
                     var downloadButton = $('<button>', {
                         type: 'button',
+                        id: "downloadBackup",
                         class: 'btn btn-success btn-sm',
                         text: 'Скачать',
                     })

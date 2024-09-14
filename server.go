@@ -26,7 +26,7 @@ func (s *Server) Shutdown(grace time.Duration) error {
 	defer cancel()
 	select {
 	case <-ctx.Done():
-		log.Println("Shutdown Server")
+		log.Println("Cервер выключен")
 	}
 	return s.httpServer.Shutdown(ctx)
 }
