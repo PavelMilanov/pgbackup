@@ -29,14 +29,18 @@ $(function () {
                     // генерируем td с кнопками как в разметке
                     var downloadButton = $('<button>', {
                         type: 'button',
-                        id: "downloadBackup",
-                        class: 'btn btn-success btn-sm',
+                        class: 'downloadBackup btn btn-success btn-sm',
                         text: 'Скачать',
                     })
                     var deleteButton = $('<button>', {
                         type: 'button',
-                        class: 'btn btn-danger btn-sm',
+                        class: 'deleteBackup btn btn-danger btn-sm',
                         text: 'Удалить',
+                    })
+                    var restoreButton = $('<button>', {
+                        type: 'button',
+                        class: 'restoreBackup btn btn-primary btn-sm',
+                        text: 'Восстановить',
                     })
 
                     var newRow = $("<tr>")
@@ -48,7 +52,7 @@ $(function () {
                         .append($("<td>").text(response.message["Status"]))
                         .append($("<td>").text(response.message["Schedule"]["Run"]))
                         .append($("<td>").text(response.message["Comment"]))
-                        .append($("<td>").append(downloadButton).append(deleteButton))
+                        .append($("<td>").append(downloadButton).append(deleteButton).append(restoreButton))
 
                     // Добавляем новую строку в таблицу
                     $("#backupsTable tbody").append(newRow)
