@@ -1,8 +1,8 @@
 window.onload = function () {
     if (window.jQuery) {
-        console.log('jQuery is loaded');
+        console.log('jQuery is loaded')
     }
     else {
-        console.log('jQuery is not loaded');
+        console.log('jQuery is not loaded')
     }
 }
