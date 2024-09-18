@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/PavelMilanov/pgbackup/db"
@@ -92,22 +93,37 @@ func (h *Handler) backupHandler(c *gin.Context) {
 	}
 }
 
-// скачивание указанного бекапа
+// скачивание указанного бекапа.
 func (h *Handler) downloadBackupHandler(c *gin.Context) {
 	var alias = c.Param("alias")
 	var date = c.Param("date")
 	backups := db.GetBackupData()
 	for _, backup := range backups {
 		if backup.Alias == alias && backup.Date == date {
-			filename := backup.Alias + "-" + backup.Date + ".dump"
-			filePath := fmt.Sprintf("%s/%s", backup.Directory, filename)
-			fileHeader := fmt.Sprintf("attachment; filename=%s", filename)
+			fileName := backup.Alias + "-" + backup.Date + ".dump"
+			filePath := fmt.Sprintf("%s/%s", backup.Directory, fileName)
+			fileHeader := fmt.Sprintf("attachment; filename=%s", fileName)
 			c.Header("Content-Disposition", fileHeader)
 			c.File(filePath)
+			log.Printf("%s скачан", filePath)
 			return
 		}
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"error": "ошибка при скачивании файла",
+	})
+}
+
+// удаление указанного бекапа.
+func (h *Handler) deleteBackupHandler(c *gin.Context) {
+	var alias = c.Param("alias")
+	var date = c.Param("date")
+	if err := db.DeleteBackupData(alias, date); err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"error": err.Error(),
+		})
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"error": "бекап удален",
 	})
 }

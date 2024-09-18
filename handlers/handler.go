@@ -39,6 +39,7 @@ func (h *Handler) InitRouters() *gin.Engine {
 			backups.GET("/", h.backupsView)
 			backups.POST("/create", h.backupHandler)
 			backups.GET("/download/:alias/:date", h.downloadBackupHandler)
+			backups.POST("/delete/:alias/:date", h.deleteBackupHandler)
 		}
 	}
 	api := router.Group("/api")

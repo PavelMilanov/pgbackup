@@ -39,9 +39,39 @@ func (model *Backup) createBackupData() []Backup {
 	}
 	file := fmt.Sprintf("%s/backups.json", BACKUPDATA_DIR)
 	if err := os.WriteFile(file, jsonInfo, 0640); err != nil {
+		log.Println(err)
 		return []Backup{}
 	}
 	return backups
+}
+
+// Получает текущий список структур Backup и удаляет найденный.
+func DeleteBackupData(alias, date string) error {
+	backups := GetBackupData()
+	newBackups := []Backup{}
+	for _, backup := range backups {
+		if backup.Alias == alias && backup.Date == date {
+			fileName := backup.Alias + "-" + backup.Date + ".dump"
+			filePath := fmt.Sprintf("%s/%s", backup.Directory, fileName)
+			if err := os.Remove(filePath); err != nil {
+				log.Println(err)
+				return err
+			}
+			log.Printf("%s удален", filePath)
+		} else {
+			newBackups = append(newBackups, backup)
+		}
+	}
+	jsonInfo, err := json.MarshalIndent(newBackups, "", "\t")
+	if err != nil {
+		log.Println("Ошибка записи данных:", err)
+	}
+	file := fmt.Sprintf("%s/backups.json", BACKUPDATA_DIR)
+	if err := os.WriteFile(file, jsonInfo, 0640); err != nil {
+		log.Println(err)
+		return err
+	}
+	return nil
 }
 
 // Создает указанную директорию.
