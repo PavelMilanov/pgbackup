@@ -25,7 +25,9 @@ $(function () {
                     $("#backupError").modal("show") // вызываем элемент по id="backupEror"
                 } else {
                     var index = $('#backupsTable tr:eq(1) th:eq(0)').text() // Получаем индекс последней строки
-
+                    if (index === "") {
+                        index = "0"
+                    }
                     // генерируем td с кнопками как в разметке
                     var downloadButton = $('<button>', {
                         type: 'button',
