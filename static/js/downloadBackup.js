@@ -8,7 +8,12 @@ $(function () {
     $.ajax({
       url: `http://localhost:8080/backups/download/${alias}/${date}`,
       type: "GET",
-      success: function (response) {},
+      success: function (response) {
+        if (response.error) {
+          $("#backupErrorText").text(response.error) // вставляем текст в элемент по id="backupEror"
+          $("#backupError").modal("show") // вызываем элемент по id="backupEror"
+        }
+      },
       error: function (error) {
         console.error("Ошибка:", error)
       },

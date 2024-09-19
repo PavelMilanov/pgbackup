@@ -10,7 +10,12 @@ $(function () {
       type: "POST",
       dataType: "json",
       contentType: "application/json",
-      success: function (response) {},
+      success: function (response) {
+        if (response.error) {
+          $("#backupErrorText").text(response.error) // вставляем текст в элемент по id="backupEror"
+          $("#backupError").modal("show") // вызываем элемент по id="backupEror"
+        }
+      },
       error: function (error) {
         console.error("Ошибка:", error)
       },
