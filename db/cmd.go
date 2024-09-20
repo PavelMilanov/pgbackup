@@ -151,3 +151,15 @@ func (model *Task) CreateTaskData() []Task {
 	}
 	return tasks
 }
+
+// удаляет старые бекапы согласно расписания.
+func (model *Task) deleteOldBackup() error {
+	command := fmt.Sprintf("find  %s -name \"*.dump\" -mtime +%s -delete", model.Directory, model.Schedule.Count)
+	cmd, err := exec.Command("sh", "-c", command).Output()
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	log.Println(cmd)
+	return nil
+}

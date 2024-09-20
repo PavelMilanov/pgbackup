@@ -53,7 +53,7 @@ func CheckConnection(cfg Config) string {
 	command := fmt.Sprintf("pg_isready -h %s -U %s -d %s -p %d", cfg.Host, cfg.User, cfg.DBName, cfg.portToInt(cfg.Port))
 	cmd, err := exec.Command("sh", "-c", command).Output()
 	if err != nil {
-		panic(err)
+		log.Println(err)
 	}
 	return string(cmd)
 }
@@ -123,6 +123,7 @@ func (task *Task) CreateCronBackup(scheduler *cron.Cron, cfg Config) {
 			return
 		}
 		newBackup.createBackupData()
+		task.deleteOldBackup()
 	})
 	jobs := scheduler.Entries()
 	for _, job := range jobs {
