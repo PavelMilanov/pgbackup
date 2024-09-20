@@ -30,16 +30,14 @@ func (h *Handler) InitRouters() *gin.Engine {
 	{
 		web.GET("/", h.authView)
 		web.GET("/logout", h.authView)
-		web.POST("/bases", h.submitLoginForm)
-		web.GET("/bases", h.basesView)
+		// web.POST("/bases", h.submitLoginForm)
+		// web.GET("/bases", h.basesView)
 		web.GET("/tasks", h.tasksView)
 
 		backups := web.Group("/backups")
 		{
 			backups.GET("/", h.backupsView)
 			backups.POST("/create", h.backupHandler)
-			// backups.GET("/download", h.downloadBackupHandler)
-			// backups.POST("/delete", h.deleteBackupHandler)
 			backups.POST("/action", h.actionBackupHandler)
 		}
 	}
