@@ -8,15 +8,12 @@ RUN go build .
 
 FROM alpine
 
-RUN apk --update --no-cache add postgresql-client
-
 ARG USER_DOCKER
 ARG UID_DOCKER
-ARG GID_DOCKER
 
 ENV USER_DOCKER="$USER_DOCKER"
 ENV UID_DOCKER="$UID_DOCKER"
-ENV GID_DOCKER="$GID_DOCKER"
+ENV TZ=Europe/Moscow
 
 WORKDIR /app
 
@@ -25,12 +22,13 @@ COPY --from=builder /build/pgbackup /app
 COPY templates/ /app/templates/
 COPY static/ /app/static/
 
-RUN addgroup -g ${GID_DOCKER} ${USER_DOCKER} && \
+RUN apk --update --no-cache add postgresql-client tzdata && \
+    addgroup -g ${UID_DOCKER} ${USER_DOCKER} && \
     adduser -u ${UID_DOCKER} -G ${USER_DOCKER} -s /bin/sh -D -H ${USER_DOCKER} && \
     chown -R ${USER_DOCKER}:${USER_DOCKER} /app
 
 VOLUME [ "/app/data" ]
-VOLUME [ "/app/dumpls" ]
+VOLUME [ "/app/dumps" ]
 
 EXPOSE 8080
 
