@@ -9,13 +9,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type Data struct {
-	SelectedDB      string `json:"db"`
-	SelectedRun     string `json:"run"`
-	SelectedComment string `json:"comment"`
-	SelectedCount   string `json:"count"`
-	SelectedTime    string `json:"time"`
-	SelectedCron    string `json:"cron"`
+type BackupForm struct {
+	SelectedDB      string `form:"backupDBName" binding:"required"`
+	SelectedRun     string `form:"backupRun" binding:"required"`
+	SelectedComment string `form:"backupComment"`
+	SelectedCount   string `form:"backupScheduleCount"`
+	SelectedTime    string `form:"backupScheduleTime"`
+	SelectedCron    string `form:"backupScheduleCron"`
 }
 
 func (h *Handler) backupsView(c *gin.Context) {
@@ -29,17 +29,18 @@ func (h *Handler) backupsView(c *gin.Context) {
 }
 
 func (h *Handler) backupHandler(c *gin.Context) {
-	var json Data
-	if err := c.ShouldBindJSON(&json); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+	var data BackupForm
+	if err := c.ShouldBind(&data); err != nil {
+		c.HTML(http.StatusBadRequest, "backups.html", gin.H{"error": err.Error()})
 		return
 	}
-	backupName := json.SelectedDB
-	backupRun := json.SelectedRun
-	backupComment := json.SelectedComment
-	backupCount := json.SelectedCount
-	backupTime := json.SelectedTime
-	backupCron := json.SelectedCron
+	fmt.Println(data)
+	backupName := data.SelectedDB
+	backupRun := data.SelectedRun
+	backupComment := data.SelectedComment
+	backupCount := data.SelectedCount
+	backupTime := data.SelectedTime
+	backupCron := data.SelectedCron
 
 	if backupRun == db.BACKUP_RUN[1] && (backupCount == "" || backupCron == "" || backupTime == "") {
 		c.JSON(http.StatusOK, gin.H{
@@ -61,16 +62,16 @@ func (h *Handler) backupHandler(c *gin.Context) {
 				Cron:  backupCron,
 			},
 		}
-		newBackup, err := backupModel.CreateManualBackup(*h.CONFIG)
+		_, err := backupModel.CreateManualBackup(*h.CONFIG)
 		if err != nil {
 			c.JSON(http.StatusOK, gin.H{
 				"error": err.Error(),
 			})
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{
-			"message": newBackup,
-		})
+		// c.JSON(http.StatusOK, gin.H{
+		// 	"message": newBackup,
+		// })
 	case db.BACKUP_RUN[1]: // по расписанию
 		dirName := db.GenerateRandomBackupDir()
 		db.СreateBackupDir(dirName)
@@ -91,39 +92,75 @@ func (h *Handler) backupHandler(c *gin.Context) {
 			"error": "расписание создано",
 		})
 	}
+	c.Redirect(http.StatusFound, "/backups")
 }
 
-// скачивание указанного бекапа.
-func (h *Handler) downloadBackupHandler(c *gin.Context) {
-	var alias = c.Param("alias")
-	var date = c.Param("date")
-	backups := db.GetBackupData()
-	for _, backup := range backups {
-		if backup.Alias == alias && backup.Date == date {
-			fileName := backup.Alias + "-" + backup.Date + ".dump"
-			filePath := fmt.Sprintf("%s/%s", backup.Directory, fileName)
-			fileHeader := fmt.Sprintf("attachment; filename=%s", fileName)
-			c.Header("Content-Disposition", fileHeader)
-			c.File(filePath)
-			log.Printf("%s скачан", filePath)
-			return
+// // скачивание указанного бекапа.
+// func (h *Handler) downloadBackupHandler(c *gin.Context) {
+// 	// var alias = c.Param("alias")
+// 	// var date = c.Param("date")
+// 	var alias = c.PostForm("alias")
+// 	var date = c.PostForm("date")
+// 	backups := db.GetBackupData()
+// 	for _, backup := range backups {
+// 		if backup.Alias == alias && backup.Date == date {
+// 			fileName := backup.Alias + "-" + backup.Date + ".dump"
+// 			filePath := fmt.Sprintf("%s/%s", backup.Directory, fileName)
+// 			fileHeader := fmt.Sprintf("attachment; filename=%s", fileName)
+// 			c.Header("Content-Disposition", fileHeader)
+// 			c.File(filePath)
+// 			log.Printf("%s скачан", filePath)
+// 			return
+// 		}
+// 	}
+// 	c.JSON(http.StatusOK, gin.H{
+// 		"error": "ошибка при скачивании файла",
+// 	})
+// }
+
+// // удаление указанного бекапа.
+// func (h *Handler) deleteBackupHandler(c *gin.Context) {
+// 	var alias = c.Param("alias")
+// 	var date = c.Param("date")
+// 	if err := db.DeleteBackupData(alias, date); err != nil {
+// 		c.JSON(http.StatusOK, gin.H{
+// 			"error": err.Error(),
+// 		})
+// 	}
+// 	c.JSON(http.StatusOK, gin.H{
+// 		"error": "бекап удален",
+// 	})
+// }
+
+func (h *Handler) actionBackupHandler(c *gin.Context) {
+	var action = c.PostForm("action")
+	var alias = c.PostForm("alias")
+	var date = c.PostForm("date")
+	switch action {
+	case "download":
+		backups := db.GetBackupData()
+		for _, backup := range backups {
+			if backup.Alias == alias && backup.Date == date {
+				fileName := backup.Alias + "-" + backup.Date + ".dump"
+				filePath := fmt.Sprintf("%s/%s", backup.Directory, fileName)
+				fileHeader := fmt.Sprintf("attachment; filename=%s", fileName)
+				c.Header("Content-Disposition", fileHeader)
+				c.File(filePath)
+				log.Printf("%s скачан", filePath)
+				return
+			}
 		}
-	}
-	c.JSON(http.StatusOK, gin.H{
-		"error": "ошибка при скачивании файла",
-	})
-}
-
-// удаление указанного бекапа.
-func (h *Handler) deleteBackupHandler(c *gin.Context) {
-	var alias = c.Param("alias")
-	var date = c.Param("date")
-	if err := db.DeleteBackupData(alias, date); err != nil {
 		c.JSON(http.StatusOK, gin.H{
-			"error": err.Error(),
+			"error": "ошибка при скачивании файла",
 		})
+	case "delete":
+		if err := db.DeleteBackupData(alias, date); err != nil {
+			c.JSON(http.StatusOK, gin.H{
+				"error": err.Error(),
+			})
+		}
+	case "restore":
+		// восстановить бекап
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"error": "бекап удален",
-	})
+	c.Redirect(http.StatusFound, "/backups")
 }

@@ -16,6 +16,7 @@
         </thead>
         <tbody>
             {{ range $index, $element := . }}
+            <form action="/backups/action" method="post">
             <tr>
                 <th scope="row">{{ add $index 1 }}</th>
                 <td>{{ $element.Alias }}</td>
@@ -26,12 +27,15 @@
                 <td>{{ $element.Schedule.Run }}</td>
                 <td>{{ $element.Comment }}</td>
                 <td>
-                    <button type="button" class="downloadBackup btn btn-success btn-sm">Скачать</button>
-                    <button type="button" class="deleteBackup btn btn-danger btn-sm">Удалить</button>
-                    <button type="button" class="restoreBackup btn btn-primary btn-sm">Восстановить</button>
+                    <button type="submit" name="action" value="download" class="btn btn-success btn-sm">Скачать</button>
+                    <button type="submit" name="action" value="delete" class="btn btn-danger btn-sm">Удалить</button>
+                    <button type="submit" name="action" value="restore" class="btn btn-primary btn-sm">Восстановить</button>
                 </td>
+                <input type="hidden" name="alias" value="{{ $element.Alias }}">
+                <input type="hidden" name="date" value="{{ $element.Date }}">
             </tr>
             {{ end }}
+            </form>
         </tbody>
     </table>
 </div>

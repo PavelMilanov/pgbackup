@@ -94,10 +94,10 @@ func (model *Backup) createBackupSQL(cfg Config) (*Backup, error) {
 
 // Выполение задания восстановления базы данных
 func Restore(cfg Config, dbBackup string) {
-	command := fmt.Sprintf("psql %s < %s/%s", cfg.User, BACKUP_DIR, dbBackup)
+	command := fmt.Sprintf("pg_dump %s < %s/%s", cfg.User, BACKUP_DIR, dbBackup)
 	cmd, err := exec.Command("sh", "-c", command).Output()
 	if err != nil {
-		panic(err)
+		log.Println(err)
 	}
 	log.Println(cmd)
 }

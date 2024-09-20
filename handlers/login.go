@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/PavelMilanov/pgbackup/db"
 	"github.com/gin-gonic/gin"
 )
 
@@ -31,11 +30,5 @@ func (h *Handler) submitLoginForm(c *gin.Context) {
 		})
 		return
 	}
-	dbInfo := db.GetDBData(h.DB)
-	backupsInfo := db.GetBackupData()
-	c.HTML(http.StatusOK, "backups.html", gin.H{
-		"databases": dbInfo,
-		"backups":   backupsInfo,
-		"run":       db.BACKUP_RUN,
-	})
+	c.Redirect(http.StatusFound, "/backups")
 }
