@@ -69,9 +69,6 @@ func (h *Handler) backupHandler(c *gin.Context) {
 			})
 			return
 		}
-		// c.JSON(http.StatusOK, gin.H{
-		// 	"message": newBackup,
-		// })
 	case db.BACKUP_RUN[1]: // по расписанию
 		dirName := db.GenerateRandomBackupDir()
 		db.СreateBackupDir(dirName)
@@ -95,43 +92,8 @@ func (h *Handler) backupHandler(c *gin.Context) {
 	c.Redirect(http.StatusFound, "/backups")
 }
 
-// // скачивание указанного бекапа.
-// func (h *Handler) downloadBackupHandler(c *gin.Context) {
-// 	// var alias = c.Param("alias")
-// 	// var date = c.Param("date")
-// 	var alias = c.PostForm("alias")
-// 	var date = c.PostForm("date")
-// 	backups := db.GetBackupData()
-// 	for _, backup := range backups {
-// 		if backup.Alias == alias && backup.Date == date {
-// 			fileName := backup.Alias + "-" + backup.Date + ".dump"
-// 			filePath := fmt.Sprintf("%s/%s", backup.Directory, fileName)
-// 			fileHeader := fmt.Sprintf("attachment; filename=%s", fileName)
-// 			c.Header("Content-Disposition", fileHeader)
-// 			c.File(filePath)
-// 			log.Printf("%s скачан", filePath)
-// 			return
-// 		}
-// 	}
-// 	c.JSON(http.StatusOK, gin.H{
-// 		"error": "ошибка при скачивании файла",
-// 	})
-// }
-
-// // удаление указанного бекапа.
-// func (h *Handler) deleteBackupHandler(c *gin.Context) {
-// 	var alias = c.Param("alias")
-// 	var date = c.Param("date")
-// 	if err := db.DeleteBackupData(alias, date); err != nil {
-// 		c.JSON(http.StatusOK, gin.H{
-// 			"error": err.Error(),
-// 		})
-// 	}
-// 	c.JSON(http.StatusOK, gin.H{
-// 		"error": "бекап удален",
-// 	})
-// }
-
+// Скачивание, удаление, восстановление бекапа.
+// Действие зависит от нажатой кнопки
 func (h *Handler) actionBackupHandler(c *gin.Context) {
 	var action = c.PostForm("action")
 	var alias = c.PostForm("alias")
@@ -160,7 +122,7 @@ func (h *Handler) actionBackupHandler(c *gin.Context) {
 			})
 		}
 	case "restore":
-		// восстановить бекап
+		db.Restore(*h.CONFIG, alias, date)
 	}
 	c.Redirect(http.StatusFound, "/backups")
 }

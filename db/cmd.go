@@ -20,6 +20,17 @@ func (task *Task) toCron() string {
 	return cron
 }
 
+// Возвращает модель Backup по заданным параметрам
+func getBackup(alias, date string) Backup {
+	backups := GetBackupData()
+	for _, backup := range backups {
+		if backup.Alias == alias && backup.Date == date {
+			return backup
+		}
+	}
+	return Backup{}
+}
+
 // Получает текущий список структур Backup и добавляет новый.
 func (model *Backup) createBackupData() []Backup {
 	backups := GetBackupData()
@@ -47,20 +58,18 @@ func (model *Backup) createBackupData() []Backup {
 
 // Получает текущий список структур Backup и удаляет найденный.
 func DeleteBackupData(alias, date string) error {
-	backups := GetBackupData()
+	backup := getBackup(alias, date)
 	newBackups := []Backup{}
-	for _, backup := range backups {
-		if backup.Alias == alias && backup.Date == date {
-			fileName := backup.Alias + "-" + backup.Date + ".dump"
-			filePath := fmt.Sprintf("%s/%s", backup.Directory, fileName)
-			if err := os.Remove(filePath); err != nil {
-				log.Println(err)
-				return err
-			}
-			log.Printf("%s удален", filePath)
-		} else {
-			newBackups = append(newBackups, backup)
+	if backup.Alias == alias && backup.Date == date {
+		fileName := backup.Alias + "-" + backup.Date + ".dump"
+		filePath := fmt.Sprintf("%s/%s", backup.Directory, fileName)
+		if err := os.Remove(filePath); err != nil {
+			log.Println(err)
+			return err
 		}
+		log.Printf("%s удален", filePath)
+	} else {
+		newBackups = append(newBackups, backup)
 	}
 	jsonInfo, err := json.MarshalIndent(newBackups, "", "\t")
 	if err != nil {

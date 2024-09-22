@@ -93,13 +93,32 @@ func (model *Backup) createBackupSQL(cfg Config) (*Backup, error) {
 }
 
 // Выполение задания восстановления базы данных
-func Restore(cfg Config, dbBackup string) {
-	command := fmt.Sprintf("pg_dump %s < %s/%s", cfg.User, BACKUP_DIR, dbBackup)
-	cmd, err := exec.Command("sh", "-c", command).Output()
+func Restore(cfg Config, alias, dbName string) error {
+	backup := getBackup(alias, dbName)
+	// 1. удалить базу данных
+	// 2. создать новую с таким же owner
+	delCommand := fmt.Sprintf("export PGPASSWORD=%s && psql -h %s -U %s postgres -c 'DROP DATABASE %s;'", cfg.Password, cfg.Host, cfg.User, dbName)
+	cmd, err := exec.Command("sh", "-c", delCommand).Output()
 	if err != nil {
 		log.Println(err)
+		return err
 	}
-	log.Println(cmd)
+	createCommand := fmt.Sprintf("export PGPASSWORD=%s && psql -h %s -U %s postgres -c 'CREATE DATABASE %s OWNER %s;'", cfg.Password, cfg.Host, cfg.User, dbName, cfg.User)
+	cmd2, err := exec.Command("sh", "-c", createCommand).Output()
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	backupName := backup.Alias + "-" + backup.Date
+	restoreCommand := fmt.Sprintf("export PGPASSWORD=%s && psql -h %s -U %s %s < %s/%s.dump", cfg.Password, cfg.Host, cfg.User, dbName, backup.Directory, backupName)
+	cmd3, err := exec.Command("sh", "-c", restoreCommand).Output()
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	log.Println(cmd, cmd2, cmd3)
+	log.Println("бекап восстановлен")
+	return nil
 }
 
 // Выполнение бекапов по расписанию.
