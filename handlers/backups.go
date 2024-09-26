@@ -34,7 +34,6 @@ func (h *Handler) backupHandler(c *gin.Context) {
 		c.HTML(http.StatusBadRequest, "backups.html", gin.H{"error": err.Error()})
 		return
 	}
-	fmt.Println(data)
 	backupName := data.SelectedDB
 	backupRun := data.SelectedRun
 	backupComment := data.SelectedComment

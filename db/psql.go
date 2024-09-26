@@ -78,8 +78,8 @@ func (model *Backup) createBackupSQL(cfg Config) (*Backup, error) {
 	command := fmt.Sprintf("export PGPASSWORD=%s && pg_dump -h %s -U %s %s > %s/%s.dump", cfg.Password, cfg.Host, cfg.User, model.Alias, model.Directory, backupName)
 	_, err := exec.Command("sh", "-c", command).Output()
 	if err != nil {
-		log.Println(err)
-		return &Backup{}, err
+		log.Println(err, command)
+		return &Backup{}, fmt.Errorf("%s", command)
 	}
 	timer := time.Since(start).Seconds()
 	elapsed := fmt.Sprintf("%.3f сек", timer)
@@ -93,31 +93,28 @@ func (model *Backup) createBackupSQL(cfg Config) (*Backup, error) {
 }
 
 // Выполение задания восстановления базы данных
-func Restore(cfg Config, alias, dbName string) error {
-	backup := getBackup(alias, dbName)
-	// 1. удалить базу данных
-	// 2. создать новую с таким же owner
-	delCommand := fmt.Sprintf("export PGPASSWORD=%s && psql -h %s -U %s postgres -c 'DROP DATABASE %s;'", cfg.Password, cfg.Host, cfg.User, dbName)
-	cmd, err := exec.Command("sh", "-c", delCommand).Output()
-	if err != nil {
-		log.Println(err)
-		return err
-	}
-	createCommand := fmt.Sprintf("export PGPASSWORD=%s && psql -h %s -U %s postgres -c 'CREATE DATABASE %s OWNER %s;'", cfg.Password, cfg.Host, cfg.User, dbName, cfg.User)
-	cmd2, err := exec.Command("sh", "-c", createCommand).Output()
-	if err != nil {
-		log.Println(err)
-		return err
+func Restore(cfg Config, alias, date string) error {
+	backup := getBackup(alias, date)
+	// 1. очистить базу данных
+	// 2. восстановить из бекапа
+	commands := []string{"DROP SCHEMA public CASCADE;", "CREATE SCHEMA public;", "GRANT ALL ON SCHEMA public TO  public;"}
+	for _, command := range commands {
+		run := fmt.Sprintf("export PGPASSWORD=%s && psql -h %s -U %s %s -c '%s'", cfg.Password, cfg.Host, cfg.User, backup.Alias, command)
+		_, err := exec.Command("sh", "-c", run).Output()
+		if err != nil {
+			log.Println(err, command)
+			return fmt.Errorf("%s-%s %s", backup.Alias, backup.Date, command)
+		}
+		log.Println(backup.Alias, backup.Date, command)
 	}
 	backupName := backup.Alias + "-" + backup.Date
-	restoreCommand := fmt.Sprintf("export PGPASSWORD=%s && psql -h %s -U %s %s < %s/%s.dump", cfg.Password, cfg.Host, cfg.User, dbName, backup.Directory, backupName)
-	cmd3, err := exec.Command("sh", "-c", restoreCommand).Output()
+	command := fmt.Sprintf("export PGPASSWORD=%s && psql -h %s -U %s %s < %s/%s.dump", cfg.Password, cfg.Host, cfg.User, backup.Alias, backup.Directory, backupName)
+	_, err := exec.Command("sh", "-c", command).Output()
 	if err != nil {
-		log.Println(err)
-		return err
+		log.Println(err, command)
+		return fmt.Errorf("%s-%s %s", backup.Alias, backup.Date, command)
 	}
-	log.Println(cmd, cmd2, cmd3)
-	log.Println("бекап восстановлен")
+	log.Println(backup.Alias, backup.Date, command)
 	return nil
 }
 
