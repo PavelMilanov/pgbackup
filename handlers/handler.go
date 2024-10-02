@@ -10,7 +10,6 @@ import (
 )
 
 type Handler struct {
-	// DB     *gorm.DB
 	CONFIG *db.Config
 	CRON   *cron.Cron
 }
