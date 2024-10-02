@@ -5,19 +5,18 @@ import (
 
 	"github.com/PavelMilanov/pgbackup/db"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 
 	cron "github.com/robfig/cron/v3"
 )
 
 type Handler struct {
-	DB     *gorm.DB
+	// DB     *gorm.DB
 	CONFIG *db.Config
 	CRON   *cron.Cron
 }
 
-func NewHandler(db *gorm.DB, config *db.Config, scheduler *cron.Cron) *Handler {
-	return &Handler{DB: db, CONFIG: config, CRON: scheduler}
+func NewHandler(config *db.Config, scheduler *cron.Cron) *Handler {
+	return &Handler{CONFIG: config, CRON: scheduler}
 }
 
 func (h *Handler) InitRouters() *gin.Engine {
@@ -30,10 +29,11 @@ func (h *Handler) InitRouters() *gin.Engine {
 	{
 		web.GET("/", h.authView)
 		web.GET("/logout", h.authView)
-		// web.POST("/bases", h.submitLoginForm)
-		// web.GET("/bases", h.basesView)
-		web.GET("/tasks", h.tasksView)
 
+		tasks := web.Group("/tasks")
+		{
+			tasks.GET("/", h.tasksView)
+		}
 		backups := web.Group("/backups")
 		{
 			backups.GET("/", h.backupsView)

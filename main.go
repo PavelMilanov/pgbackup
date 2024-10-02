@@ -39,7 +39,7 @@ func main() {
 		DBName:   os.Getenv("POSTGRES_DB"),
 	}
 
-	postgres, err := db.NewPostgreDB(&config)
+	// postgres, err := db.NewPostgreDB(&config)
 
 	jakartaTime, _ := time.LoadLocation("Europe/Moscow")
 	scheduler := cron.New(cron.WithLocation(jakartaTime))
@@ -56,10 +56,10 @@ func main() {
 	}
 	///
 
-	handler := handlers.NewHandler(postgres, &config, scheduler)
-	if err != nil {
-		log.Fatal(err)
-	}
+	handler := handlers.NewHandler(&config, scheduler)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 
 	srv := new(Server)
 	go func() {
@@ -74,5 +74,5 @@ func main() {
 	if err := srv.Shutdown(time.Duration(duration)); err != nil {
 		log.Fatalf("error occured on server shutting down: %s", err.Error())
 	}
-	db.Close(postgres)
+	// db.Close(postgres)
 }

@@ -19,7 +19,7 @@ type BackupForm struct {
 }
 
 func (h *Handler) backupsView(c *gin.Context) {
-	dbInfo := db.GetDBData(h.DB)
+	dbInfo := db.GetDBData(*h.CONFIG)
 	backupsInfo := db.GetBackupData()
 	c.HTML(http.StatusOK, "backups.html", gin.H{
 		"databases": dbInfo,

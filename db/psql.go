@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os/exec"
+	"strings"
 	"time"
 
 	"github.com/robfig/cron/v3"
@@ -156,4 +157,56 @@ func (model *Backup) CreateManualBackup(cfg Config) (*Backup, error) {
 	}
 	newBackup.createBackupData()
 	return newBackup, nil
+}
+
+// получение размера базы данных по имени.
+func getDBSize(cfg Config, dbName string) string {
+	command := fmt.Sprintf("export PGPASSWORD=%s && psql -h %s -U %s %s -c \"SELECT pg_size_pretty(pg_database_size('%s'))\"", cfg.Password, cfg.Host, cfg.User, cfg.DBName, dbName)
+	output, err := exec.Command("sh", "-c", command).Output()
+	if err != nil {
+		log.Println(err, command)
+		return ""
+	}
+	//pg_size_pretty
+	//----------------
+	//7453 kB
+	//(1 row)
+	startIndex := 35
+	endIndex := len(string(output)) - 10
+	size := fmt.Sprint(string(output)[startIndex:endIndex]) // -> 7453 kB
+	return size
+}
+
+// Получение списка всех баз данных в экземпляре PostgreSQL.
+func getDBName(cfg Config) []string {
+	command := fmt.Sprintf("export PGPASSWORD=%s && psql -h %s -U %s %s -c \"SELECT datname FROM pg_database WHERE datistemplate = false\"", cfg.Password, cfg.Host, cfg.User, cfg.DBName)
+	output, err := exec.Command("sh", "-c", command).Output()
+	if err != nil {
+		log.Println(err, command)
+		return []string{}
+	}
+	//datname
+	//----------
+	//postgres
+	//dev
+	//(2 rows)
+	startIndex := 23
+	endIndex := len(string(output)) - 11
+	data := fmt.Sprint(string(output[startIndex:endIndex]))
+	dbList := strings.Split(data, "\n")
+	for i, item := range dbList {
+		dbList[i] = strings.TrimSpace(item)
+	}
+	return dbList
+}
+
+// Вывод информации обо всех базах данных
+func GetDBData(db Config) []PsqlBase {
+	var dataBases = []PsqlBase{}
+	dbNames := getDBName(db)
+	for _, item := range dbNames {
+		size := getDBSize(db, item)
+		dataBases = append(dataBases, PsqlBase{Name: item, Size: size})
+	}
+	return dataBases
 }

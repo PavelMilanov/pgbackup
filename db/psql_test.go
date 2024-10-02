@@ -1,7 +1,6 @@
 package db
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -14,7 +13,7 @@ func TestCheckConnection(t *testing.T) {
 		DBName:   "dev",
 	}
 	conn := CheckConnection(config)
-	fmt.Println(conn)
+	t.Log(conn)
 }
 
 // func TestCreateBackup(t *testing.T) {
@@ -31,3 +30,27 @@ func TestCheckConnection(t *testing.T) {
 // 	}
 // 	fmt.Println(backup)
 // }
+
+func TestGetDBSize(t *testing.T) {
+	config := Config{
+		Host:     "localhost",
+		Port:     "5432",
+		User:     "admin",
+		Password: "admin",
+		DBName:   "postgres",
+	}
+	size := getDBSize(config, "dev")
+	t.Log(size)
+}
+
+func TestGetDBName(t *testing.T) {
+	config := Config{
+		Host:     "localhost",
+		Port:     "5432",
+		User:     "admin",
+		Password: "admin",
+		DBName:   "postgres",
+	}
+	data := getDBName(config)
+	t.Log(data)
+}
