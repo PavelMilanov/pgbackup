@@ -8,8 +8,8 @@ import (
 )
 
 func (h *Handler) tasksView(c *gin.Context) {
-	dbData := db.GetDBData(*h.CONFIG)
+	tasksData := db.GetTaskData()
 	c.HTML(http.StatusOK, "tasks.html", gin.H{
-		"databases": dbData,
+		"tasks": tasksData,
 	})
 }

@@ -10,45 +10,6 @@ import (
 	"github.com/robfig/cron/v3"
 )
 
-var BACKUP_DIR = "dumps"
-var BACKUPDATA_DIR = "data"
-var DEFAULT_BACKUP_DIR = BACKUP_DIR + "/" + "default_backup"
-var BACKUP_RUN = []string{"вручную", "по расписанию"}
-
-// Модель расписания.
-type Task struct {
-	Alias     string
-	Comment   string
-	Directory string
-	Schedule  BackupSchedule
-}
-
-// Модель бекапа.
-type Backup struct {
-	Alias     string
-	Date      string
-	Size      string
-	LeadTime  string
-	Status    string
-	Comment   string
-	Directory string
-	Schedule  BackupSchedule
-}
-
-// Модель для расписания бекапа в формате cron.
-type BackupSchedule struct {
-	Run   string
-	Count string
-	Time  string
-	Cron  string
-}
-
-// Модель Базы данных psql.
-type PsqlBase struct {
-	Name string
-	Size string
-}
-
 // Проверка подключения к базе данных
 func CheckConnection(cfg Config) string {
 	command := fmt.Sprintf("pg_isready -h %s -U %s -d %s -p %d", cfg.Host, cfg.User, cfg.DBName, cfg.portToInt(cfg.Port))

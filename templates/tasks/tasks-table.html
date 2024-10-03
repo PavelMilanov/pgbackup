@@ -1,3 +1,33 @@
 {{ define "tasks/table" }}
-
+<div class="container text-center m-4 p-2 bg-light border">
+    <table id="tasksTable" class="table">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">База данных</th>
+                <th scope="col">Количество бекапов</th>
+                <th scope="col">Время</th>
+                <th scope="col">Периодичность</th>
+                <th scope="col">Опции</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{ range $index, $element := . }}
+            <form action="/tasks/action" method="post">
+                <tr>
+                    <th scope="row">{{ add $index 1 }}</th>
+                    <td>{{ $element.Alias }}</td>
+                    <td>{{ $element.Schedule.Count }}</td>
+                    <td>{{ $element.Schedule.Time }}</td>
+                    <td>каждый {{ $element.Schedule.Cron }} день</td>
+                    <td>
+                        <button type="submit" name="action" value="change" class="btn btn-success btn-sm">Изменить</button>
+                        <button type="submit" name="action" value="delete" class="btn btn-danger btn-sm">Удалить</button>
+                    </td>
+                </tr>
+            </form>
+            {{ end }}
+        </tbody>
+    </table>
+</div>
 {{ end }}

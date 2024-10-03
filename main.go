@@ -39,8 +39,8 @@ func main() {
 		DBName:   os.Getenv("POSTGRES_DB"),
 	}
 
-	jakartaTime, _ := time.LoadLocation("Europe/Moscow")
-	scheduler := cron.New(cron.WithLocation(jakartaTime))
+	location, _ := time.LoadLocation("Europe/Moscow")
+	scheduler := cron.New(cron.WithLocation(location))
 
 	/// фоновые задачи
 	go scheduler.Start()

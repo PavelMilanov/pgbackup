@@ -84,9 +84,9 @@ func (h *Handler) backupHandler(c *gin.Context) {
 		}
 		task.CreateTaskData()
 		task.CreateCronBackup(h.CRON, *h.CONFIG)
-		c.JSON(http.StatusOK, gin.H{
-			"error": "расписание создано",
-		})
+		// c.JSON(http.StatusOK, gin.H{
+		// 	"error": "расписание создано",
+		// })
 	}
 	c.Redirect(http.StatusFound, "/backups")
 }
