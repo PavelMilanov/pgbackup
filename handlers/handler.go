@@ -32,6 +32,7 @@ func (h *Handler) InitRouters() *gin.Engine {
 		tasks := web.Group("/tasks")
 		{
 			tasks.GET("/", h.tasksView)
+			tasks.POST("/action", h.actionTaskHandler)
 		}
 		backups := web.Group("/backups")
 		{

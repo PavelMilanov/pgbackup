@@ -24,6 +24,8 @@
                         <button type="submit" name="action" value="change" class="btn btn-success btn-sm">Изменить</button>
                         <button type="submit" name="action" value="delete" class="btn btn-danger btn-sm">Удалить</button>
                     </td>
+                    <input type="hidden" name="alias" value="{{ $element.Alias }}">
+                    <input type="hidden" name="dir" value="{{ $element.Directory }}">
                 </tr>
             </form>
             {{ end }}

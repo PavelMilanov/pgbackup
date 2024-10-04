@@ -31,6 +31,17 @@ func getBackup(alias, date string) Backup {
 	return Backup{}
 }
 
+// Возвращает модель Task по заданным параметрам
+func getTask(alias, dir string) Task {
+	tasks := GetTaskData()
+	for _, task := range tasks {
+		if task.Alias == alias && task.Directory == dir {
+			return task
+		}
+	}
+	return Task{}
+}
+
 // Получает текущий список структур Backup и добавляет новый.
 func (model *Backup) createBackupData() []Backup {
 	backups := GetBackupData()
@@ -159,6 +170,29 @@ func (model *Task) CreateTaskData() []Task {
 		return []Task{}
 	}
 	return tasks
+}
+
+// Получает текущий список структур Tasks и удаляет указанный.
+func DeleteTaskData(alias, dir string) error {
+	task := getTask(alias, dir)
+	tasks := GetTaskData()
+	newTasks := []Task{}
+	for _, item := range tasks {
+		if item.Alias == task.Alias && item.Directory == task.Directory {
+			continue
+		}
+		newTasks = append(newTasks, item)
+	}
+	jsonInfo, err := json.MarshalIndent(newTasks, "", "\t")
+	if err != nil {
+		log.Println("Ошибка записи данных:", err)
+	}
+	file := fmt.Sprintf("%s/tasks.json", BACKUPDATA_DIR)
+	if err := os.WriteFile(file, jsonInfo, 0640); err != nil {
+		log.Println(err.Error())
+		return err
+	}
+	return nil
 }
 
 // удаляет старые бекапы согласно расписания.
