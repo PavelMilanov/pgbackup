@@ -45,7 +45,7 @@ func main() {
 	logrus.SetFormatter(&logrus.TextFormatter{
 
 		FullTimestamp:   true,
-		TimestampFormat: "2006-01-02 15:04",
+		TimestampFormat: "2006/01/02 15:04:00",
 		CallerPrettyfier: func(f *runtime.Frame) (string, string) {
 			_, filename := path.Split(f.File)
 			filename = fmt.Sprintf("[ %s:%d]", filename, f.Line)
