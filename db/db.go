@@ -1,8 +1,9 @@
 package db
 
 import (
-	"log"
 	"strconv"
+
+	"github.com/sirupsen/logrus"
 )
 
 var BACKUP_DIR = "dumps"
@@ -21,7 +22,7 @@ type Config struct {
 func (cfg *Config) portToInt(port string) int {
 	intPort, err := strconv.Atoi(port)
 	if err != nil {
-		log.Fatal(err)
+		logrus.Fatal(err)
 	}
 	return intPort
 }

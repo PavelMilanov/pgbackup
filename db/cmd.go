@@ -10,6 +10,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 // Возвращает строку в формате cron для модели Task.
@@ -57,11 +59,11 @@ func (model *Backup) createBackupData() []Backup {
 	})
 	jsonInfo, err := json.MarshalIndent(backups, "", "\t")
 	if err != nil {
-		log.Println("Ошибка записи данных:", err)
+		logrus.Error(err)
 	}
 	file := fmt.Sprintf("%s/backups.json", BACKUPDATA_DIR)
 	if err := os.WriteFile(file, jsonInfo, 0640); err != nil {
-		log.Println(err)
+		logrus.Error(err)
 		return []Backup{}
 	}
 	return backups
@@ -75,7 +77,7 @@ func DeleteBackupData(alias, date string) error {
 		fileName := backup.Alias + "-" + backup.Date + ".dump"
 		filePath := fmt.Sprintf("%s/%s", backup.Directory, fileName)
 		if err := os.Remove(filePath); err != nil {
-			log.Println(err)
+			logrus.Error(err)
 			return err
 		}
 		log.Printf("%s удален", filePath)
@@ -84,11 +86,11 @@ func DeleteBackupData(alias, date string) error {
 	}
 	jsonInfo, err := json.MarshalIndent(newBackups, "", "\t")
 	if err != nil {
-		log.Println("Ошибка записи данных:", err)
+		logrus.Error(err)
 	}
 	file := fmt.Sprintf("%s/backups.json", BACKUPDATA_DIR)
 	if err := os.WriteFile(file, jsonInfo, 0640); err != nil {
-		log.Println(err)
+		logrus.Error(err)
 		return err
 	}
 	return nil
@@ -98,9 +100,9 @@ func DeleteBackupData(alias, date string) error {
 func СreateBackupDir(dir string) {
 	if err := os.Mkdir(dir, 0755); err != nil {
 		if !os.IsExist(err) {
-			log.Printf("%s - директория проинициализирована", dir)
+			logrus.Infof("%s - директория проинициализирована", dir)
 		} else {
-			log.Printf("%s - директория создана", dir)
+			logrus.Infof("%s - директория создана", dir)
 		}
 	}
 }
@@ -133,7 +135,7 @@ func (model *Backup) getBackupSize(filename string) string {
 	command := fmt.Sprintf("du -h %s/%s.dump | awk '{print $1}'", model.Directory, filename)
 	cmd, err := exec.Command("sh", "-c", command).Output()
 	if err != nil {
-		panic(err)
+		logrus.Error(command)
 	}
 	return string(cmd)
 }
@@ -163,7 +165,7 @@ func (model *Task) CreateTaskData() []Task {
 	})
 	jsonInfo, err := json.MarshalIndent(tasks, "", "\t")
 	if err != nil {
-		log.Println("Ошибка записи данных:", err)
+		logrus.Error(err)
 	}
 	file := fmt.Sprintf("%s/tasks.json", BACKUPDATA_DIR)
 	if err := os.WriteFile(file, jsonInfo, 0640); err != nil {
@@ -185,11 +187,11 @@ func DeleteTaskData(alias, dir string) error {
 	}
 	jsonInfo, err := json.MarshalIndent(newTasks, "", "\t")
 	if err != nil {
-		log.Println("Ошибка записи данных:", err)
+		logrus.Error(err)
 	}
 	file := fmt.Sprintf("%s/tasks.json", BACKUPDATA_DIR)
 	if err := os.WriteFile(file, jsonInfo, 0640); err != nil {
-		log.Println(err.Error())
+		logrus.Error(err)
 		return err
 	}
 	return nil
@@ -200,9 +202,9 @@ func (model *Task) deleteOldBackup() error {
 	command := fmt.Sprintf("find  %s -name \"*.dump\" -mtime +%s -delete", model.Directory, model.Schedule.Count)
 	cmd, err := exec.Command("sh", "-c", command).Output()
 	if err != nil {
-		log.Println(err)
+		logrus.Error(err)
 		return err
 	}
-	log.Println(cmd)
+	logrus.Infoln(cmd)
 	return nil
 }

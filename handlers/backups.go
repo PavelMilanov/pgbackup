@@ -2,11 +2,11 @@ package handlers
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/PavelMilanov/pgbackup/db"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
 type BackupForm struct {
@@ -107,7 +107,7 @@ func (h *Handler) actionBackupHandler(c *gin.Context) {
 				fileHeader := fmt.Sprintf("attachment; filename=%s", fileName)
 				c.Header("Content-Disposition", fileHeader)
 				c.File(filePath)
-				log.Printf("%s скачан", filePath)
+				logrus.Infof("%s скачан", filePath)
 				return
 			}
 		}
