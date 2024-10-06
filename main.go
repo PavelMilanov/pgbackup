@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"os/signal"
+	"path"
+	"runtime"
 	"syscall"
 	"time"
 
@@ -12,23 +13,21 @@ import (
 	"github.com/PavelMilanov/pgbackup/handlers"
 	"github.com/joho/godotenv"
 	"github.com/robfig/cron/v3"
+	"github.com/sirupsen/logrus"
 )
 
 var duration = 1
 
 func init() {
 	// создаем дефолтные директории
-	if err := os.Mkdir(db.BACKUP_DIR, 0755); err != nil {
-	}
-	if err := os.Mkdir(db.DEFAULT_BACKUP_DIR, 0755); err != nil {
-	}
-	if err := os.Mkdir(db.BACKUPDATA_DIR, 0755); err != nil {
-	}
+	os.Mkdir(db.BACKUP_DIR, 0755)
+	os.Mkdir(db.DEFAULT_BACKUP_DIR, 0755)
+	os.Mkdir(db.BACKUPDATA_DIR, 0755)
 }
 
 func main() {
 	if err := godotenv.Load(); err != nil {
-		log.Println(".env файл не найден")
+		logrus.Error(".env файл не найден")
 	}
 
 	config := db.Config{
@@ -41,6 +40,18 @@ func main() {
 
 	location, _ := time.LoadLocation("Europe/Moscow")
 	scheduler := cron.New(cron.WithLocation(location))
+	logrus.SetOutput(os.Stdout)
+	logrus.SetReportCaller(true)
+	logrus.SetFormatter(&logrus.TextFormatter{
+
+		FullTimestamp:   true,
+		TimestampFormat: "2006-01-02 15:04",
+		CallerPrettyfier: func(f *runtime.Frame) (string, string) {
+			_, filename := path.Split(f.File)
+			filename = fmt.Sprintf("[ %s:%d]", filename, f.Line)
+			return "", filename
+		},
+	})
 
 	/// фоновые задачи
 	go scheduler.Start()
@@ -59,7 +70,7 @@ func main() {
 	srv := new(Server)
 	go func() {
 		if err := srv.Run(handler.InitRouters()); err != nil {
-			log.Fatalf("listen: %s\n", err)
+			logrus.WithError(err).Error("ошибка при запуске сервера")
 		}
 	}()
 	quit := make(chan os.Signal, 1)
@@ -67,6 +78,6 @@ func main() {
 	<-quit
 	fmt.Printf("Shutdown signal of %d seconds\n", duration)
 	if err := srv.Shutdown(time.Duration(duration)); err != nil {
-		log.Fatalf("error occured on server shutting down: %s", err.Error())
+		logrus.WithError(err).Error("ошибка при остановке сервера")
 	}
 }

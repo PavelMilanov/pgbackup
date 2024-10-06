@@ -2,9 +2,10 @@ package main
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 type Server struct {
@@ -18,6 +19,7 @@ func (s *Server) Run(handler http.Handler) error {
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
+	logrus.Info("Сервер запущен")
 	return s.httpServer.ListenAndServe()
 }
 
@@ -26,7 +28,7 @@ func (s *Server) Shutdown(grace time.Duration) error {
 	defer cancel()
 	select {
 	case <-ctx.Done():
-		log.Println("Cервер выключен")
+		logrus.Info("Сервер остановлен")
 	}
 	return s.httpServer.Shutdown(ctx)
 }

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/robfig/cron/v3"
+	"github.com/sirupsen/logrus"
 )
 
 // Проверка подключения к базе данных
@@ -40,7 +41,7 @@ func (model *Backup) createBackupSQL(cfg Config) (*Backup, error) {
 	command := fmt.Sprintf("export PGPASSWORD=%s && pg_dump -h %s -U %s %s > %s/%s.dump", cfg.Password, cfg.Host, cfg.User, model.Alias, model.Directory, backupName)
 	_, err := exec.Command("sh", "-c", command).Output()
 	if err != nil {
-		log.Println(err, command)
+		logrus.Error(command)
 		return &Backup{}, fmt.Errorf("%s", command)
 	}
 	timer := time.Since(start).Seconds()
@@ -64,7 +65,7 @@ func Restore(cfg Config, alias, date string) error {
 		run := fmt.Sprintf("export PGPASSWORD=%s && psql -h %s -U %s %s -c '%s'", cfg.Password, cfg.Host, cfg.User, backup.Alias, command)
 		_, err := exec.Command("sh", "-c", run).Output()
 		if err != nil {
-			log.Println(err, command)
+			logrus.Error(command)
 			return fmt.Errorf("%s-%s %s", backup.Alias, backup.Date, command)
 		}
 		log.Println(backup.Alias, backup.Date, command)
@@ -73,7 +74,7 @@ func Restore(cfg Config, alias, date string) error {
 	command := fmt.Sprintf("export PGPASSWORD=%s && psql -h %s -U %s %s < %s/%s.dump", cfg.Password, cfg.Host, cfg.User, backup.Alias, backup.Directory, backupName)
 	_, err := exec.Command("sh", "-c", command).Output()
 	if err != nil {
-		log.Println(err, command)
+		logrus.Error(command)
 		return fmt.Errorf("%s-%s %s", backup.Alias, backup.Date, command)
 	}
 	log.Println(backup.Alias, backup.Date, command)
@@ -97,7 +98,7 @@ func (task *Task) CreateCronBackup(scheduler *cron.Cron, cfg Config) {
 		}
 		newBackup, err := backupModel.createBackupSQL(cfg)
 		if err != nil {
-			log.Println(err)
+			logrus.Error(err)
 			return
 		}
 		newBackup.createBackupData()
@@ -113,7 +114,7 @@ func (task *Task) CreateCronBackup(scheduler *cron.Cron, cfg Config) {
 func (model *Backup) CreateManualBackup(cfg Config) (*Backup, error) {
 	newBackup, err := model.createBackupSQL(cfg)
 	if err != nil {
-		log.Println(err)
+		logrus.Error(err)
 		return &Backup{}, err
 	}
 	newBackup.createBackupData()
@@ -125,7 +126,7 @@ func getDBSize(cfg Config, dbName string) string {
 	command := fmt.Sprintf("export PGPASSWORD=%s && psql -h %s -U %s %s -c \"SELECT pg_size_pretty(pg_database_size('%s'))\"", cfg.Password, cfg.Host, cfg.User, cfg.DBName, dbName)
 	output, err := exec.Command("sh", "-c", command).Output()
 	if err != nil {
-		log.Println(err, command)
+		logrus.Error(command)
 		return ""
 	}
 	//pg_size_pretty
@@ -143,7 +144,7 @@ func getDBName(cfg Config) []string {
 	command := fmt.Sprintf("export PGPASSWORD=%s && psql -h %s -U %s %s -c \"SELECT datname FROM pg_database WHERE datistemplate = false\"", cfg.Password, cfg.Host, cfg.User, cfg.DBName)
 	output, err := exec.Command("sh", "-c", command).Output()
 	if err != nil {
-		log.Println(err, command)
+		logrus.Error(command)
 		return []string{}
 	}
 	//datname
