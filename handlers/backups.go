@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/PavelMilanov/pgbackup/connector"
+	"github.com/PavelMilanov/pgbackup/web"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
@@ -25,7 +26,10 @@ func (h *Handler) backupsView(c *gin.Context) {
 		"databases": dbInfo,
 		"backups":   backupsInfo,
 		"run":       connector.BACKUP_RUN,
-	})
+		"pages": []web.Page{
+			{Name: "Бэкапы", URL: "/backups", IsVisible: true},
+			{Name: "Задания", URL: "/tasks", IsVisible: false},
+		}})
 }
 
 func (h *Handler) backupHandler(c *gin.Context) {

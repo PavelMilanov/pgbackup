@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/PavelMilanov/pgbackup/connector"
+	"github.com/PavelMilanov/pgbackup/web"
 	"github.com/gin-gonic/gin"
 )
 
@@ -11,7 +12,10 @@ func (h *Handler) tasksView(c *gin.Context) {
 	tasksData := connector.GetTaskData()
 	c.HTML(http.StatusOK, "tasks.html", gin.H{
 		"tasks": tasksData,
-	})
+		"pages": []web.Page{
+			{Name: "Бэкапы", URL: "/backups", IsVisible: false},
+			{Name: "Задания", URL: "/tasks", IsVisible: true},
+		}})
 }
 
 // Удаление задания бекапов.

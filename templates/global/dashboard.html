@@ -1,15 +1,17 @@
 {{ define "dashboard" }}
 <div class="dashboardPage border-end shadow-sm bg-light vh-100">
     <ul class="nav flex-column nav-pills">
-        <!-- <li class="nav-item">
-            <a class="nav-link" id="bases" href="/bases">Базы данных</a>
-        </li> -->
-        <li class="nav-item">
-            <a class="nav-link" id="backups" href="/backups">Бекапы</a>
+        {{ range . }}
+        {{ if .IsVisible }}
+        <li class="nav-item p-2">
+            <a class="nav-link active" aria-current="page" href="{{ .URL }}">{{ .Name }}</a>
         </li>
-        <li class="nav-item">
-            <a class="nav-link" id="bases" href="/tasks">Задания</a>
+        {{ else}}
+        <li class="nav-item"></li>
+            <a class="nav-link" href="{{ .URL }}">{{ .Name }}</a>
         </li>
+        {{ end }}
+        {{ end }}
         <li class="nav-item">
             <a class="nav-link" href="/logout">Выход</a>
         </li>
