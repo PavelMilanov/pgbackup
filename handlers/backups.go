@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/PavelMilanov/pgbackup/db"
+	"github.com/PavelMilanov/pgbackup/connector"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
@@ -19,12 +19,12 @@ type BackupForm struct {
 }
 
 func (h *Handler) backupsView(c *gin.Context) {
-	dbInfo := db.GetDBData(*h.CONFIG)
-	backupsInfo := db.GetBackupData()
+	dbInfo := connector.GetDBData(*h.CONFIG)
+	backupsInfo := connector.GetBackupData()
 	c.HTML(http.StatusOK, "backups.html", gin.H{
 		"databases": dbInfo,
 		"backups":   backupsInfo,
-		"run":       db.BACKUP_RUN,
+		"run":       connector.BACKUP_RUN,
 	})
 }
 
@@ -41,20 +41,20 @@ func (h *Handler) backupHandler(c *gin.Context) {
 	backupTime := data.SelectedTime
 	backupCron := data.SelectedCron
 
-	if backupRun == db.BACKUP_RUN[1] && (backupCount == "" || backupCron == "" || backupTime == "") {
+	if backupRun == connector.BACKUP_RUN[1] && (backupCount == "" || backupCron == "" || backupTime == "") {
 		c.JSON(http.StatusOK, gin.H{
 			"error": "расписание не может быть пустым",
 		})
 		return
 	}
 	switch backupRun {
-	case db.BACKUP_RUN[0]: // вручную
-		db.СreateBackupDir(db.DEFAULT_BACKUP_DIR)
-		var backupModel = db.Backup{
+	case connector.BACKUP_RUN[0]: // вручную
+		connector.СreateBackupDir(connector.DEFAULT_BACKUP_DIR)
+		var backupModel = connector.Backup{
 			Alias:     backupName,
 			Comment:   backupComment,
-			Directory: db.DEFAULT_BACKUP_DIR,
-			Schedule: db.BackupSchedule{
+			Directory: connector.DEFAULT_BACKUP_DIR,
+			Schedule: connector.BackupSchedule{
 				Run:   backupRun,
 				Count: backupCount,
 				Time:  backupTime,
@@ -68,14 +68,14 @@ func (h *Handler) backupHandler(c *gin.Context) {
 			})
 			return
 		}
-	case db.BACKUP_RUN[1]: // по расписанию
-		dirName := db.GenerateRandomBackupDir()
-		db.СreateBackupDir(dirName)
-		var task = db.Task{
+	case connector.BACKUP_RUN[1]: // по расписанию
+		dirName := connector.GenerateRandomBackupDir()
+		connector.СreateBackupDir(dirName)
+		var task = connector.Task{
 			Alias:     backupName,
 			Comment:   backupComment,
 			Directory: dirName,
-			Schedule: db.BackupSchedule{
+			Schedule: connector.BackupSchedule{
 				Run:   backupRun,
 				Count: backupCount,
 				Time:  backupTime,
@@ -99,7 +99,7 @@ func (h *Handler) actionBackupHandler(c *gin.Context) {
 	var date = c.PostForm("date")
 	switch action {
 	case "download":
-		backups := db.GetBackupData()
+		backups := connector.GetBackupData()
 		for _, backup := range backups {
 			if backup.Alias == alias && backup.Date == date {
 				fileName := backup.Alias + "-" + backup.Date + ".dump"
@@ -115,13 +115,13 @@ func (h *Handler) actionBackupHandler(c *gin.Context) {
 			"error": "ошибка при скачивании файла",
 		})
 	case "delete":
-		if err := db.DeleteBackupData(alias, date); err != nil {
+		if err := connector.DeleteBackupData(alias, date); err != nil {
 			c.JSON(http.StatusOK, gin.H{
 				"error": err.Error(),
 			})
 		}
 	case "restore":
-		db.Restore(*h.CONFIG, alias, date)
+		connector.Restore(*h.CONFIG, alias, date)
 	}
 	c.Redirect(http.StatusFound, "/backups")
 }

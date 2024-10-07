@@ -1,4 +1,4 @@
-package db
+package connector
 
 import (
 	"encoding/json"
@@ -96,15 +96,46 @@ func DeleteBackupData(alias, date string) error {
 	return nil
 }
 
+// Удаляет все бекапы в указанной директории.
+func deleteBackupsInDir(dir string) {
+	backups := GetBackupData()
+	newBackups := []Backup{}
+	for _, backup := range backups {
+		if backup.Directory == dir {
+			fileName := backup.Alias + "-" + backup.Date + ".dump"
+			filePath := fmt.Sprintf("%s/%s", backup.Directory, fileName)
+			if err := os.Remove(filePath); err != nil {
+				logrus.Error(err)
+			}
+			logrus.Infof("%s удален", filePath)
+		} else {
+			newBackups = append(newBackups, backup)
+		}
+	}
+	jsonInfo, err := json.MarshalIndent(newBackups, "", "\t")
+	if err != nil {
+		logrus.Error(err)
+	}
+	file := fmt.Sprintf("%s/backups.json", BACKUPDATA_DIR)
+	if err := os.WriteFile(file, jsonInfo, 0640); err != nil {
+		logrus.Error(err)
+	}
+}
+
 // Создает указанную директорию.
 func СreateBackupDir(dir string) {
 	if err := os.Mkdir(dir, 0755); err != nil {
 		if !os.IsExist(err) {
-			logrus.Infof("%s - директория проинициализирована", dir)
-		} else {
 			logrus.Infof("%s - директория создана", dir)
 		}
 	}
+}
+
+// Удаляет директорию с бекапами
+func DeleteBackupDir(dir string) {
+	deleteBackupsInDir(dir)
+	os.RemoveAll(dir)
+	logrus.Infof("%s - директория удалена", dir)
 }
 
 // Генерирует случайную строку из цифр от 0 до 10000.

@@ -3,7 +3,7 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/PavelMilanov/pgbackup/db"
+	"github.com/PavelMilanov/pgbackup/connector"
 	"github.com/gin-gonic/gin"
 )
 
@@ -13,7 +13,7 @@ import (
 // }
 
 func (h *Handler) basesView(c *gin.Context) {
-	dbData := db.GetDBData(*h.CONFIG)
+	dbData := connector.GetDBData(*h.CONFIG)
 	c.HTML(http.StatusOK, "bases.html", gin.H{
 		"databases": dbData,
 	})

@@ -3,18 +3,18 @@ package handlers
 import (
 	"text/template"
 
-	"github.com/PavelMilanov/pgbackup/db"
+	"github.com/PavelMilanov/pgbackup/connector"
 	"github.com/gin-gonic/gin"
 
 	cron "github.com/robfig/cron/v3"
 )
 
 type Handler struct {
-	CONFIG *db.Config
+	CONFIG *connector.Config
 	CRON   *cron.Cron
 }
 
-func NewHandler(config *db.Config, scheduler *cron.Cron) *Handler {
+func NewHandler(config *connector.Config, scheduler *cron.Cron) *Handler {
 	return &Handler{CONFIG: config, CRON: scheduler}
 }
 

@@ -1,4 +1,4 @@
-package db
+package connector
 
 // func TestGetDBs(t *testing.T) {
 // 	err := godotenv.Load()

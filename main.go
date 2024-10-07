@@ -9,7 +9,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/PavelMilanov/pgbackup/db"
+	"github.com/PavelMilanov/pgbackup/connector"
 	"github.com/PavelMilanov/pgbackup/handlers"
 	"github.com/joho/godotenv"
 	"github.com/robfig/cron/v3"
@@ -20,9 +20,9 @@ var duration = 1
 
 func init() {
 	// создаем дефолтные директории
-	os.Mkdir(db.BACKUP_DIR, 0755)
-	os.Mkdir(db.DEFAULT_BACKUP_DIR, 0755)
-	os.Mkdir(db.BACKUPDATA_DIR, 0755)
+	os.Mkdir(connector.BACKUP_DIR, 0755)
+	os.Mkdir(connector.DEFAULT_BACKUP_DIR, 0755)
+	os.Mkdir(connector.BACKUPDATA_DIR, 0755)
 }
 
 func main() {
@@ -30,7 +30,7 @@ func main() {
 		logrus.Error(".env файл не найден")
 	}
 
-	config := db.Config{
+	config := connector.Config{
 		Host:     os.Getenv("POSTGRES_HOST"),
 		Port:     os.Getenv("POSTGRES_PORT"),
 		User:     os.Getenv("POSTGRES_USER"),
@@ -57,9 +57,9 @@ func main() {
 	go scheduler.Start()
 	defer scheduler.Stop()
 
-	tasks := db.GetTaskData()
+	tasks := connector.GetTaskData()
 	for _, task := range tasks {
-		if task.Schedule.Run == db.BACKUP_RUN[1] {
+		if task.Schedule.Run == connector.BACKUP_RUN[1] {
 			task.CreateCronBackup(scheduler, config)
 		}
 	}
@@ -70,7 +70,7 @@ func main() {
 	srv := new(Server)
 	go func() {
 		if err := srv.Run(handler.InitRouters()); err != nil {
-			logrus.WithError(err).Error("ошибка при запуске сервера")
+			logrus.Warn(err)
 		}
 	}()
 	quit := make(chan os.Signal, 1)
