@@ -1,10 +1,14 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/sirupsen/logrus"
 )
 
 type LoginForm struct {
@@ -30,5 +34,15 @@ func (h *Handler) submitLoginForm(c *gin.Context) {
 		})
 		return
 	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"foo": "bar",
+		"nbf": time.Now().Add(time.Hour * 72).Unix(),
+	})
+	tokenString, err := token.SignedString([]byte("hmacSampleSecret"))
+	if err != nil {
+		logrus.Error(err)
+	}
+	fmt.Println(tokenString)
+	c.Request.Header.Add("Token", tokenString)
 	c.Redirect(http.StatusFound, "/backups")
 }

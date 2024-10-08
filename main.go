@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"os/signal"
 	"path"
@@ -10,6 +11,7 @@ import (
 	"time"
 
 	"github.com/PavelMilanov/pgbackup/connector"
+	"github.com/PavelMilanov/pgbackup/db"
 	"github.com/PavelMilanov/pgbackup/handlers"
 	"github.com/joho/godotenv"
 	"github.com/robfig/cron/v3"
@@ -37,13 +39,30 @@ func main() {
 		Password: os.Getenv("POSTGRES_PASSWORD"),
 		DBName:   os.Getenv("POSTGRES_DB"),
 	}
-
+	/// база данных
+	// первичная инициализация задания для ручных бекапов
+	sqlite := db.NewDatabase(&db.SQLite{Name: "pgbackup.db"})
+	var defaultTask db.Task
+	result := sqlite.Where("Alias = ?", "Default").First(&defaultTask)
+	fmt.Println(defaultTask)
+	if result.Error != nil {
+		// Запись не найдена, создаем новую
+		if err := sqlite.Create(&db.Task{
+			Alias:     "Default",
+			Directory: connector.DEFAULT_BACKUP_DIR,
+		}).Error; err != nil {
+			log.Fatalf("failed to create task: %v", err)
+		}
+	}
+	///
+	/// Фоновые задачи
 	location, _ := time.LoadLocation("Europe/Moscow")
 	scheduler := cron.New(cron.WithLocation(location))
+	///
+	/// логгер
 	logrus.SetOutput(os.Stdout)
 	logrus.SetReportCaller(true)
 	logrus.SetFormatter(&logrus.TextFormatter{
-
 		FullTimestamp:   true,
 		TimestampFormat: "2006/01/02 15:04:00",
 		CallerPrettyfier: func(f *runtime.Frame) (string, string) {
@@ -52,7 +71,7 @@ func main() {
 			return "", filename
 		},
 	})
-
+	///
 	/// фоновые задачи
 	go scheduler.Start()
 	defer scheduler.Stop()
@@ -65,7 +84,7 @@ func main() {
 	}
 	///
 
-	handler := handlers.NewHandler(&config, scheduler)
+	handler := handlers.NewHandler(sqlite, &config, scheduler)
 
 	srv := new(Server)
 	go func() {

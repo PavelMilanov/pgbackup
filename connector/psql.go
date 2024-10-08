@@ -25,20 +25,13 @@ func CheckConnection(cfg Config) string {
 // cfg - данные для подключения к PostgreSQL.
 // Входная модель:
 // Alias:     backupName,
-// Comment:   backupComment,
 // Directory: dirName,
-//
-//	Schedule: db.BackupSchedule{
-//		Run:   backupRun,
-//		Count: backupCount,
-//		Time:  backupTime,
-//		Cron:  backupCron,
-//	}
 func (model *Backup) createBackupSQL(cfg Config) (*Backup, error) {
 	start := time.Now()
 	currTime := start.Format("2006-01-02-15:04") // шаблон GO для формата ГГГГ-мм-дд "2006-01-02 15:04:05" со временем
 	backupName := model.Alias + "-" + currTime
-	command := fmt.Sprintf("export PGPASSWORD=%s && pg_dump -h %s -U %s %s > %s/%s.dump", cfg.Password, cfg.Host, cfg.User, model.Alias, model.Directory, backupName)
+	dumpName := model.Directory + "/" + backupName + ".dump"
+	command := fmt.Sprintf("export PGPASSWORD=%s && pg_dump -h %s -U %s %s > %s", cfg.Password, cfg.Host, cfg.User, model.Alias, dumpName)
 	_, err := exec.Command("sh", "-c", command).Output()
 	if err != nil {
 		logrus.Error(command)
@@ -52,6 +45,7 @@ func (model *Backup) createBackupSQL(cfg Config) (*Backup, error) {
 	model.Size = size
 	model.LeadTime = elapsed
 	model.Status = "завершен"
+	model.Dump = dumpName
 	return model, nil
 }
 
@@ -117,7 +111,7 @@ func (model *Backup) CreateManualBackup(cfg Config) (*Backup, error) {
 		logrus.Error(err)
 		return &Backup{}, err
 	}
-	newBackup.createBackupData()
+	// newBackup.createBackupData()
 	return newBackup, nil
 }
 

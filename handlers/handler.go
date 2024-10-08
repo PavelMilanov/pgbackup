@@ -1,25 +1,34 @@
 package handlers
 
 import (
+	"fmt"
 	"text/template"
 
 	"github.com/PavelMilanov/pgbackup/connector"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 
 	cron "github.com/robfig/cron/v3"
 )
 
 type Handler struct {
+	DB     *gorm.DB
 	CONFIG *connector.Config
 	CRON   *cron.Cron
 }
 
-func NewHandler(config *connector.Config, scheduler *cron.Cron) *Handler {
-	return &Handler{CONFIG: config, CRON: scheduler}
+func NewHandler(db *gorm.DB, config *connector.Config, scheduler *cron.Cron) *Handler {
+	return &Handler{DB: db, CONFIG: config, CRON: scheduler}
+}
+
+func authMiddleware(c *gin.Context) {
+	fmt.Print("ping!")
+	c.Next()
 }
 
 func (h *Handler) InitRouters() *gin.Engine {
 	router := gin.Default()
+
 	// gin.SetMode(gin.ReleaseMode)
 	router.SetFuncMap(template.FuncMap{"add": func(x, y int) int { return x + y }})
 	router.LoadHTMLGlob("templates/**/*")
@@ -27,14 +36,17 @@ func (h *Handler) InitRouters() *gin.Engine {
 	web := router.Group("/")
 	{
 		web.GET("/", h.authView)
+		web.POST("/", h.submitLoginForm)
 		web.GET("/logout", h.authView)
 
 		tasks := web.Group("/tasks")
+		tasks.Use(authMiddleware)
 		{
 			tasks.GET("/", h.tasksView)
 			tasks.POST("/action", h.actionTaskHandler)
 		}
 		backups := web.Group("/backups")
+		backups.Use(authMiddleware)
 		{
 			backups.GET("/", h.backupsView)
 			backups.POST("/create", h.backupHandler)

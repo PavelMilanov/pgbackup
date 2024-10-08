@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/PavelMilanov/pgbackup/connector"
+	"github.com/PavelMilanov/pgbackup/db"
 	"github.com/PavelMilanov/pgbackup/web"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -21,7 +22,9 @@ type BackupForm struct {
 
 func (h *Handler) backupsView(c *gin.Context) {
 	dbInfo := connector.GetDBData(*h.CONFIG)
-	backupsInfo := connector.GetBackupData()
+	var backupsInfo []db.Backup
+	h.DB.Find(&backupsInfo)
+	// backupsInfo := connector.GetBackupData()
 	c.HTML(http.StatusOK, "backups.html", gin.H{
 		"databases": dbInfo,
 		"backups":   backupsInfo,
@@ -53,19 +56,26 @@ func (h *Handler) backupHandler(c *gin.Context) {
 	}
 	switch backupRun {
 	case connector.BACKUP_RUN[0]: // вручную
+		var defaultTask db.Task
+		h.DB.Where("Alias = ?", "Default").First(&defaultTask)
 		connector.СreateBackupDir(connector.DEFAULT_BACKUP_DIR)
-		var backupModel = connector.Backup{
+		var backup = connector.Backup{
 			Alias:     backupName,
-			Comment:   backupComment,
-			Directory: connector.DEFAULT_BACKUP_DIR,
-			Schedule: connector.BackupSchedule{
-				Run:   backupRun,
-				Count: backupCount,
-				Time:  backupTime,
-				Cron:  backupCron,
-			},
+			Directory: defaultTask.Directory,
 		}
-		_, err := backupModel.CreateManualBackup(*h.CONFIG)
+		newBackup, err := backup.CreateManualBackup(*h.CONFIG)
+		h.DB.Create(&db.Backup{
+			Alias:    newBackup.Alias,
+			Date:     newBackup.Date,
+			Size:     newBackup.Size,
+			LeadTime: newBackup.LeadTime,
+			Run:      backupRun,
+			Status:   newBackup.Status,
+			Comment:  backupComment,
+			Dump:     newBackup.Dump,
+			TaskID:   defaultTask.ID,
+		})
+		logrus.Infof("Создан бекап %s", newBackup)
 		if err != nil {
 			c.JSON(http.StatusOK, gin.H{
 				"error": err.Error(),

@@ -44,6 +44,7 @@ type Backup struct {
 	Status    string
 	Comment   string
 	Directory string
+	Dump      string
 	Schedule  BackupSchedule
 }
 
