@@ -24,7 +24,6 @@ func init() {
 	// создаем дефолтные директории
 	os.Mkdir(connector.BACKUP_DIR, 0755)
 	os.Mkdir(connector.DEFAULT_BACKUP_DIR, 0755)
-	os.Mkdir(connector.BACKUPDATA_DIR, 0755)
 }
 
 func main() {
@@ -40,11 +39,10 @@ func main() {
 		DBName:   os.Getenv("POSTGRES_DB"),
 	}
 	/// база данных
-	// первичная инициализация задания для ручных бекапов
+	/// первичная инициализация задания для ручных бекапов
 	sqlite := db.NewDatabase(&db.SQLite{Name: "pgbackup.db"})
 	var defaultTask db.Task
 	result := sqlite.Where("Alias = ?", "Default").First(&defaultTask)
-	fmt.Println(defaultTask)
 	if result.Error != nil {
 		// Запись не найдена, создаем новую
 		if err := sqlite.Create(&db.Task{
@@ -76,12 +74,12 @@ func main() {
 	go scheduler.Start()
 	defer scheduler.Stop()
 
-	tasks := connector.GetTaskData()
-	for _, task := range tasks {
-		if task.Schedule.Run == connector.BACKUP_RUN[1] {
-			task.CreateCronBackup(scheduler, config)
-		}
-	}
+	// tasks := connector.GetTaskData()
+	// for _, task := range tasks {
+	// 	if task.Schedule.Run == connector.BACKUP_RUN[1] {
+	// 		task.CreateCronBackup(scheduler, config)
+	// 	}
+	// }
 	///
 
 	handler := handlers.NewHandler(sqlite, &config, scheduler)

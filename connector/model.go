@@ -27,13 +27,12 @@ func (cfg *Config) portToInt(port string) int {
 	return intPort
 }
 
-// Модель расписания.
-type Task struct {
-	Alias     string
-	Comment   string
-	Directory string
-	Schedule  BackupSchedule
-}
+// // Модель расписания.
+// type Task struct {
+// 	Alias     string
+// 	Comment   string
+// 	Directory string
+// }
 
 // Модель бекапа.
 type Backup struct {
@@ -42,18 +41,8 @@ type Backup struct {
 	Size      string
 	LeadTime  string
 	Status    string
-	Comment   string
 	Directory string
 	Dump      string
-	Schedule  BackupSchedule
-}
-
-// Модель для расписания бекапа в формате cron.
-type BackupSchedule struct {
-	Run   string
-	Count string
-	Time  string
-	Cron  string
 }
 
 // Модель Базы данных psql.

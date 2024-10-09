@@ -31,8 +31,7 @@
                     <button type="submit" name="action" value="delete" class="btn btn-danger btn-sm">Удалить</button>
                     <button type="submit" name="action" value="restore" class="btn btn-primary btn-sm">Восстановить</button>
                 </td>
-                <input type="hidden" name="alias" value="{{ $element.Alias }}">
-                <input type="hidden" name="date" value="{{ $element.Date }}">
+                <input type="hidden" name="id" value="{{ $element.ID }}">
             </tr>
             </form>
         {{ end }}

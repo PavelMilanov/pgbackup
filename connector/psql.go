@@ -7,8 +7,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/PavelMilanov/pgbackup/db"
+	"github.com/PavelMilanov/pgbackup/web"
 	"github.com/robfig/cron/v3"
 	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 )
 
 // Проверка подключения к базе данных
@@ -50,8 +53,8 @@ func (model *Backup) createBackupSQL(cfg Config) (*Backup, error) {
 }
 
 // Выполение задания восстановления базы данных
-func Restore(cfg Config, alias, date string) error {
-	backup := getBackup(alias, date)
+func Restore(cfg Config, backup db.Backup) error {
+	// backup := getBackup(alias, date)
 	// 1. очистить базу данных
 	// 2. восстановить из бекапа
 	commands := []string{"DROP SCHEMA public CASCADE;", "CREATE SCHEMA public;", "GRANT ALL ON SCHEMA public TO  public;"}
@@ -64,8 +67,8 @@ func Restore(cfg Config, alias, date string) error {
 		}
 		log.Println(backup.Alias, backup.Date, command)
 	}
-	backupName := backup.Alias + "-" + backup.Date
-	command := fmt.Sprintf("export PGPASSWORD=%s && psql -h %s -U %s %s < %s/%s.dump", cfg.Password, cfg.Host, cfg.User, backup.Alias, backup.Directory, backupName)
+	// backupName := backup.Alias + "-" + backup.Date
+	command := fmt.Sprintf("export PGPASSWORD=%s && psql -h %s -U %s %s < %s", cfg.Password, cfg.Host, cfg.User, backup.Alias, backup.Dump)
 	_, err := exec.Command("sh", "-c", command).Output()
 	if err != nil {
 		logrus.Error(command)
@@ -76,27 +79,43 @@ func Restore(cfg Config, alias, date string) error {
 }
 
 // Выполнение бекапов по расписанию.
-func (task *Task) CreateCronBackup(scheduler *cron.Cron, cfg Config) {
-	cron := task.toCron()
-	scheduler.AddFunc(cron, func() {
-		var backupModel = Backup{
-			Alias:     task.Alias,
-			Comment:   task.Comment,
-			Directory: task.Directory,
-			Schedule: BackupSchedule{
-				Run:   task.Schedule.Run,
-				Count: task.Schedule.Count,
-				Time:  task.Schedule.Time,
-				Cron:  task.Schedule.Cron,
-			},
+func CreateCronBackup(scheduler *cron.Cron, cfg Config, sql *gorm.DB, data web.BackupForm) {
+	dirName := generateRandomBackupDir()
+	createBackupDir(dirName)
+	timeToCron := toCron(data.SelectedTime, data.SelectedCron)
+
+	task := db.Task{
+		Alias:     data.SelectedDB,
+		Directory: dirName,
+		Count:     data.SelectedCount,
+		Time:      data.SelectedTime,
+		Cron:      data.SelectedCron,
+	}
+	result := sql.Create(&task)
+	fmt.Println(result.Error)
+	scheduler.AddFunc(timeToCron, func() {
+		var backup = Backup{
+			Alias:     data.SelectedDB,
+			Directory: DEFAULT_BACKUP_DIR,
 		}
-		newBackup, err := backupModel.createBackupSQL(cfg)
+		newBackup, err := backup.createBackupSQL(cfg)
 		if err != nil {
 			logrus.Error(err)
-			return
 		}
-		newBackup.createBackupData()
-		task.deleteOldBackup()
+		sql.Create(&db.Backup{
+			Alias:    newBackup.Alias,
+			Date:     newBackup.Date,
+			Size:     newBackup.Size,
+			LeadTime: newBackup.LeadTime,
+			Run:      data.SelectedRun,
+			Status:   newBackup.Status,
+			Comment:  data.SelectedComment,
+			Dump:     newBackup.Dump,
+			TaskID:   task.ID,
+		})
+		logrus.Infof("Создан бекап %s", newBackup)
+		// newBackup.createBackupData()
+		// task.deleteOldBackup()
 	})
 	jobs := scheduler.Entries()
 	for _, job := range jobs {
@@ -105,14 +124,32 @@ func (task *Task) CreateCronBackup(scheduler *cron.Cron, cfg Config) {
 }
 
 // Выполнение бекапа вручную.
-func (model *Backup) CreateManualBackup(cfg Config) (*Backup, error) {
-	newBackup, err := model.createBackupSQL(cfg)
+func CreateManualBackup(cfg Config, sql *gorm.DB, data web.BackupForm) error {
+	var defaultTask db.Task
+	sql.Where("Alias = ?", "Default").First(&defaultTask)
+
+	var backup = Backup{
+		Alias:     data.SelectedDB,
+		Directory: DEFAULT_BACKUP_DIR,
+	}
+	newBackup, err := backup.createBackupSQL(cfg)
 	if err != nil {
 		logrus.Error(err)
-		return &Backup{}, err
+		return err
 	}
-	// newBackup.createBackupData()
-	return newBackup, nil
+	sql.Create(&db.Backup{
+		Alias:    newBackup.Alias,
+		Date:     newBackup.Date,
+		Size:     newBackup.Size,
+		LeadTime: newBackup.LeadTime,
+		Run:      data.SelectedRun,
+		Status:   newBackup.Status,
+		Comment:  data.SelectedComment,
+		Dump:     newBackup.Dump,
+		TaskID:   defaultTask.ID,
+	})
+	logrus.Infof("Создан бекап %s", newBackup)
+	return nil
 }
 
 // получение размера базы данных по имени.

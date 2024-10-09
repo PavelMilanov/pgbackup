@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"text/template"
 
 	"github.com/PavelMilanov/pgbackup/connector"
@@ -22,7 +21,7 @@ func NewHandler(db *gorm.DB, config *connector.Config, scheduler *cron.Cron) *Ha
 }
 
 func authMiddleware(c *gin.Context) {
-	fmt.Print("ping!")
+	// fmt.Print("ping!")
 	c.Next()
 }
 
