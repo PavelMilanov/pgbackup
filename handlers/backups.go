@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/PavelMilanov/pgbackup/connector"
@@ -65,7 +64,10 @@ func (h *Handler) actionBackupHandler(c *gin.Context) {
 	var action = c.PostForm("action")
 	var id = c.PostForm("id")
 	var backup db.Backup
-	h.DB.Where("ID = ?", id).First(&backup)
+	err := backup.Get(h.DB, id)
+	if err != nil {
+		logrus.Error(err)
+	}
 	switch action {
 	case "download":
 		fileHeader := fmt.Sprintf("attachment; filename=%s-%s.dump", backup.Alias, backup.Date)
@@ -76,16 +78,16 @@ func (h *Handler) actionBackupHandler(c *gin.Context) {
 			"error": "ошибка при скачивании файла",
 		})
 	case "delete":
-		// if err := connector.DeleteBackupData(alias, date); err != nil {
-		// 	c.JSON(http.StatusOK, gin.H{
-		// 		"error": err.Error(),
-		// 	})
-		// }
-		h.DB.Delete(&backup)
+		if err := backup.Delete(h.DB); err != nil {
+			logrus.Error(err)
+			c.JSON(http.StatusOK, gin.H{
+				"error": err.Error(),
+			})
+		}
 	case "restore":
 		err := connector.Restore(*h.CONFIG, backup)
 		if err != nil {
-			log.Println(err)
+			logrus.Error(err)
 		}
 	}
 	c.Redirect(http.StatusFound, "/backups")

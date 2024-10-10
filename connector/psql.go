@@ -92,7 +92,10 @@ func CreateCronBackup(scheduler *cron.Cron, cfg Config, sql *gorm.DB, data web.B
 		Cron:      data.SelectedCron,
 	}
 	result := sql.Create(&task)
-	fmt.Println(result.Error)
+	if result.Error != nil {
+		logrus.Error(result.Error)
+		return
+	}
 	scheduler.AddFunc(timeToCron, func() {
 		var backup = Backup{
 			Alias:     data.SelectedDB,
@@ -137,8 +140,7 @@ func CreateManualBackup(cfg Config, sql *gorm.DB, data web.BackupForm) error {
 		logrus.Error(err)
 		return err
 	}
-	sql.Create(&db.Backup{
-		Alias:    newBackup.Alias,
+	model := db.Backup{Alias: newBackup.Alias,
 		Date:     newBackup.Date,
 		Size:     newBackup.Size,
 		LeadTime: newBackup.LeadTime,
@@ -146,9 +148,12 @@ func CreateManualBackup(cfg Config, sql *gorm.DB, data web.BackupForm) error {
 		Status:   newBackup.Status,
 		Comment:  data.SelectedComment,
 		Dump:     newBackup.Dump,
-		TaskID:   defaultTask.ID,
-	})
-	logrus.Infof("Создан бекап %s", newBackup)
+		TaskID:   defaultTask.ID}
+	if err := model.Create(sql); err != nil {
+		logrus.Error(err)
+		return err
+	}
+	logrus.Infof("Создан бекап %v", model)
 	return nil
 }
 
