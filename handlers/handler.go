@@ -34,15 +34,18 @@ func (h *Handler) InitRouters() *gin.Engine {
 	router.Static("/static/", "./static")
 	web := router.Group("/")
 	{
-		web.GET("/", h.authView)
-		web.POST("/", h.submitLoginForm)
-		web.GET("/logout", h.authView)
+		web.GET("/login", h.loginHandler)
+		web.GET("/", h.mainHandler)
+		web.GET("/schedule", h.scheduleHandler)
+		web.GET("/databases", h.scheduleHandler)
+		web.GET("/settings", h.settingsHandler)
+		web.GET("/logout", h.logoutHandler)
 
 		tasks := web.Group("/tasks")
 		tasks.Use(authMiddleware)
 		{
-			tasks.GET("/", h.tasksView)
-			tasks.POST("/action", h.actionTaskHandler)
+			// tasks.GET("/", h.tasksView)
+			// tasks.POST("/action", h.actionTaskHandler)
 		}
 		backups := web.Group("/backups")
 		backups.Use(authMiddleware)

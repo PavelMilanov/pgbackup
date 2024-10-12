@@ -1,0 +1,75 @@
+{{ template "header"}}
+  <div class="container" id="app">
+    <h2>Панель управления</h2>
+    
+    <div class="dashboard">
+      <div class="card">
+        <h3>Общая статистика</h3>
+        <div class="stat">totalBackups</div>
+        <div>Всего бэкапов</div>
+        <div class="chart">
+          <canvas id="backupsChart"></canvas>
+        </div>
+      </div>
+      
+      <div class="card">
+        <h3>Использование хранилища</h3>
+        <div class="stat">1 / 1</div>
+        <div>Использовано / Всего</div>
+        <div class="chart">
+          <canvas id="storageChart"></canvas>
+        </div>
+      </div>
+      
+      <div class="card">
+        <h3>Состояние системы</h3>
+        <div class="stat">1</div>
+        <div>1</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Последние бэкапы</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>База данных</th>
+            <th>Дата</th>
+            <th>Размер</th>
+            <th>Статус</th>
+            <th>Действия</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="backup in recentBackups" :key="backup.id">
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>
+              <span class="status" :class="'status-' + backup.status.toLowerCase()">
+               
+              </span>
+            </td>
+            <td>
+              <button class="btn btn-primary">Скачать</button>
+              <button class="btn btn-secondary">Восстановить</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Модальное окно для подтверждения восстановления -->
+  <div id="restoreModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Подтверждение восстановления</h2>
+      <p>Вы уверены, что хотите восстановить базу данных  из бэкапа от ?</p>
+      <p><strong>Внимание:</strong> Это действие перезапишет текущую базу данных!</p>
+      <button class="btn btn-primary">Подтвердить восстановление</button>
+      <button class="btn btn-secondary">Отмена</button>
+    </div>
+  </div>
+</body>
+</html>

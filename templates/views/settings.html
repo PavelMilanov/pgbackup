@@ -1,0 +1,97 @@
+{{ template "header"}}
+  <div class="container" id="app">
+    <h2>Настройки</h2>
+    
+    <div v-if="message" :class="['alert', message.type === 'success' ? 'alert-success' : 'alert-danger']">
+      
+    </div>
+    
+    <div class="card">
+      <h3>Общие настройки</h3>
+      <form @submit.prevent="saveGeneralSettings">
+        <div class="form-group">
+          <label for="companyName">Название компании:</label>
+          <input type="text" id="companyName" v-model="generalSettings.companyName" required>
+        </div>
+        <div class="form-group">
+          <label for="adminEmail">Email администратора:</label>
+          <input type="email" id="adminEmail" v-model="generalSettings.adminEmail" required>
+        </div>
+        <div class="form-group">
+          <label for="language">Язык интерфейса:</label>
+          <select id="language" v-model="generalSettings.language">
+            <option value="ru">Русский</option>
+            <option value="en">English</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="timezone">Часовой пояс:</label>
+          <select id="timezone" v-model="generalSettings.timezone">
+            <option value="Europe/Moscow">Москва (UTC+3)</option>
+            <option value="Europe/London">Лондон (UTC+0)</option>
+            <option value="America/New_York">Нью-Йорк (UTC-5)</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Сохранить общие настройки</button>
+      </form>
+    </div>
+    
+    <div class="card">
+      <h3>Настройки безопасности</h3>
+      <form @submit.prevent="saveSecuritySettings">
+        <div class="form-group">
+          <label for="passwordExpiration">Срок действия пароля (дней):</label>
+          <input type="number" id="passwordExpiration" v-model="securitySettings.passwordExpiration" min="0" required>
+        </div>
+        <div class="form-group">
+          <label for="failedLoginAttempts">Максимальное количество неудачных попыток входа:</label>
+          <input type="number" id="failedLoginAttempts" v-model="securitySettings.failedLoginAttempts" min="1" required>
+        </div>
+        <div class="form-group">
+          <label>
+            <span>Двухфакторная аутентификация:</span>
+            <label class="toggle-switch">
+              <input type="checkbox" v-model="securitySettings.twoFactorAuth">
+              <span class="slider"></span>
+            </label>
+          </label>
+        </div>
+        <button type="submit" class="btn btn-primary">Сохранить настройки безопасности</button>
+      </form>
+    </div>
+    
+    <div class="card">
+      <h3>Настройки уведомлений</h3>
+      <form @submit.prevent="saveNotificationSettings">
+        <div class="form-group">
+          <label>
+            <span>Email-уведомления:</span>
+            <label class="toggle-switch">
+              <input type="checkbox" v-model="notificationSettings.emailNotifications">
+              <span class="slider"></span>
+            </label>
+          </label>
+        </div>
+        <div class="form-group">
+          <label>
+            <span>SMS-уведомления:</span>
+            <label class="toggle-switch">
+              <input type="checkbox" v-model="notificationSettings.smsNotifications">
+              <span class="slider"></span>
+            </label>
+          </label>
+        </div>
+        <div class="form-group">
+          <label for="notificationEmail">Email для уведомлений:</label>
+          <input type="email" id="notificationEmail" v-model="notificationSettings.notificationEmail" required>
+        </div>
+        <div class="form-group">
+          <label for="notificationPhone">Телефон для уведомлений:</label>
+          <input type="text" id="notificationPhone" v-model="notificationSettings.notificationPhone">
+        </div>
+        <button type="submit" class="btn btn-primary">Сохранить настройки уведомлений</button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>
