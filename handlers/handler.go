@@ -37,7 +37,7 @@ func (h *Handler) InitRouters() *gin.Engine {
 		web.GET("/login", h.loginHandler)
 		web.GET("/", h.mainHandler)
 		web.GET("/schedule", h.scheduleHandler)
-		web.GET("/databases", h.scheduleHandler)
+		web.GET("/databases", h.databasesHandler)
 		web.GET("/settings", h.settingsHandler)
 		web.GET("/logout", h.logoutHandler)
 

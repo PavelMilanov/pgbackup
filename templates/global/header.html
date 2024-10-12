@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Главная | PgBackup</title>
-    <link rel="stylesheet/less" href="/static/css/main.less" />
+  <title>{{ .header }}</title>
+    <link rel="stylesheet/less" href="/static/css/styles.less" />
     <link rel="stylesheet/less" href="/static/css/schedule.less" />
     <link rel="stylesheet/less" href="/static/css/databases.less" />
     <link rel="stylesheet/less" href="/static/css/settings.less" />
@@ -15,10 +15,13 @@
     <h1>PgBackup</h1>
   </header>
   <nav>
-    <a href="/" class="active">Главная</a>
-    <a href="/schedule">Расписание</a>
-    <a href="/databases">Базы данных</a>
-    <a href="/settings">Настройки</a>
+    {{ range .pages }}
+    {{ if .IsVisible }}
+    <a href="{{ .URL }}" class="active">{{ .Name }}</a>
+    {{ else }}
+    <a href="{{ .URL }}">{{ .Name }}</a>
+    {{ end }}
+    {{ end }}
     <a href="/logout">Выйти</a>
   </nav>
 {{ end}}
