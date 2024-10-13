@@ -1,0 +1,32 @@
+{{ define "modals/add_db"}}
+<!-- Модальное окно для добавления/редактирования базы данных -->
+<div id="databaseModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Добавить базу данных</h2>
+        <form name="DatabaseForm" action="/databases/save" method="post">
+            <div class="form-group">
+                <label for="dbName">Название:</label>
+                <input type="text" id="dbName" name="Name" required>
+            </div>
+            <div class="form-group">
+                <label for="dbHost">Хост:</label>
+                <input type="text" id="dbHost" name="Host" required>
+            </div>
+            <div class="form-group">
+                <label for="dbPort">Порт:</label>
+                <input type="text" id="dbPort" name="Port" required>
+            </div>
+            <div class="form-group">
+                <label for="dbUsername">Имя пользователя:</label>
+                <input type="text" id="dbUsername" name="Username" required>
+            </div>
+            <div class="form-group">
+                <label for="dbPassword">Пароль:</label>
+                <input type="password" id="dbPassword" name="Password" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Добавить</button>
+        </form>
+    </div>
+</div>
+{{ end}}

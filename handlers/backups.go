@@ -12,18 +12,18 @@ import (
 )
 
 func (h *Handler) backupsView(c *gin.Context) {
-	dbInfo := connector.GetDBData(*h.CONFIG)
-	var backupsInfo []db.Backup
-	h.DB.Find(&backupsInfo)
-	// backupsInfo := connector.GetBackupData()
-	c.HTML(http.StatusOK, "backups.html", gin.H{
-		"databases": dbInfo,
-		"backups":   backupsInfo,
-		"run":       connector.BACKUP_RUN,
-		"pages": []web.Page{
-			{Name: "Бэкапы", URL: "/backups", IsVisible: true},
-			{Name: "Задания", URL: "/tasks", IsVisible: false},
-		}})
+	// dbInfo := connector.GetDBData()
+	// var backupsInfo []db.Backup
+	// h.DB.Find(&backupsInfo)
+	// // backupsInfo := connector.GetBackupData()
+	// c.HTML(http.StatusOK, "backups.html", gin.H{
+	// 	"databases": dbInfo,
+	// 	"backups":   backupsInfo,
+	// 	"run":       connector.BACKUP_RUN,
+	// 	"pages": []web.Page{
+	// 		{Name: "Бэкапы", URL: "/backups", IsVisible: true},
+	// 		{Name: "Задания", URL: "/tasks", IsVisible: false},
+	// 	}})
 }
 
 func (h *Handler) backupHandler(c *gin.Context) {
@@ -41,19 +41,19 @@ func (h *Handler) backupHandler(c *gin.Context) {
 	}
 	switch data.SelectedRun {
 	case connector.BACKUP_RUN[0]: // вручную
-		err := connector.CreateManualBackup(*h.CONFIG, h.DB, data)
-		if err != nil {
-			c.JSON(http.StatusOK, gin.H{
-				"error": err.Error(),
-			})
-			return
-		}
+		// err := connector.CreateManualBackup(*h.CONFIG, h.DB, data)
+		// if err != nil {
+		// 	c.JSON(http.StatusOK, gin.H{
+		// 		"error": err.Error(),
+		// 	})
+		// 	return
+		// }
 		c.Redirect(http.StatusFound, "/backups/")
 	case connector.BACKUP_RUN[1]: // по расписанию
-		connector.CreateCronBackup(h.CRON, *h.CONFIG, h.DB, data)
-		// c.JSON(http.StatusOK, gin.H{
-		// 	"error": "расписание создано",
-		// })
+		// connector.CreateCronBackup(h.CRON, *h.CONFIG, h.DB, data)
+		// // c.JSON(http.StatusOK, gin.H{
+		// // 	"error": "расписание создано",
+		// // })
 		c.Redirect(http.StatusFound, "/tasks/")
 	}
 }
@@ -85,10 +85,10 @@ func (h *Handler) actionBackupHandler(c *gin.Context) {
 			})
 		}
 	case "restore":
-		err := connector.Restore(*h.CONFIG, backup)
-		if err != nil {
-			logrus.Error(err)
-		}
+		// err := connector.Restore(*h.CONFIG, backup)
+		// if err != nil {
+		// 	logrus.Error(err)
+		// }
 	}
 	c.Redirect(http.StatusFound, "/backups")
 }

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"os/exec"
-	"strings"
 	"time"
 
 	"github.com/PavelMilanov/pgbackup/db"
@@ -14,22 +13,12 @@ import (
 	"gorm.io/gorm"
 )
 
-// Проверка подключения к базе данных
-func CheckConnection(cfg Config) string {
-	command := fmt.Sprintf("pg_isready -h %s -U %s -d %s -p %d", cfg.Host, cfg.User, cfg.DBName, cfg.portToInt(cfg.Port))
-	cmd, err := exec.Command("sh", "-c", command).Output()
-	if err != nil {
-		log.Println(err)
-	}
-	return string(cmd)
-}
-
 // Выполнение задания бекапа базы данных
 // cfg - данные для подключения к PostgreSQL.
 // Входная модель:
 // Alias:     backupName,
 // Directory: dirName,
-func (model *Backup) createBackupSQL(cfg Config) (*Backup, error) {
+func (model *Backup) createBackupSQL(cfg DBConfig) (*Backup, error) {
 	start := time.Now()
 	currTime := start.Format("2006-01-02-15:04") // шаблон GO для формата ГГГГ-мм-дд "2006-01-02 15:04:05" со временем
 	backupName := model.Alias + "-" + currTime
@@ -53,7 +42,7 @@ func (model *Backup) createBackupSQL(cfg Config) (*Backup, error) {
 }
 
 // Выполение задания восстановления базы данных
-func Restore(cfg Config, backup db.Backup) error {
+func Restore(cfg DBConfig, backup db.Backup) error {
 	// backup := getBackup(alias, date)
 	// 1. очистить базу данных
 	// 2. восстановить из бекапа
@@ -79,7 +68,7 @@ func Restore(cfg Config, backup db.Backup) error {
 }
 
 // Выполнение бекапов по расписанию.
-func CreateCronBackup(scheduler *cron.Cron, cfg Config, sql *gorm.DB, data web.BackupForm) {
+func CreateCronBackup(scheduler *cron.Cron, cfg DBConfig, sql *gorm.DB, data web.BackupForm) {
 	dirName := generateRandomBackupDir()
 	createBackupDir(dirName)
 	timeToCron := toCron(data.SelectedTime, data.SelectedCron)
@@ -127,7 +116,7 @@ func CreateCronBackup(scheduler *cron.Cron, cfg Config, sql *gorm.DB, data web.B
 }
 
 // Выполнение бекапа вручную.
-func CreateManualBackup(cfg Config, sql *gorm.DB, data web.BackupForm) error {
+func CreateManualBackup(cfg DBConfig, sql *gorm.DB, data web.BackupForm) error {
 	var defaultTask db.Task
 	sql.Where("Alias = ?", "Default").First(&defaultTask)
 
@@ -157,54 +146,44 @@ func CreateManualBackup(cfg Config, sql *gorm.DB, data web.BackupForm) error {
 	return nil
 }
 
-// получение размера базы данных по имени.
-func getDBSize(cfg Config, dbName string) string {
-	command := fmt.Sprintf("export PGPASSWORD=%s && psql -h %s -U %s %s -c \"SELECT pg_size_pretty(pg_database_size('%s'))\"", cfg.Password, cfg.Host, cfg.User, cfg.DBName, dbName)
-	output, err := exec.Command("sh", "-c", command).Output()
-	if err != nil {
-		logrus.Error(command)
-		return ""
-	}
-	//pg_size_pretty
-	//----------------
-	//7453 kB
-	//(1 row)
-	startIndex := 35
-	endIndex := len(string(output)) - 10
-	size := fmt.Sprint(string(output)[startIndex:endIndex]) // -> 7453 kB
-	return size
-}
-
 // Получение списка всех баз данных в экземпляре PostgreSQL.
-func getDBName(cfg Config) []string {
-	command := fmt.Sprintf("export PGPASSWORD=%s && psql -h %s -U %s %s -c \"SELECT datname FROM pg_database WHERE datistemplate = false\"", cfg.Password, cfg.Host, cfg.User, cfg.DBName)
-	output, err := exec.Command("sh", "-c", command).Output()
-	if err != nil {
-		logrus.Error(command)
-		return []string{}
-	}
-	//datname
-	//----------
-	//postgres
-	//dev
-	//(2 rows)
-	startIndex := 23
-	endIndex := len(string(output)) - 11
-	data := fmt.Sprint(string(output[startIndex:endIndex]))
-	dbList := strings.Split(data, "\n")
-	for i, item := range dbList {
-		dbList[i] = strings.TrimSpace(item)
-	}
-	return dbList
-}
+// func getDBName(cfg DBConfig) []string {
+// 	command := fmt.Sprintf("export PGPASSWORD=%s && psql -h %s -U %s %s -c \"SELECT datname FROM pg_database WHERE datistemplate = false\"", cfg.Password, cfg.Host, cfg.User, cfg.Name)
+// 	output, err := exec.Command("sh", "-c", command).Output()
+// 	if err != nil {
+// 		logrus.Error(command)
+// 		return []string{}
+// 	}
+// 	//datname
+// 	//----------
+// 	//postgres
+// 	//dev
+// 	//(2 rows)
+// 	startIndex := 23
+// 	endIndex := len(string(output)) - 11
+// 	data := fmt.Sprint(string(output[startIndex:endIndex]))
+// 	dbList := strings.Split(data, "\n")
+// 	for i, item := range dbList {
+// 		dbList[i] = strings.TrimSpace(item)
+// 	}
+// 	return dbList
+// }
 
 // Вывод информации обо всех базах данных
-func GetDBData(db Config) []PsqlBase {
-	var dataBases = []PsqlBase{}
-	dbNames := getDBName(db)
-	for _, item := range dbNames {
-		size := getDBSize(db, item)
-		dataBases = append(dataBases, PsqlBase{Name: item, Size: size})
-	}
-	return dataBases
-}
+// func GetDBData(db DBConfig) []PsqlBase {
+// 	var dataBases = []PsqlBase{}
+// 	dbNames := getDBName(db)
+// 	for _, item := range dbNames {
+// 		size := getDBSize(db, item)
+// 		dataBases = append(dataBases, PsqlBase{Name: item, Size: size})
+// 	}
+// 	return dataBases
+// }
+
+// func GetDBList(sql *gorm.DB) []db.Database {
+// 	var result []db.Database
+// 	if err := db.GetAll(sql, result); err != nil {
+// 		logrus.Error(err)
+// 	}
+// 	return result
+// }

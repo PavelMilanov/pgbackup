@@ -3,7 +3,6 @@ package handlers
 import (
 	"text/template"
 
-	"github.com/PavelMilanov/pgbackup/connector"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 
@@ -11,13 +10,12 @@ import (
 )
 
 type Handler struct {
-	DB     *gorm.DB
-	CONFIG *connector.Config
-	CRON   *cron.Cron
+	DB   *gorm.DB
+	CRON *cron.Cron
 }
 
-func NewHandler(db *gorm.DB, config *connector.Config, scheduler *cron.Cron) *Handler {
-	return &Handler{DB: db, CONFIG: config, CRON: scheduler}
+func NewHandler(db *gorm.DB, scheduler *cron.Cron) *Handler {
+	return &Handler{DB: db, CRON: scheduler}
 }
 
 func authMiddleware(c *gin.Context) {
@@ -36,8 +34,16 @@ func (h *Handler) InitRouters() *gin.Engine {
 	{
 		web.GET("/login", h.loginHandler)
 		web.GET("/", h.mainHandler)
-		web.GET("/schedule", h.scheduleHandler)
-		web.GET("/databases", h.databasesHandler)
+		schedule := web.Group("/schedule")
+		{
+			schedule.GET("/", h.scheduleHandler)
+			schedule.POST("/save", h.scheduleSaveHandler)
+		}
+		databases := web.Group("/databases")
+		{
+			databases.GET("/", h.databasesHandler)
+			databases.POST("/save", h.databaseSaveHandler)
+		}
 		web.GET("/settings", h.settingsHandler)
 		web.GET("/logout", h.logoutHandler)
 

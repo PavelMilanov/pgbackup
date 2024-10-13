@@ -3,76 +3,12 @@
     <h2>Управление базами данных</h2>
     
     <div class="card">
-      <button @click="showAddDatabaseModal" class="btn btn-primary">Добавить базу данных</button>
-      
-      <table>
-        <thead>
-          <tr>
-            <th>Название</th>
-            <th>Тип</th>
-            <th>Хост</th>
-            <th>Размер</th>
-            <th>Статус</th>
-            <th>Последний бэкап</th>
-            <th>Действия</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="db in databases" :key="db.id">
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td>
-              <span :class="getStatusBadgeClass(db.status)"></span>
-            </td>
-            <td></td>
-            <td>
-              <button @click="createBackup(db)" class="btn btn-primary">Создать бэкап</button>
-              <button @click="showBackups(db)" class="btn btn-secondary">Бэкапы</button>
-              <button @click="editDatabase(db)" class="btn btn-secondary">Редактировать</button>
-              <button @click="deleteDatabase(db)" class="btn btn-secondary">Удалить</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <button class="btn btn-primary">Добавить базу данных</button>
+      {{ template "databases/table" .databases }}
     </div>
   </div>
 
-  <!-- Модальное окно для добавления/редактирования базы данных -->
-  <div id="databaseModal" class="modal">
-    <div class="modal-content">
-      <span class="close">&times;</span>
-      <h2>Добавить базу данных</h2>
-      <form @submit.prevent="saveDatabase">
-        <div class="form-group">
-          <label for="name">Название:</label>
-          <input type="text" id="name" v-model="currentDatabase.name" required>
-        </div>
-        <div class="form-group">
-          <label for="type">Тип:</label>
-          <select id="type" v-model="currentDatabase.type" required>
-            <option value="MySQL">MySQL</option>
-            <option value="PostgreSQL">PostgreSQL</option>
-            <option value="MongoDB">MongoDB</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="host">Хост:</label>
-          <input type="text" id="host" v-model="currentDatabase.host" required>
-        </div>
-        <div class="form-group">
-          <label for="username">Имя пользователя:</label>
-          <input type="text" id="username" v-model="currentDatabase.username" required>
-        </div>
-        <div class="form-group">
-          <label for="password">Пароль:</label>
-          <input type="password" id="password" v-model="currentDatabase.password" required>
-        </div>
-        <button type="submit" class="btn btn-primary">Добавить</button>
-      </form>
-    </div>
-  </div>
+  {{ template "modals/add_db"}}
 
   <!-- Модальное окно для просмотра бэкапов -->
   <div id="backupsModal" class="modal">
@@ -105,5 +41,6 @@
       </table>
     </div>
   </div>
+  <script src="/static/js/databases.js"></script>
 </body>
 </html>

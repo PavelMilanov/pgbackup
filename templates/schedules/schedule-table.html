@@ -1,0 +1,27 @@
+{{ define "schedules/table"}}
+<table>
+    <thead>
+        <tr>
+            <th>База данных</th>
+            <th>Периодичность</th>
+            <th>Время</th>
+            <th>Последний бэкап</th>
+            <th>Статус</th>
+            <th>Действия</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr v-for="schedule in schedules" :key="schedule.id">
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>
+                <button @click="editSchedule(schedule)" class="btn btn-secondary">Редактировать</button>
+                <button @click="deleteSchedule(schedule)" class="btn btn-secondary">Удалить</button>
+            </td>
+        </tr>
+    </tbody>
+</table>
+{{ end}}

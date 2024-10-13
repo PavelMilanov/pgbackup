@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"os/signal"
 	"path"
@@ -13,7 +12,6 @@ import (
 	"github.com/PavelMilanov/pgbackup/connector"
 	"github.com/PavelMilanov/pgbackup/db"
 	"github.com/PavelMilanov/pgbackup/handlers"
-	"github.com/joho/godotenv"
 	"github.com/robfig/cron/v3"
 	"github.com/sirupsen/logrus"
 )
@@ -27,31 +25,28 @@ func init() {
 }
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		logrus.Error(".env файл не найден")
-	}
 
-	config := connector.Config{
-		Host:     os.Getenv("POSTGRES_HOST"),
-		Port:     os.Getenv("POSTGRES_PORT"),
-		User:     os.Getenv("POSTGRES_USER"),
-		Password: os.Getenv("POSTGRES_PASSWORD"),
-		DBName:   os.Getenv("POSTGRES_DB"),
-	}
+	// config := connector.Config{
+	// 	Host:     os.Getenv("POSTGRES_HOST"),
+	// 	Port:     os.Getenv("POSTGRES_PORT"),
+	// 	User:     os.Getenv("POSTGRES_USER"),
+	// 	Password: os.Getenv("POSTGRES_PASSWORD"),
+	// 	DBName:   os.Getenv("POSTGRES_DB"),
+	// }
 	/// база данных
 	/// первичная инициализация задания для ручных бекапов
 	sqlite := db.NewDatabase(&db.SQLite{Name: "pgbackup.db"})
-	var defaultTask db.Task
-	result := sqlite.Where("Alias = ?", "Default").First(&defaultTask)
-	if result.Error != nil {
-		// Запись не найдена, создаем новую
-		if err := sqlite.Create(&db.Task{
-			Alias:     "Default",
-			Directory: connector.DEFAULT_BACKUP_DIR,
-		}).Error; err != nil {
-			log.Fatalf("failed to create task: %v", err)
-		}
-	}
+	// var defaultTask db.Task
+	// result := sqlite.Where("Alias = ?", "Default").First(&defaultTask)
+	// if result.Error != nil {
+	// 	// Запись не найдена, создаем новую
+	// 	if err := sqlite.Create(&db.Task{
+	// 		Alias:     "Default",
+	// 		Directory: connector.DEFAULT_BACKUP_DIR,
+	// 	}).Error; err != nil {
+	// 		log.Fatalf("failed to create task: %v", err)
+	// 	}
+	// }
 	///
 	/// Фоновые задачи
 	location, _ := time.LoadLocation("Europe/Moscow")
@@ -82,7 +77,7 @@ func main() {
 	// }
 	///
 
-	handler := handlers.NewHandler(sqlite, &config, scheduler)
+	handler := handlers.NewHandler(sqlite, scheduler)
 
 	srv := new(Server)
 	go func() {

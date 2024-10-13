@@ -15,3 +15,19 @@ type BackupForm struct {
 	SelectedTime    string `form:"backupScheduleTime"`
 	SelectedCron    string `form:"backupScheduleCron"`
 }
+
+// Форма для сохранения базы данных.
+type DatabaseForm struct {
+	Name     string `form:"Name" binding:"required"`
+	Host     string `form:"Host" binding:"required"`
+	Port     string `form:"Port" binding:"required"`
+	Username string `form:"Username" binding:"required"`
+	Password string `form:"Password" binding:"required"`
+}
+
+// Форма для сохранения расписания.
+type ScheduleForm struct {
+	Name      string `form:"Name" binding:"required"`
+	Frequency string `form:"Frequency" binding:"required"`
+	Time      string `form:"Time" binding:"required"`
+}
