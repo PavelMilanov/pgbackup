@@ -21,7 +21,7 @@ var duration = 1
 func init() {
 	// создаем дефолтные директории
 	os.Mkdir(connector.BACKUP_DIR, 0755)
-	os.Mkdir(connector.DEFAULT_BACKUP_DIR, 0755)
+	// os.Mkdir(connector.DEFAULT_BACKUP_DIR, 0755)
 }
 
 func main() {
@@ -51,6 +51,7 @@ func main() {
 	/// Фоновые задачи
 	location, _ := time.LoadLocation("Europe/Moscow")
 	scheduler := cron.New(cron.WithLocation(location))
+	fmt.Println(scheduler.Entries())
 	///
 	/// логгер
 	logrus.SetOutput(os.Stdout)

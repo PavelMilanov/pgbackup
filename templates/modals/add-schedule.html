@@ -8,17 +8,19 @@
             <div class="form-group">
                 <label for="dbName">База данных:</label>
                 <select id="dbName" name="Name" required>
-                    {{ range .}}
+                    {{ range .databases }}
                     <option value="{{.ID}}">{{.Name}}</option>
-                    {{ end}}
+                    {{ end }}
                 </select>
             </div>
             <div class="form-group">
                 <label for="frequency">Периодичность:</label>
                 <select id="frequency" name="Frequency" required>
-                    <option value="daily">Ежедневно</option>
-                    <option value="weekly">Еженедельно</option>
-                    <option value="monthly">Ежемесячно</option>
+                    {{ range .backup_frequency }}
+                    <option value="{{ . }}">{{ . }}</option>
+                    <!-- <option value="weekly">Еженедельно</option>
+                    <option value="monthly">Ежемесячно</option> -->
+                    {{ end }}
                 </select>
             </div>
             <div class="form-group">

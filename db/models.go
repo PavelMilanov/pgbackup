@@ -10,33 +10,28 @@ type Database struct {
 	Port     int
 	Username string
 	Password string
-	Tasks    []Task `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Schedule []Schedule `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
-type Task struct {
+type Schedule struct {
 	gorm.Model
 	ID         uint   `gorm:"primaryKey"`
-	Alias      string `gorm:"not null"`
 	Directory  string `gorm:"unique;not null"`
-	Count      string
 	Time       string
-	Cron       string
+	Frequency  string
 	DatabaseID uint
 	Backups    []Backup `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 type Backup struct {
 	gorm.Model
-	ID       uint `gorm:"primaryKey"`
-	Alias    string
-	Date     string
-	Size     string
-	LeadTime string
-	Run      string `gorm:"not null"`
-	Status   string
-	Comment  string
-	Dump     string `gorm:"unique;not null"`
-	TaskID   uint
+	ID         uint `gorm:"primaryKey"`
+	Date       string
+	Size       string
+	LeadTime   string
+	Status     string
+	Dump       string `gorm:"unique;not null"`
+	ScheduleID uint
 }
 
 type Token struct {

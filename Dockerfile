@@ -27,7 +27,6 @@ RUN apk --update --no-cache add postgresql-client tzdata && \
     adduser -u ${UID_DOCKER} -G ${USER_DOCKER} -s /bin/sh -D -H ${USER_DOCKER} && \
     chown -R ${USER_DOCKER}:${USER_DOCKER} /app
 
-VOLUME [ "/app/data" ]
 VOLUME [ "/app/dumps" ]
 
 EXPOSE 8080

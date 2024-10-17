@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/PavelMilanov/pgbackup/connector"
@@ -11,11 +10,13 @@ import (
 )
 
 func (h *Handler) scheduleHandler(c *gin.Context) {
-	dbConfig := connector.DBConfig{}
-	databases := dbConfig.GetDbAll(h.DB)
+	schedules := connector.GetScheduleAll(h.DB)
+	databases := connector.GetDbAll(h.DB)
 	c.HTML(http.StatusOK, "schedule.html", gin.H{
-		"header":    "Расписание | PgBackup",
-		"databases": databases,
+		"header":           "Расписание | PgBackup",
+		"databases":        databases,
+		"backup_frequency": connector.BACKUP_FREQUENCY,
+		"schedules":        schedules,
 		"pages": []web.Page{
 			{Name: "Главная", URL: "/", IsVisible: false},
 			{Name: "Расписание", URL: "/schedule", IsVisible: true},
@@ -31,6 +32,11 @@ func (h *Handler) scheduleSaveHandler(c *gin.Context) {
 		//c.HTML(http.StatusBadRequest, "databases.html", gin.H{"error": err.Error()})
 		return
 	}
-	fmt.Println(data)
+	config := connector.ScheduleConfig{
+		DbName:    data.Name,
+		Frequency: data.Frequency,
+		Time:      data.Time,
+	}
+	config.Save(h.DB, h.CRON)
 	c.Redirect(http.StatusFound, "/schedule/")
 }
