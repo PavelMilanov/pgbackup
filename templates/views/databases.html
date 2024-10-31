@@ -1,0 +1,46 @@
+{{ template "header" . }}
+  <div class="container" id="app">
+    <h2>Управление базами данных</h2>
+    
+    <div class="card">
+      <button class="btn btn-primary">Добавить базу данных</button>
+      {{ template "databases/table" .databases }}
+    </div>
+  </div>
+
+  {{ template "modals/add_db"}}
+
+  <!-- Модальное окно для просмотра бэкапов -->
+  <div id="backupsModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Бэкапы для </h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Дата создания</th>
+            <th>Размер</th>
+            <th>Статус</th>
+            <th>Действия</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="backup in backups" :key="backup.id">
+            <td></td>
+            <td></td>
+            <td>
+              <span :class="getStatusBadgeClass(backup.status)"></span>
+            </td>
+            <td>
+              <button @click="downloadBackup(backup)" class="btn btn-primary">Скачать</button>
+              <button @click="restoreBackup(backup)" class="btn btn-secondary">Восстановить</button>
+              <button @click="deleteBackup(backup)" class="btn btn-secondary">Удалить</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <script src="/static/js/databases.js"></script>
+</body>
+</html>

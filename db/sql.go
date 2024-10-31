@@ -1,36 +1,26 @@
 package db
 
 import (
+	"github.com/sirupsen/logrus"
+	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
-type Task struct {
-	gorm.Model
-	ID        uint   `gorm:"primaryKey"`
-	Alias     string `gorm:"not null"`
-	Directory string `gorm:"unique;not null"`
-	Count     string
-	Time      string
-	Cron      string
-	Backups   []Backup `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+type SQLite struct {
+	Name string
 }
 
-type Backup struct {
-	gorm.Model
-	ID       uint `gorm:"primaryKey"`
-	Alias    string
-	Date     string
-	Size     string
-	LeadTime string
-	Run      string `gorm:"not null"`
-	Status   string
-	Comment  string
-	Dump     string `gorm:"unique;not null"`
-	TaskID   uint
+func NewDatabase(sql *SQLite) *gorm.DB {
+	db, err := gorm.Open(sqlite.Open(sql.Name), &gorm.Config{})
+	if err != nil {
+		logrus.Error("failed to connect database")
+	}
+	automigrate(db)
+	return db
 }
 
-type Token struct {
-	gorm.Model
-	ID   uint `gorm:"primaryKey"`
-	Hash string
+func automigrate(db *gorm.DB) {
+	if err := db.AutoMigrate(&Database{}, &Schedule{}, &Backup{}, &Token{}); err != nil {
+		logrus.Error("failed to migrate")
+	}
 }

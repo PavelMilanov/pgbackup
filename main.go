@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"os/signal"
 	"path"
@@ -13,7 +12,6 @@ import (
 	"github.com/PavelMilanov/pgbackup/connector"
 	"github.com/PavelMilanov/pgbackup/db"
 	"github.com/PavelMilanov/pgbackup/handlers"
-	"github.com/joho/godotenv"
 	"github.com/robfig/cron/v3"
 	"github.com/sirupsen/logrus"
 )
@@ -23,39 +21,37 @@ var duration = 1
 func init() {
 	// создаем дефолтные директории
 	os.Mkdir(connector.BACKUP_DIR, 0755)
-	os.Mkdir(connector.DEFAULT_BACKUP_DIR, 0755)
+	// os.Mkdir(connector.DEFAULT_BACKUP_DIR, 0755)
 }
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		logrus.Error(".env файл не найден")
-	}
 
-	config := connector.Config{
-		Host:     os.Getenv("POSTGRES_HOST"),
-		Port:     os.Getenv("POSTGRES_PORT"),
-		User:     os.Getenv("POSTGRES_USER"),
-		Password: os.Getenv("POSTGRES_PASSWORD"),
-		DBName:   os.Getenv("POSTGRES_DB"),
-	}
+	// config := connector.Config{
+	// 	Host:     os.Getenv("POSTGRES_HOST"),
+	// 	Port:     os.Getenv("POSTGRES_PORT"),
+	// 	User:     os.Getenv("POSTGRES_USER"),
+	// 	Password: os.Getenv("POSTGRES_PASSWORD"),
+	// 	DBName:   os.Getenv("POSTGRES_DB"),
+	// }
 	/// база данных
 	/// первичная инициализация задания для ручных бекапов
 	sqlite := db.NewDatabase(&db.SQLite{Name: "pgbackup.db"})
-	var defaultTask db.Task
-	result := sqlite.Where("Alias = ?", "Default").First(&defaultTask)
-	if result.Error != nil {
-		// Запись не найдена, создаем новую
-		if err := sqlite.Create(&db.Task{
-			Alias:     "Default",
-			Directory: connector.DEFAULT_BACKUP_DIR,
-		}).Error; err != nil {
-			log.Fatalf("failed to create task: %v", err)
-		}
-	}
+	// var defaultTask db.Task
+	// result := sqlite.Where("Alias = ?", "Default").First(&defaultTask)
+	// if result.Error != nil {
+	// 	// Запись не найдена, создаем новую
+	// 	if err := sqlite.Create(&db.Task{
+	// 		Alias:     "Default",
+	// 		Directory: connector.DEFAULT_BACKUP_DIR,
+	// 	}).Error; err != nil {
+	// 		log.Fatalf("failed to create task: %v", err)
+	// 	}
+	// }
 	///
 	/// Фоновые задачи
 	location, _ := time.LoadLocation("Europe/Moscow")
 	scheduler := cron.New(cron.WithLocation(location))
+	fmt.Println(scheduler.Entries())
 	///
 	/// логгер
 	logrus.SetOutput(os.Stdout)
@@ -82,7 +78,7 @@ func main() {
 	// }
 	///
 
-	handler := handlers.NewHandler(sqlite, &config, scheduler)
+	handler := handlers.NewHandler(sqlite, scheduler)
 
 	srv := new(Server)
 	go func() {
@@ -93,7 +89,7 @@ func main() {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
-	fmt.Printf("Shutdown signal of %d seconds\n", duration)
+	logrus.Infof("Shutdown signal of %d seconds\n", duration)
 	if err := srv.Shutdown(time.Duration(duration)); err != nil {
 		logrus.WithError(err).Error("ошибка при остановке сервера")
 	}

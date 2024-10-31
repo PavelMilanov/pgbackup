@@ -3,7 +3,6 @@ package handlers
 import (
 	"text/template"
 
-	"github.com/PavelMilanov/pgbackup/connector"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 
@@ -11,13 +10,12 @@ import (
 )
 
 type Handler struct {
-	DB     *gorm.DB
-	CONFIG *connector.Config
-	CRON   *cron.Cron
+	DB   *gorm.DB
+	CRON *cron.Cron
 }
 
-func NewHandler(db *gorm.DB, config *connector.Config, scheduler *cron.Cron) *Handler {
-	return &Handler{DB: db, CONFIG: config, CRON: scheduler}
+func NewHandler(db *gorm.DB, scheduler *cron.Cron) *Handler {
+	return &Handler{DB: db, CRON: scheduler}
 }
 
 func authMiddleware(c *gin.Context) {
@@ -34,22 +32,33 @@ func (h *Handler) InitRouters() *gin.Engine {
 	router.Static("/static/", "./static")
 	web := router.Group("/")
 	{
-		web.GET("/", h.authView)
-		web.POST("/", h.submitLoginForm)
-		web.GET("/logout", h.authView)
+		web.GET("/login", h.loginHandler)
+		web.GET("/", h.mainHandler)
+		schedule := web.Group("/schedule")
+		{
+			schedule.GET("/", h.scheduleHandler)
+			schedule.POST("/save", h.scheduleSaveHandler)
+		}
+		databases := web.Group("/databases")
+		{
+			databases.GET("/", h.databasesHandler)
+			databases.POST("/save", h.databaseSaveHandler)
+		}
+		web.GET("/settings", h.settingsHandler)
+		web.GET("/logout", h.logoutHandler)
 
 		tasks := web.Group("/tasks")
 		tasks.Use(authMiddleware)
 		{
-			tasks.GET("/", h.tasksView)
-			tasks.POST("/action", h.actionTaskHandler)
+			// tasks.GET("/", h.tasksView)
+			// tasks.POST("/action", h.actionTaskHandler)
 		}
 		backups := web.Group("/backups")
 		backups.Use(authMiddleware)
 		{
 			backups.GET("/", h.backupsView)
 			backups.POST("/create", h.backupHandler)
-			backups.POST("/action", h.actionBackupHandler)
+			// backups.POST("/action", h.actionBackupHandler)
 		}
 	}
 	api := router.Group("/api")

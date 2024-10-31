@@ -1,0 +1,30 @@
+{{ define "schedules/table"}}
+<table>
+    <thead>
+        <tr>
+            <th>База данных</th>
+            <th>Периодичность</th>
+            <th>Время</th>
+            <th>Последний бэкап</th>
+            <th>Статус</th>
+            <th>Действия</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{ range . }}
+        <tr>
+            <td>{{ .DbName }}</td>
+            <td>{{ .Frequency }}</td>
+            <td>{{ .Time }}</td>
+            <td>{{ .LastBackup }}</td>
+            <td>{{ .Status }}</td>
+            <td>
+                <button type="submit" name="action" value="change" class="btn btn-secondary">Редактировать</button>
+                <button @click="deleteSchedule(schedule)" class="btn btn-secondary">Удалить</button>
+            </td>
+            <input type="hidden" name="id" value="{{ $element.ID }}">
+        </tr>
+        {{ end}}
+    </tbody>
+</table>
+{{ end}}
