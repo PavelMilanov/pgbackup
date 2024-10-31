@@ -1,0 +1,392 @@
+<html>
+
+<head>
+    <base href="https://backup-manager.example.com/">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Главная | База данных Бекап Менеджер</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f5f7fa;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        nav {
+            background: #ffffff;
+            padding: 0.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        nav a {
+            color: #1e3c72;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            transition: background-color 0.3s;
+        }
+
+        nav a:hover,
+        nav a.active {
+            background: #e8eef7;
+            border-radius: 4px;
+        }
+
+        h1,
+        h2 {
+            margin-bottom: 1rem;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        .stat {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .chart {
+            width: 100%;
+            height: 200px;
+            margin-top: 1rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 0.5rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            background-color: #f0f4f8;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+        .status-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-warning {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.375rem 0.75rem;
+            border: none;
+            border-radius: 0.25rem;
+            font-size: 1rem;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.15s ease-in-out;
+        }
+
+        .btn-primary {
+            color: #fff;
+            background-color: #1e3c72;
+        }
+
+        .btn-primary:hover {
+            background-color: #2a5298;
+        }
+
+        .btn-secondary {
+            color: #fff;
+            background-color: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 8px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>База данных Бекап Менеджер</h1>
+    </header>
+
+    <nav>
+        <a href="/" class="active">Главная</a>
+        <a href="/schedule">Расписание</a>
+        <a href="/databases">Базы данных</a>
+        <a href="/settings">Настройки</a>
+        <a href="/logout">Выйти</a>
+    </nav>
+
+    <div class="container" id="app">
+        <h2>Панель управления</h2>
+
+        <div class="dashboard">
+            <div class="card">
+                <h3>Общая статистика</h3>
+                <div class="stat">{{ totalBackups }}</div>
+                <div>Всего бэкапов</div>
+                <div class="chart">
+                    <canvas id="backupsChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Использование хранилища</h3>
+                <div class="stat">{{ storageUsed }} / {{ totalStorage }}</div>
+                <div>Использовано / Всего</div>
+                <div class="chart">
+                    <canvas id="storageChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Состояние системы</h3>
+                <div class="stat" :style="{ color: systemStatus.color }">{{ systemStatus.status }}</div>
+                <div>{{ systemStatus.message }}</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Последние бэкапы</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>База данных</th>
+                        <th>Дата</th>
+                        <th>Размер</th>
+                        <th>Статус</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="backup in recentBackups" :key="backup.id">
+                        <td>{{ backup.database }}</td>
+                        <td>{{ backup.date }}</td>
+                        <td>{{ backup.size }}</td>
+                        <td>
+                            <span class="status" :class="'status-' + backup.status.toLowerCase()">
+                                {{ backup.status }}
+                            </span>
+                        </td>
+                        <td>
+                            <button @click="downloadBackup(backup)" class="btn btn-primary">Скачать</button>
+                            <button @click="showRestoreModal(backup)" class="btn btn-secondary">Восстановить</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Модальное окно для подтверждения восстановления -->
+    <div id="restoreModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Подтверждение восстановления</h2>
+            <p>Вы уверены, что хотите восстановить базу данных "{{ selectedBackup.database }}" из бэкапа от {{
+                selectedBackup.date }}?</p>
+            <p><strong>Внимание:</strong> Это действие перезапишет текущую базу данных!</p>
+            <button @click="restoreDatabase" class="btn btn-primary">Подтвердить восстановление</button>
+            <button @click="closeRestoreModal" class="btn btn-secondary">Отмена</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                totalBackups: 1458,
+                storageUsed: '2.7 TB',
+                totalStorage: '5 TB',
+                systemStatus: {
+                    status: 'Нормально',
+                    message: 'Все системы работают исправно',
+                    color: '#28a745'
+                },
+                recentBackups: [
+                    { id: 1, database: 'User DB', date: '2023-06-15 08:00:00', size: '1.2 GB', status: 'Success' },
+                    { id: 2, database: 'Product DB', date: '2023-06-15 07:30:00', size: '3.5 GB', status: 'Success' },
+                    { id: 3, database: 'Analytics DB', date: '2023-06-15 07:00:00', size: '5.7 GB', status: 'Warning' },
+                    { id: 4, database: 'Log DB', date: '2023-06-15 06:30:00', size: '800 MB', status: 'Success' },
+                    { id: 5, database: 'Archive DB', date: '2023-06-15 06:00:00', size: '10.1 GB', status: 'Error' },
+                ],
+                selectedBackup: null
+            },
+            mounted() {
+                this.createBackupsChart();
+                this.createStorageChart();
+            },
+            methods: {
+                createBackupsChart() {
+                    const ctx = document.getElementById('backupsChart').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн'],
+                            datasets: [{
+                                label: 'Количество бэкапов',
+                                data: [1200, 1300, 1400, 1350, 1450, 1458],
+                                borderColor: '#1e3c72',
+                                tension: 0.1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false
+                        }
+                    });
+                },
+                createStorageChart() {
+                    const ctx = document.getElementById('storageChart').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Использовано', 'Свободно'],
+                            datasets: [{
+                                data: [2.7, 2.3],
+                                backgroundColor: ['#1e3c72', '#e0e0e0']
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false
+                        }
+                    });
+                },
+                downloadBackup(backup) {
+                    // Здесь должна быть логика для скачивания файла бэкапа
+                    console.log(`Скачивание бэкапа ${backup.database} от ${backup.date}`);
+                    // Пример: window.location.href = `/api/backups/download/${backup.id}`;
+                },
+                showRestoreModal(backup) {
+                    this.selectedBackup = backup;
+                    document.getElementById('restoreModal').style.display = 'block';
+                },
+                closeRestoreModal() {
+                    document.getElementById('restoreModal').style.display = 'none';
+                },
+                restoreDatabase() {
+                    // Здесь должна быть логика для восстановления базы данных
+                    console.log(`Восстановление базы данных ${this.selectedBackup.database} из бэкапа от ${this.selectedBackup.date}`);
+                    // Пример: 
+                    // fetch(`/api/backups/restore/${this.selectedBackup.id}`, {
+                    //   method: 'POST',
+                    //   headers: {
+                    //     'Content-Type': 'application/json',
+                    //   },
+                    //   body: JSON.stringify({
+                    //     confirmRestore: true
+                    //   })
+                    // })
+                    // .then(response => response.json())
+                    // .then(data => {
+                    //   console.log('Восстановление успешно', data);
+                    //   // Обновить интерфейс после успешного восстановления
+                    // })
+                    // .catch((error) => {
+                    //   console.error('Ошибка:', error);
+                    // });
+
+                    this.closeRestoreModal();
+                }
+            }
+        });
+
+        // Закрытие модального окна при клике на крестик
+        document.querySelector('.close').onclick = function () {
+            document.getElementById('restoreModal').style.display = 'none';
+        }
+
+        // Закрытие модального окна при клике вне его
+        window.onclick = function (event) {
+            if (event.target == document.getElementById('restoreModal')) {
+                document.getElementById('restoreModal').style.display = 'none';
+            }
+        }
+    </script>
+</body>
+
+</html>
