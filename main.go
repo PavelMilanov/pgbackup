@@ -88,7 +88,7 @@ func main() {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
-	fmt.Printf("Shutdown signal of %d seconds\n", duration)
+	logrus.Infof("Shutdown signal of %d seconds\n", duration)
 	if err := srv.Shutdown(time.Duration(duration)); err != nil {
 		logrus.WithError(err).Error("ошибка при остановке сервера")
 	}
