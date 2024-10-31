@@ -19,9 +19,10 @@
             <td>{{ .LastBackup }}</td>
             <td>{{ .Status }}</td>
             <td>
-                <button @click="editSchedule(schedule)" class="btn btn-secondary">Редактировать</button>
+                <button type="submit" name="action" value="change" class="btn btn-secondary">Редактировать</button>
                 <button @click="deleteSchedule(schedule)" class="btn btn-secondary">Удалить</button>
             </td>
+            <input type="hidden" name="id" value="{{ $element.ID }}">
         </tr>
         {{ end}}
     </tbody>
