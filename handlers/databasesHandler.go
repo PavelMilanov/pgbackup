@@ -10,8 +10,7 @@ import (
 )
 
 func (h *Handler) databasesHandler(c *gin.Context) {
-	dbConfig := connector.DBConfig{}
-	databases := dbConfig.GetDbAll(h.DB)
+	databases := connector.GetDbAll(h.DB)
 	c.HTML(http.StatusOK, "databases.html", gin.H{
 		"header":    "Базы данных | PgBackup",
 		"databases": databases,

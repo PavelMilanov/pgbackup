@@ -3,10 +3,10 @@
     <h2>Расписание бэкапов</h2>
     <div class="card">
       <button class="btn btn-primary">Добавить расписание</button>
-      {{ template "schedules/table" }}
+      {{ template "schedules/table" .schedules }}
     </div>
   </div>
-  {{ template "modals/add_shedule" .databases }}
+  {{ template "modals/add_shedule" . }}
   <script src="/static/js/schedule.js"></script>
 </body>
 </html>

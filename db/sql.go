@@ -20,7 +20,7 @@ func NewDatabase(sql *SQLite) *gorm.DB {
 }
 
 func automigrate(db *gorm.DB) {
-	if err := db.AutoMigrate(&Database{}, &Task{}, &Backup{}, &Token{}); err != nil {
+	if err := db.AutoMigrate(&Database{}, &Schedule{}, &Backup{}, &Token{}); err != nil {
 		logrus.Error("failed to migrate")
 	}
 }

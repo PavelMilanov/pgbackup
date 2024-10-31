@@ -1,14 +1,11 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/PavelMilanov/pgbackup/connector"
-	"github.com/PavelMilanov/pgbackup/db"
 	"github.com/PavelMilanov/pgbackup/web"
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 )
 
 func (h *Handler) backupsView(c *gin.Context) {
@@ -60,35 +57,35 @@ func (h *Handler) backupHandler(c *gin.Context) {
 
 // Скачивание, удаление, восстановление бекапа.
 // Действие зависит от нажатой кнопки
-func (h *Handler) actionBackupHandler(c *gin.Context) {
-	var action = c.PostForm("action")
-	var id = c.PostForm("id")
-	var backup db.Backup
-	err := backup.Get(h.DB, id)
-	if err != nil {
-		logrus.Error(err)
-	}
-	switch action {
-	case "download":
-		fileHeader := fmt.Sprintf("attachment; filename=%s-%s.dump", backup.Alias, backup.Date)
-		c.Header("Content-Disposition", fileHeader)
-		c.File(backup.Dump)
-		logrus.Infof("%s скачан", backup.Dump)
-		c.JSON(http.StatusOK, gin.H{
-			"error": "ошибка при скачивании файла",
-		})
-	case "delete":
-		if err := backup.Delete(h.DB); err != nil {
-			logrus.Error(err)
-			c.JSON(http.StatusOK, gin.H{
-				"error": err.Error(),
-			})
-		}
-	case "restore":
-		// err := connector.Restore(*h.CONFIG, backup)
-		// if err != nil {
-		// 	logrus.Error(err)
-		// }
-	}
-	c.Redirect(http.StatusFound, "/backups")
-}
+// func (h *Handler) actionBackupHandler(c *gin.Context) {
+// 	var action = c.PostForm("action")
+// 	var id = c.PostForm("id")
+// 	var backup db.Backup
+// 	err := backup.Get(h.DB, id)
+// 	if err != nil {
+// 		logrus.Error(err)
+// 	}
+// 	switch action {
+// 	case "download":
+// 		fileHeader := fmt.Sprintf("attachment; filename=%s-%s.dump", backup.Alias, backup.Date)
+// 		c.Header("Content-Disposition", fileHeader)
+// 		c.File(backup.Dump)
+// 		logrus.Infof("%s скачан", backup.Dump)
+// 		c.JSON(http.StatusOK, gin.H{
+// 			"error": "ошибка при скачивании файла",
+// 		})
+// 	case "delete":
+// 		if err := backup.Delete(h.DB); err != nil {
+// 			logrus.Error(err)
+// 			c.JSON(http.StatusOK, gin.H{
+// 				"error": err.Error(),
+// 			})
+// 		}
+// 	case "restore":
+// 		// err := connector.Restore(*h.CONFIG, backup)
+// 		// if err != nil {
+// 		// 	logrus.Error(err)
+// 		// }
+// 	}
+// 	c.Redirect(http.StatusFound, "/backups")
+// }

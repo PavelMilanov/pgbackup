@@ -49,19 +49,19 @@ func (cfg *DBConfig) Save(sql *gorm.DB) error {
 	return nil
 }
 
-func (cfg *DBConfig) GetDbAll(sql *gorm.DB) []DBConfig {
-	db, err := db.GetAll(sql)
+func GetDbAll(sql *gorm.DB) []DBConfig {
+	var DbList []DBConfig
+	databases, err := db.GetDbAll(sql)
 	if err != nil {
 		logrus.Error(err)
+		return DbList
 	}
-	var DbList []DBConfig
-	for _, item := range db {
-
+	for _, item := range databases {
 		config := &DBConfig{
 			ID:       item.ID,
 			Name:     item.Name,
 			Host:     item.Host,
-			Port:     string(item.Port),
+			Port:     strconv.Itoa(item.Port),
 			User:     item.Username,
 			Password: item.Password,
 		}
