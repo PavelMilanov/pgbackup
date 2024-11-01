@@ -27,6 +27,7 @@ type DatabaseForm struct {
 
 // Форма для сохранения расписания.
 type ScheduleForm struct {
+	ID        string `form:"ID"`
 	Name      string `form:"Name" binding:"required"`
 	Frequency string `form:"Frequency" binding:"required"`
 	Time      string `form:"Time" binding:"required"`

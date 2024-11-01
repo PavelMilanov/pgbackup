@@ -38,7 +38,7 @@ func (h *Handler) InitRouters() *gin.Engine {
 		{
 			schedule.GET("/", h.scheduleHandler)
 			schedule.POST("/save", h.scheduleSaveHandler)
-			schedule.POST("/action", h.scheduleActionHandler)
+			schedule.POST("/change", h.scheduleChangeHandler)
 		}
 		databases := web.Group("/databases")
 		{

@@ -13,16 +13,15 @@
     <tbody>
         {{ range . }}
         <tr>
-            <td>{{ .DbName }}</td>
+            <td id="scheduleDbName">{{ .DbName }}</td>
             <td>{{ .Frequency }}</td>
-            <td>{{ .Time }}</td>
+            <td id="scheduleDbTime">{{ .Time }}</td>
             <td>{{ .LastBackup }}</td>
             <td>{{ .Status }}</td>
             <td>
-                <button type="submit" name="action" value="change" class="btn btn-secondary">Редактировать</button>
-                <button type="submit" name="action" value="delete"class="btn btn-secondary">Удалить</button>
+                <button id="changeShedule" value="{{ .ID }}" type="submit" class="btn btn-secondary">Редактировать</button>
+                <button type="submit" name="action" value="delete" class="btn btn-secondary">Удалить</button>
             </td>
-            <input type="hidden" name="id" value="{{ .ID }}">
         </tr>
         {{ end}}
     </tbody>

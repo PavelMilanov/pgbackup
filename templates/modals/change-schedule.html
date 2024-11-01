@@ -1,17 +1,12 @@
-{{ define "modals/add_shedule"}}
-<!-- Модальное окно для добавления/редактирования расписания -->
-<div id="addScheduleModal" class="modal">
+{{ define "modals/change_shedule"}}
+<div id="changeScheduleModal" class="modal">
     <div class="modal-content">
         <span class="close">&times;</span>
-        <h2>Добавить расписание</h2>
-        <form name="ScheduleForm" action="/schedule/save" method="post">
+        <h2>Изменить расписание</h2>
+        <form name="ChangeScheduleForm" action="/schedule/change" method="post">
             <div class="form-group">
                 <label for="dbName">База данных:</label>
-                <select id="dbName" name="Name" required>
-                    {{ range .databases }}
-                    <option value="{{.ID}}">{{.Name}}</option>
-                    {{ end }}
-                </select>
+                <input type="text" id="ChangeScheduleFormDB" name="Name" value="" required readonly>
             </div>
             <div class="form-group">
                 <label for="frequency">Периодичность:</label>
@@ -23,10 +18,11 @@
             </div>
             <div class="form-group">
                 <label for="time">Время:</label>
-                <input type="time" id="time" name="Time" required>
+                <input type="time" id="ChangeScheduleFormTime" name="Time" required>
             </div>
-            <button type="submit" class="btn btn-primary">Добавить</button>
+            <input type="hidden" id="ChangeScheduleID" name="ID" value="">
+            <button type="submit" class="btn btn-primary">Изменить</button>
         </form>
     </div>
 </div>
-{{ end}}
+{{end}}

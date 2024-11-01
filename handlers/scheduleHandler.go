@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/PavelMilanov/pgbackup/connector"
@@ -41,7 +42,12 @@ func (h *Handler) scheduleSaveHandler(c *gin.Context) {
 	c.Redirect(http.StatusFound, "/schedule/")
 }
 
-func (h *Handler) scheduleActionHandler(c *gin.Context) {
-	var action = c.PostForm("action")
-	var scheduleId = c.PostForm("id")
+func (h *Handler) scheduleChangeHandler(c *gin.Context) {
+	var data web.ScheduleForm
+	if err := c.ShouldBind(&data); err != nil {
+		logrus.Error(err)
+		//c.HTML(http.StatusBadRequest, "databases.html", gin.H{"error": err.Error()})
+		return
+	}
+	fmt.Println(data)
 }
