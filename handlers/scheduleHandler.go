@@ -40,3 +40,8 @@ func (h *Handler) scheduleSaveHandler(c *gin.Context) {
 	config.Save(h.DB, h.CRON)
 	c.Redirect(http.StatusFound, "/schedule/")
 }
+
+func (h *Handler) scheduleActionHandler(c *gin.Context) {
+	var action = c.PostForm("action")
+	var scheduleId = c.PostForm("id")
+}

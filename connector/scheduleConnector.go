@@ -18,8 +18,8 @@ import (
 // Основная модель расписание в приложении.
 // Дополнение к модели Schedule из служебной БД.
 type ScheduleConfig struct {
-	ID         uint
-	DbID       uint
+	ID         string
+	DbID       string
 	DbName     string
 	Directory  string
 	Frequency  string
@@ -99,7 +99,7 @@ func (cfg *ScheduleConfig) Save(sql *gorm.DB, timer *cron.Cron) error {
 	})
 	entry := timer.Entry(entryID)
 	logrus.Infof("Добавлен планировщик %v", entry)
-	cfg.ID = scheduleId
+	cfg.ID = fmt.Sprintf("%d", scheduleId)
 	logrus.Infof("Добавлено расписание %v", cfg)
 	return nil
 }
@@ -119,7 +119,8 @@ func GetScheduleAll(sql *gorm.DB) []ScheduleConfig {
 			return scheduleList
 		}
 		config := &ScheduleConfig{
-			ID:         item.ID,
+			ID:         fmt.Sprintf("%d", item.ID),
+			DbID:       id,
 			DbName:     db.Name,
 			Directory:  item.Directory,
 			Frequency:  item.Frequency,
