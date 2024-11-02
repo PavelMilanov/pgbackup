@@ -8,17 +8,11 @@ $(window).on('click', function (event) {
     }
 })
 
-function showAddScheduleModal() {
+$('#app').on('click', '.btn-primary', function () {
     $('#addScheduleModal').show()
-}
+})
 
-function deleteScheduleModal() {
-    var chedule = $('#deleteSchedule').val()
-    $('#DeleteScheduleID').val(chedule)
-    $('#deleteScheduleModal').show()
-}
-
-function showChangeScheduleModal() {
+$('#app').on('click', '#changeShedule', function () {
     var dbName = $('#scheduleDbName').text()
     var dbTime = $('#scheduleDbTime').text()
     var chedule = $('#changeShedule').val()
@@ -26,8 +20,10 @@ function showChangeScheduleModal() {
     $('#ChangeScheduleFormTime').val(dbTime)
     $('#ChangeScheduleID').val(chedule)
     $('#changeScheduleModal').show()
-}
+})
 
-$('#app').on('click', '.btn-primary', showAddScheduleModal)
-$('#app').on('click', '#changeShedule', showChangeScheduleModal)
-$('#app').on('click', '#deleteSchedule', deleteScheduleModal)
+$('#app').on('click', '#deleteSchedule', function () {
+    var chedule = $('#deleteSchedule').val()
+    $('#DeleteScheduleID').val(chedule)
+    $('#deleteScheduleModal').show()
+})

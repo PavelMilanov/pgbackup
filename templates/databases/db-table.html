@@ -21,9 +21,8 @@
                 <span :class="getStatusBadgeClass(db.status)"></span>
             </td>
             <td>
-                <button @click="createBackup(db)" class="btn btn-primary">Создать бэкап</button>
-                <button @click="showBackups(db)" class="btn btn-secondary">Бэкапы</button>
                 <button @click="deleteDatabase(db)" class="btn btn-secondary">Удалить</button>
+                <button id="backupMenu-btn" class="btn btn-primary">Управление бекапами</button>
             </td>
         </tr>
         {{ end }}

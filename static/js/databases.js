@@ -1,7 +1,3 @@
-$(function () {
-    
-})
-
 $('.close').on('click', function () {
     $(this).closest('.modal').hide();
 })
@@ -12,7 +8,10 @@ $(window).on('click', function (event) {
     }
 })
 
-function showAddDatabaseModal() {
+$('#app').on('click', '#dbMenu-btn', function () {
     $('#databaseModal').show()
-}
-$('#app').on('click', '.btn-primary', showAddDatabaseModal)
+})
+
+$('#app').on('click', '#backupMenu-btn', function () {
+    $('#backupMenuModal').show()
+})
