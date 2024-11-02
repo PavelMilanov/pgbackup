@@ -1,0 +1,12 @@
+{{ define "modals/delete_schedule"}}
+<div id="deleteScheduleModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Удалить расписание?</h2>
+        <form name="ChangeScheduleForm" action="/schedule/delete" method="post">
+            <input type="hidden" id="DeleteScheduleID" name="ID" value="">
+            <button type="submit" class="btn btn-primary">Удалить</button>
+        </form>
+    </div>
+</div>
+{{ end}}

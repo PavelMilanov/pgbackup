@@ -12,6 +12,12 @@ function showAddScheduleModal() {
     $('#addScheduleModal').show()
 }
 
+function deleteScheduleModal() {
+    var chedule = $('#deleteSchedule').val()
+    $('#DeleteScheduleID').val(chedule)
+    $('#deleteScheduleModal').show()
+}
+
 function showChangeScheduleModal() {
     var dbName = $('#scheduleDbName').text()
     var dbTime = $('#scheduleDbTime').text()
@@ -24,3 +30,4 @@ function showChangeScheduleModal() {
 
 $('#app').on('click', '.btn-primary', showAddScheduleModal)
 $('#app').on('click', '#changeShedule', showChangeScheduleModal)
+$('#app').on('click', '#deleteSchedule', deleteScheduleModal)

@@ -20,7 +20,7 @@
             <td>{{ .Status }}</td>
             <td>
                 <button id="changeShedule" value="{{ .ID }}" type="submit" class="btn btn-secondary">Редактировать</button>
-                <button type="submit" name="action" value="delete" class="btn btn-secondary">Удалить</button>
+                <button id="deleteSchedule" type="submit" value="{{ .ID }}" class="btn btn-secondary">Удалить</button>
             </td>
         </tr>
         {{ end}}

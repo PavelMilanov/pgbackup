@@ -121,6 +121,20 @@ func (cfg *ScheduleConfig) Change(sql *gorm.DB, timer *cron.Cron) error {
 	return nil
 }
 
+func (cfg *ScheduleConfig) Delete(sql *gorm.DB, timer *cron.Cron) error {
+	id, _ := strconv.ParseUint(cfg.ID, 10, 32)
+	schedule := db.Schedule{
+		ID: uint(id),
+	}
+	err := db.ScheduleDelete(sql, schedule)
+	if err != nil {
+		logrus.Error(err)
+		return err
+	}
+	logrus.Infof("Удалено расписание %v", schedule)
+	return nil
+}
+
 // Возвращает список конфигураций расписаний
 func GetScheduleAll(sql *gorm.DB) []ScheduleConfig {
 	var scheduleList []ScheduleConfig

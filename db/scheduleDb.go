@@ -13,6 +13,7 @@ func ScheduleCreate(sql *gorm.DB, db Schedule) (uint, error) {
 	return db.ID, nil
 }
 
+// Обновление расписания в таблице Schedule.
 func ScheduleUpdate(sql *gorm.DB, db Schedule) (Schedule, error) {
 	var model Schedule
 	result := sql.First(&model)
@@ -23,6 +24,15 @@ func ScheduleUpdate(sql *gorm.DB, db Schedule) (Schedule, error) {
 	model.Time = db.Time
 	sql.Save(&model)
 	return model, nil
+}
+
+// Удаление расписания в таблице Schedule.
+func ScheduleDelete(sql *gorm.DB, db Schedule) error {
+	result := sql.Delete(&db)
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
 }
 
 // Получение всех расписаний c ссылкой на базу данных из таблицы Schedule.
