@@ -63,6 +63,7 @@ func generateRandomBackupDir() string {
 // 	logrus.Infof("%s - директория удалена", dir)
 // }
 
+// Сохраняет расписание
 func (cfg *ScheduleConfig) Save(sql *gorm.DB, timer *cron.Cron) error {
 	dbModel, err := db.GetDb(sql, cfg.DbName)
 	if err != nil {
@@ -76,7 +77,7 @@ func (cfg *ScheduleConfig) Save(sql *gorm.DB, timer *cron.Cron) error {
 		Frequency:  cfg.Frequency,
 		DatabaseID: dbModel.ID,
 	}
-	scheduleId, err := schedule.Create(sql)
+	scheduleId, err := db.ScheduleCreate(sql, schedule)
 	if err != nil {
 		logrus.Error(err)
 		return err
@@ -104,6 +105,23 @@ func (cfg *ScheduleConfig) Save(sql *gorm.DB, timer *cron.Cron) error {
 	return nil
 }
 
+func (cfg *ScheduleConfig) Change(sql *gorm.DB, timer *cron.Cron) error {
+	id, _ := strconv.ParseUint(cfg.ID, 10, 32)
+	schedule := db.Schedule{
+		ID:        uint(id),
+		Time:      cfg.Time,
+		Frequency: cfg.Frequency,
+	}
+	result, err := db.ScheduleUpdate(sql, schedule)
+	if err != nil {
+		logrus.Error(err)
+		return err
+	}
+	logrus.Infof("Изменено расписание %v", result)
+	return nil
+}
+
+// Возвращает список конфигураций расписаний
 func GetScheduleAll(sql *gorm.DB) []ScheduleConfig {
 	var scheduleList []ScheduleConfig
 	schedules, err := db.GetScheduleAll(sql)

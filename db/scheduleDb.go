@@ -5,12 +5,24 @@ import (
 )
 
 // Создание расписания в таблице Schedule.
-func (db Schedule) Create(sql *gorm.DB) (uint, error) {
+func ScheduleCreate(sql *gorm.DB, db Schedule) (uint, error) {
 	result := sql.Create(&db)
 	if result.Error != nil {
 		return 0, result.Error
 	}
 	return db.ID, nil
+}
+
+func ScheduleUpdate(sql *gorm.DB, db Schedule) (Schedule, error) {
+	var model Schedule
+	result := sql.First(&model)
+	if result.Error != nil {
+		return model, result.Error
+	}
+	model.Frequency = db.Frequency
+	model.Time = db.Time
+	sql.Save(&model)
+	return model, nil
 }
 
 // Получение всех расписаний c ссылкой на базу данных из таблицы Schedule.

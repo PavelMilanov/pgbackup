@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/PavelMilanov/pgbackup/connector"
@@ -49,5 +48,12 @@ func (h *Handler) scheduleChangeHandler(c *gin.Context) {
 		//c.HTML(http.StatusBadRequest, "databases.html", gin.H{"error": err.Error()})
 		return
 	}
-	fmt.Println(data)
+	config := connector.ScheduleConfig{
+		ID:        data.ID,
+		DbName:    data.Name,
+		Frequency: data.Frequency,
+		Time:      data.Time,
+	}
+	config.Change(h.DB, h.CRON)
+	c.Redirect(http.StatusFound, "/schedule/")
 }
