@@ -39,3 +39,18 @@ func (h *Handler) databaseSaveHandler(c *gin.Context) {
 	config.Save(h.DB)
 	c.Redirect(http.StatusFound, "/databases/")
 }
+
+func (h *Handler) createBackupHandler(c *gin.Context) {
+	var data web.DatabaseForm
+	if err := c.ShouldBind(&data); err != nil {
+		logrus.Error(err)
+		//c.HTML(http.StatusBadRequest, "databases.html", gin.H{"error": err.Error()})
+		return
+	}
+	schedule := connector.ScheduleConfig{
+		DbID:      data.ID,
+		Directory: connector.DEFAULT_BACKUP_DIR,
+	}
+	schedule.SaveManual(h.DB)
+	c.Redirect(http.StatusFound, "/databases/")
+}

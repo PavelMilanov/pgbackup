@@ -41,23 +41,6 @@ func (h *Handler) scheduleSaveHandler(c *gin.Context) {
 	c.Redirect(http.StatusFound, "/schedule/")
 }
 
-func (h *Handler) scheduleChangeHandler(c *gin.Context) {
-	var data web.ScheduleForm
-	if err := c.ShouldBind(&data); err != nil {
-		logrus.Error(err)
-		//c.HTML(http.StatusBadRequest, "databases.html", gin.H{"error": err.Error()})
-		return
-	}
-	config := connector.ScheduleConfig{
-		ID:        data.ID,
-		DbName:    data.Name,
-		Frequency: data.Frequency,
-		Time:      data.Time,
-	}
-	config.Change(h.DB, h.CRON)
-	c.Redirect(http.StatusFound, "/schedule/")
-}
-
 func (h *Handler) scheduleDeleteHandler(c *gin.Context) {
 	var data web.ScheduleForm
 	if err := c.ShouldBind(&data); err != nil {

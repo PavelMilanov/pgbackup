@@ -38,13 +38,13 @@ func (h *Handler) InitRouters() *gin.Engine {
 		{
 			schedule.GET("/", h.scheduleHandler)
 			schedule.POST("/save", h.scheduleSaveHandler)
-			schedule.POST("/change", h.scheduleChangeHandler)
 			schedule.POST("/delete", h.scheduleDeleteHandler)
 		}
 		databases := web.Group("/databases")
 		{
 			databases.GET("/", h.databasesHandler)
 			databases.POST("/save", h.databaseSaveHandler)
+			databases.POST("/backup/create", h.createBackupHandler)
 		}
 		web.GET("/settings", h.settingsHandler)
 		web.GET("/logout", h.logoutHandler)

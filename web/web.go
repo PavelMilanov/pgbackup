@@ -18,11 +18,12 @@ type BackupForm struct {
 
 // Форма для сохранения базы данных.
 type DatabaseForm struct {
-	Name     string `form:"Name" binding:"required"`
-	Host     string `form:"Host" binding:"required"`
-	Port     string `form:"Port" binding:"required"`
-	Username string `form:"Username" binding:"required"`
-	Password string `form:"Password" binding:"required"`
+	ID       string `form:"ID"`
+	Name     string `form:"Name"`
+	Host     string `form:"Host"`
+	Port     string `form:"Port"`
+	Username string `form:"Username"`
+	Password string `form:"Password"`
 }
 
 // Форма для сохранения расписания.

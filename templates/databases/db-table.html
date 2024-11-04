@@ -21,8 +21,8 @@
                 <span :class="getStatusBadgeClass(db.status)"></span>
             </td>
             <td>
-                <button @click="deleteDatabase(db)" class="btn btn-secondary">Удалить</button>
-                <button id="backupMenu-btn" class="btn btn-primary">Управление бекапами</button>
+                <button class="btn btn-secondary">Удалить</button>
+                <button id="backupMenu-btn" value="{{ .ID }}" class="btn btn-primary">Управление бекапами</button>
             </td>
         </tr>
         {{ end }}

@@ -4,16 +4,18 @@
     <div class="modal-content">
         <span class="close">&times;</span>
         <h2>Управление бэкапами - название DB</h2>
+        <form name="CreateBackup" action="/databases/backup/create" method="post">
         <div id="backupList" class="backup-list">
             <div class="backup-item">
                 <span>${backup.date} (${backup.size})</span>
-                <button class="btn btn-secondary download-backup" data-id="${backup.id}">Скачать</button>
-                <button class="btn btn-secondary restore-backup" data-id="${backup.id}">Восстановить</button>
+                <button class="btn btn-secondary download-backup">Скачать</button>
+                <button class="btn btn-secondary restore-backup">Восстановить</button>
             </div>
         </div>
         <div class="form-group">
-            <button id="createBackup-btn" class="btn btn-primary">Создать новый бэкап</button>
+            <button type="submit" name="ID" value="" id="createBackup-btn" class="btn btn-primary">Создать новый бэкап</button>
         </div>
+        </form>
     </div>
 </div>
 {{ end}}

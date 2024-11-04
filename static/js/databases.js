@@ -13,5 +13,7 @@ $('#app').on('click', '#dbMenu-btn', function () {
 })
 
 $('#app').on('click', '#backupMenu-btn', function () {
+    var dbId = $('#backupMenu-btn').val()
+    $('#createBackup-btn').val(dbId)
     $('#backupMenuModal').show()
 })

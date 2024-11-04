@@ -14,7 +14,7 @@ import (
 // Основная модель базы данных в приложении.
 // Дополнение к модели Database из служебной БД.
 type DBConfig struct {
-	ID       uint
+	ID       string
 	Name     string
 	Host     string
 	Port     string
@@ -44,7 +44,7 @@ func (cfg *DBConfig) Save(sql *gorm.DB) error {
 		logrus.Error(err)
 		return err
 	}
-	cfg.ID = id
+	cfg.ID = fmt.Sprintf("%d", id)
 	logrus.Infof("Добавлена база данных %v", cfg)
 	return nil
 }
@@ -58,7 +58,7 @@ func GetDbAll(sql *gorm.DB) []DBConfig {
 	}
 	for _, item := range databases {
 		config := &DBConfig{
-			ID:       item.ID,
+			ID:       fmt.Sprintf("%d", item.ID),
 			Name:     item.Name,
 			Host:     item.Host,
 			Port:     strconv.Itoa(item.Port),

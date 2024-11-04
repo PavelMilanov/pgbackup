@@ -105,6 +105,37 @@ func (cfg *ScheduleConfig) Save(sql *gorm.DB, timer *cron.Cron) error {
 	return nil
 }
 
+func (cfg *ScheduleConfig) SaveManual(sql *gorm.DB) error {
+	dbModel, err := db.GetDb(sql, cfg.DbID)
+	if err != nil {
+		logrus.Error(err)
+		return err
+	}
+	schedule := db.Schedule{
+		Directory:  DEFAULT_BACKUP_DIR,
+		DatabaseID: dbModel.ID,
+	}
+	scheduleId, err := db.ScheduleCreate(sql, schedule)
+	if err != nil {
+		logrus.Error(err)
+		return err
+	}
+	dbCfg := DBConfig{
+		Name:     dbModel.Name,
+		Host:     dbModel.Host,
+		Port:     fmt.Sprintf("%d", dbModel.Port),
+		User:     dbModel.Username,
+		Password: dbModel.Password,
+	}
+	backup := BackupConfig{
+		Directory:  schedule.Directory,
+		ScheduleID: scheduleId,
+	}
+	backup.CreateSQL(dbCfg)
+	backup.Save(sql)
+	return nil
+}
+
 func (cfg *ScheduleConfig) Change(sql *gorm.DB, timer *cron.Cron) error {
 	id, _ := strconv.ParseUint(cfg.ID, 10, 32)
 	schedule := db.Schedule{
