@@ -1,10 +1,6 @@
 package handlers
 
 import (
-	"net/http"
-
-	"github.com/PavelMilanov/pgbackup/connector"
-	"github.com/PavelMilanov/pgbackup/web"
 	"github.com/gin-gonic/gin"
 )
 
@@ -23,37 +19,37 @@ func (h *Handler) backupsView(c *gin.Context) {
 	// 	}})
 }
 
-func (h *Handler) backupHandler(c *gin.Context) {
-	var data web.BackupForm
-	if err := c.ShouldBind(&data); err != nil {
-		c.HTML(http.StatusBadRequest, "backups.html", gin.H{"error": err.Error()})
-		return
-	}
+// func (h *Handler) backupHandler(c *gin.Context) {
+// 	var data web.BackupForm
+// 	if err := c.ShouldBind(&data); err != nil {
+// 		c.HTML(http.StatusBadRequest, "backups.html", gin.H{"error": err.Error()})
+// 		return
+// 	}
 
-	if data.SelectedRun == connector.BACKUP_RUN[1] && (data.SelectedCount == "" || data.SelectedCron == "" || data.SelectedTime == "") {
-		c.JSON(http.StatusOK, gin.H{
-			"error": "расписание не может быть пустым",
-		})
-		return
-	}
-	switch data.SelectedRun {
-	case connector.BACKUP_RUN[0]: // вручную
-		// err := connector.CreateManualBackup(*h.CONFIG, h.DB, data)
-		// if err != nil {
-		// 	c.JSON(http.StatusOK, gin.H{
-		// 		"error": err.Error(),
-		// 	})
-		// 	return
-		// }
-		c.Redirect(http.StatusFound, "/backups/")
-	case connector.BACKUP_RUN[1]: // по расписанию
-		// connector.CreateCronBackup(h.CRON, *h.CONFIG, h.DB, data)
-		// // c.JSON(http.StatusOK, gin.H{
-		// // 	"error": "расписание создано",
-		// // })
-		c.Redirect(http.StatusFound, "/tasks/")
-	}
-}
+// 	if data.SelectedRun == connector.BACKUP_RUN[1] && (data.SelectedCount == "" || data.SelectedCron == "" || data.SelectedTime == "") {
+// 		c.JSON(http.StatusOK, gin.H{
+// 			"error": "расписание не может быть пустым",
+// 		})
+// 		return
+// 	}
+// 	switch data.SelectedRun {
+// 	case connector.BACKUP_RUN[0]: // вручную
+// 		// err := connector.CreateManualBackup(*h.CONFIG, h.DB, data)
+// 		// if err != nil {
+// 		// 	c.JSON(http.StatusOK, gin.H{
+// 		// 		"error": err.Error(),
+// 		// 	})
+// 		// 	return
+// 		// }
+// 		c.Redirect(http.StatusFound, "/backups/")
+// 	case connector.BACKUP_RUN[1]: // по расписанию
+// 		// connector.CreateCronBackup(h.CRON, *h.CONFIG, h.DB, data)
+// 		// // c.JSON(http.StatusOK, gin.H{
+// 		// // 	"error": "расписание создано",
+// 		// // })
+// 		c.Redirect(http.StatusFound, "/tasks/")
+// 	}
+// }
 
 // Скачивание, удаление, восстановление бекапа.
 // Действие зависит от нажатой кнопки

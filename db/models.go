@@ -4,28 +4,30 @@ import "gorm.io/gorm"
 
 type Database struct {
 	gorm.Model
-	ID       uint `gorm:"primaryKey"`
-	Name     string
-	Host     string
-	Port     int
-	Username string
-	Password string
-	Schedule []Schedule `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	ID        int `gorm:"primaryKey"`
+	Name      string
+	Host      string
+	Port      int
+	Username  string
+	Password  string
+	Status    bool
+	Size      string
+	Schedules []Schedule `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 type Schedule struct {
 	gorm.Model
-	ID         uint   `gorm:"primaryKey"`
+	ID         int    `gorm:"primaryKey"`
 	Directory  string `gorm:"unique;not null"`
 	Time       string
 	Frequency  string
-	DatabaseID uint
+	DatabaseID int
 	Backups    []Backup `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 type Backup struct {
 	gorm.Model
-	ID         uint `gorm:"primaryKey"`
+	ID         int `gorm:"primaryKey"`
 	Date       string
 	Size       string
 	LeadTime   string
@@ -36,6 +38,6 @@ type Backup struct {
 
 type Token struct {
 	gorm.Model
-	ID   uint `gorm:"primaryKey"`
+	ID   int `gorm:"primaryKey"`
 	Hash string
 }

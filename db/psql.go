@@ -1,4 +1,4 @@
-package connector
+package db
 
 // Выполение задания восстановления базы данных
 // func Restore(cfg DBConfig, backup db.Backup) error {

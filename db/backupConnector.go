@@ -1,11 +1,10 @@
-package connector
+package db
 
 import (
 	"fmt"
 	"os/exec"
 	"time"
 
-	"github.com/PavelMilanov/pgbackup/db"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
@@ -24,11 +23,11 @@ type BackupConfig struct {
 	Dump       string
 }
 
-func (bk *BackupConfig) CreateSQL(cfg DBConfig) error {
+func (bk *BackupConfig) CreateSQL(cfg Database) error {
 	start := time.Now()
 	currTime := start.Format("2006-01-02-15:04") // шаблон GO для формата ГГГГ-мм-дд "2006-01-02 15:04:05" со временем
 	dumpName := bk.Directory + "/" + currTime + ".dump"
-	command := fmt.Sprintf("export PGPASSWORD=%s && pg_dump -h %s -U %s %s > %s", cfg.Password, cfg.Host, cfg.User, cfg.Name, dumpName)
+	command := fmt.Sprintf("export PGPASSWORD=%s && pg_dump -h %s -U %s %s > %s", cfg.Password, cfg.Host, cfg.Username, cfg.Name, dumpName)
 	_, err := exec.Command("sh", "-c", command).Output()
 	if err != nil {
 		logrus.Error(command)
@@ -47,7 +46,7 @@ func (bk *BackupConfig) CreateSQL(cfg DBConfig) error {
 }
 
 func (bk *BackupConfig) Save(sql *gorm.DB) error {
-	backup := db.Backup{
+	backup := Backup{
 		Date:       bk.Date,
 		Size:       bk.Size,
 		LeadTime:   bk.LeadTime,

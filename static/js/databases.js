@@ -17,3 +17,9 @@ $('#app').on('click', '#backupMenu-btn', function () {
     $('#createBackup-btn').val(dbId)
     $('#backupMenuModal').show()
 })
+
+$('#app').on('click', '#deleteDatabase-btn', function () {
+    var dbId = $('#deleteDatabase-btn').val()
+    $('#DeleteDatabaseID').val(dbId)
+    $('#deleteDatabaseModal').show()
+})

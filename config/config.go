@@ -1,4 +1,6 @@
-package connector
+package config
+
+var DURATION = 1
 
 var BACKUP_DIR = "dumps"
 var DEFAULT_BACKUP_DIR = BACKUP_DIR + "/" + "manual"

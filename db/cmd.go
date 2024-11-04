@@ -1,4 +1,4 @@
-package connector
+package db
 
 // // Возвращает модель Backup по заданным параметрам
 // func getBackup(alias, date string) Backup {

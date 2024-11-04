@@ -44,6 +44,7 @@ func (h *Handler) InitRouters() *gin.Engine {
 		{
 			databases.GET("/", h.databasesHandler)
 			databases.POST("/save", h.databaseSaveHandler)
+			databases.POST("/delete", h.databaseDeleteHandler)
 			databases.POST("/backup/create", h.createBackupHandler)
 		}
 		web.GET("/settings", h.settingsHandler)
@@ -59,7 +60,7 @@ func (h *Handler) InitRouters() *gin.Engine {
 		backups.Use(authMiddleware)
 		{
 			backups.GET("/", h.backupsView)
-			backups.POST("/create", h.backupHandler)
+			// backups.POST("/create", h.backupHandler)
 			// backups.POST("/action", h.actionBackupHandler)
 		}
 	}

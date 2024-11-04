@@ -9,19 +9,17 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/PavelMilanov/pgbackup/connector"
+	"github.com/PavelMilanov/pgbackup/config"
 	"github.com/PavelMilanov/pgbackup/db"
 	"github.com/PavelMilanov/pgbackup/handlers"
 	"github.com/robfig/cron/v3"
 	"github.com/sirupsen/logrus"
 )
 
-var duration = 1
-
 func init() {
 	// создаем дефолтные директории
-	os.Mkdir(connector.BACKUP_DIR, 0755)
-	os.Mkdir(connector.DEFAULT_BACKUP_DIR, 0755)
+	os.Mkdir(config.BACKUP_DIR, 0755)
+	os.Mkdir(config.DEFAULT_BACKUP_DIR, 0755)
 }
 
 func main() {
@@ -89,8 +87,8 @@ func main() {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
-	logrus.Infof("Shutdown signal of %d seconds\n", duration)
-	if err := srv.Shutdown(time.Duration(duration)); err != nil {
+	logrus.Infof("Shutdown signal of %d seconds\n", config.DURATION)
+	if err := srv.Shutdown(time.Duration(config.DURATION)); err != nil {
 		logrus.WithError(err).Error("ошибка при остановке сервера")
 	}
 }
