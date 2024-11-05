@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/PavelMilanov/pgbackup/config"
 	"github.com/PavelMilanov/pgbackup/db"
@@ -33,12 +34,13 @@ func (h *Handler) scheduleSaveHandler(c *gin.Context) {
 		//c.HTML(http.StatusBadRequest, "databases.html", gin.H{"error": err.Error()})
 		return
 	}
-	// config := db.Schedule{
-	// 	DatabaseID: data.Name,
-	// 	Frequency:  data.Frequency,
-	// 	Time:       data.Time,
-	// }
-	// config.Save(h.DB, h.CRON)
+	id, _ := strconv.Atoi(data.Name)
+	config := db.Schedule{
+		DatabaseID: id,
+		Frequency:  data.Frequency,
+		Time:       data.Time,
+	}
+	config.Save(h.DB, h.CRON)
 	c.Redirect(http.StatusFound, "/schedule/")
 }
 
@@ -49,9 +51,10 @@ func (h *Handler) scheduleDeleteHandler(c *gin.Context) {
 		//c.HTML(http.StatusBadRequest, "databases.html", gin.H{"error": err.Error()})
 		return
 	}
-	// config := connector.ScheduleConfig{
-	// 	ID: data.ID,
-	// }
-	// config.Delete(h.DB, h.CRON)
+	id, _ := strconv.Atoi(data.ID)
+	config := db.Schedule{
+		ID: id,
+	}
+	config.Delete(h.DB, h.CRON)
 	c.Redirect(http.StatusFound, "/schedule/")
 }

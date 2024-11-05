@@ -17,12 +17,15 @@ type Database struct {
 
 type Schedule struct {
 	gorm.Model
-	ID         int    `gorm:"primaryKey"`
-	Directory  string `gorm:"unique;not null"`
-	Time       string
-	Frequency  string
-	DatabaseID int
-	Backups    []Backup `gorm:"constraint:OnDelete:CASCADE;"`
+	ID           int    `gorm:"primaryKey"`
+	Directory    string `gorm:"unique;not null"`
+	Time         string
+	Frequency    string
+	DatabaseID   int
+	DatabaseName string
+	LastBackup   string
+	Status       string
+	Backups      []Backup `gorm:"constraint:OnDelete:CASCADE;"`
 }
 
 type Backup struct {
@@ -32,8 +35,9 @@ type Backup struct {
 	Size       string
 	LeadTime   string
 	Status     string
+	Directory  string
 	Dump       string `gorm:"unique;not null"`
-	ScheduleID uint
+	ScheduleID int
 }
 
 type Token struct {
