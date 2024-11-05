@@ -1,6 +1,6 @@
 package config
 
-var DURATION = 1
+var DURATION = 3
 
 var BACKUP_DIR = "dumps"
 var DEFAULT_BACKUP_DIR = BACKUP_DIR + "/" + "manual"

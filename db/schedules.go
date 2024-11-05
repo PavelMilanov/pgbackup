@@ -119,13 +119,23 @@ func (cfg *Schedule) SaveManual(sql *gorm.DB) error {
 	return nil
 }
 
+// Удаляет расписание и все связанные с ним данные и папки.
 func (cfg *Schedule) Delete(sql *gorm.DB, timer *cron.Cron) error {
-	result := sql.Delete(&cfg)
+	result := sql.Preload("Backups").First(&cfg, cfg)
 	if result.Error != nil {
 		logrus.Error(result.Error)
 		return result.Error
 	}
-	logrus.Infof("Удалено расписание %v", cfg)
+	tx := sql.Begin()
+	tx.Delete(cfg)
+	if err := os.Remove(cfg.Directory); err != nil {
+		tx.Rollback()
+	}
+	for _, backup := range cfg.Backups {
+		sql.Delete(&backup)
+	}
+	tx.Commit()
+	logrus.Infof("Удалено расписание %d", cfg.ID)
 	return nil
 }
 

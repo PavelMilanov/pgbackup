@@ -60,6 +60,7 @@ func (cfg *Database) Save(sql *gorm.DB) error {
 	return nil
 }
 
+// Удаляет базу данных и все связанные с ней данные и папки.
 func (cfg Database) Delete(sql *gorm.DB) error {
 	result := sql.Preload("Schedules").First(&cfg, cfg)
 	if result.Error != nil {
@@ -79,7 +80,7 @@ func (cfg Database) Delete(sql *gorm.DB) error {
 		}
 	}
 	tx.Commit()
-	logrus.Infof("Удалена база данных и все связанные данные %v", cfg)
+	logrus.Infof("Удалена база данных и все связанные данные %d", cfg.ID)
 	return nil
 }
 
