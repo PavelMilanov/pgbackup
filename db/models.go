@@ -12,7 +12,7 @@ type Database struct {
 	Password  string
 	Status    bool
 	Size      string
-	Schedules []Schedule `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Schedules []Schedule `gorm:"constraint:OnDelete:CASCADE;"`
 }
 
 type Schedule struct {
@@ -22,7 +22,7 @@ type Schedule struct {
 	Time       string
 	Frequency  string
 	DatabaseID int
-	Backups    []Backup `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Backups    []Backup `gorm:"constraint:OnDelete:CASCADE;"`
 }
 
 type Backup struct {
