@@ -1,6 +1,8 @@
 package db
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+)
 
 type Database struct {
 	gorm.Model
@@ -18,13 +20,13 @@ type Database struct {
 type Schedule struct {
 	gorm.Model
 	ID           int    `gorm:"primaryKey"`
-	Directory    string `gorm:"unique;not null"`
+	Directory    string `gorm:"unique"`
 	Time         string
 	Frequency    string
-	DatabaseID   int
 	DatabaseName string
 	LastBackup   string
 	Status       string
+	DatabaseID   int
 	Backups      []Backup `gorm:"constraint:OnDelete:CASCADE;"`
 }
 
@@ -36,7 +38,7 @@ type Backup struct {
 	LeadTime   string
 	Status     string
 	Directory  string
-	Dump       string `gorm:"unique;not null"`
+	Dump       string `gorm:"unique"`
 	ScheduleID int
 }
 

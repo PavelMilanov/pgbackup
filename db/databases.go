@@ -3,6 +3,7 @@ package db
 import (
 	"errors"
 	"fmt"
+	"os"
 	"os/exec"
 
 	"github.com/sirupsen/logrus"
@@ -60,12 +61,25 @@ func (cfg *Database) Save(sql *gorm.DB) error {
 }
 
 func (cfg Database) Delete(sql *gorm.DB) error {
-	result := sql.Where("ID = ?", cfg.ID).Delete(&cfg)
+	result := sql.Preload("Schedules").First(&cfg, cfg)
 	if result.Error != nil {
 		logrus.Error(result.Error)
 		return result.Error
 	}
-	logrus.Infof("Удалена база данных %v", cfg)
+	tx := sql.Begin()
+	tx.Delete(&cfg)
+	for _, schedule := range cfg.Schedules {
+		sql.Preload("Backups").First(&schedule, schedule)
+		tx.Delete(&schedule)
+		if err := os.Remove(schedule.Directory); err != nil {
+			tx.Rollback()
+		}
+		for _, backup := range schedule.Backups {
+			sql.Delete(&backup)
+		}
+	}
+	tx.Commit()
+	logrus.Infof("Удалена база данных и все связанные данные %v", cfg)
 	return nil
 }
 

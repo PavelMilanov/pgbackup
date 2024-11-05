@@ -21,6 +21,7 @@ func NewDatabase(sql *SQLite) *gorm.DB {
 
 func automigrate(db *gorm.DB) {
 	if err := db.AutoMigrate(&Database{}, &Schedule{}, &Backup{}, &Token{}); err != nil {
-		logrus.Error("failed to migrate")
+		logrus.Errorf("%s", err)
+		return
 	}
 }

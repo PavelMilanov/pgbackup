@@ -52,19 +52,6 @@ func ScheduleCreate(sql *gorm.DB, db Schedule) (int, error) {
 	return db.ID, nil
 }
 
-// Обновление расписания в таблице Schedule.
-func ScheduleUpdate(sql *gorm.DB, db Schedule) (Schedule, error) {
-	var model Schedule
-	result := sql.First(&model)
-	if result.Error != nil {
-		return model, result.Error
-	}
-	model.Frequency = db.Frequency
-	model.Time = db.Time
-	sql.Save(&model)
-	return model, nil
-}
-
 // Сохраняет расписание
 func (cfg *Schedule) Save(sql *gorm.DB, timer *cron.Cron) error {
 	dbModel, err := GetDb(sql, cfg.DatabaseID)
