@@ -56,7 +56,7 @@ func (cfg *Database) Save(sql *gorm.DB) error {
 		logrus.Error(result.Error)
 		return result.Error
 	}
-	logrus.Infof("Добавлена база данных %v", cfg)
+	logrus.Infof("Добавлена база данных %s", cfg.Name)
 	return nil
 }
 
@@ -68,26 +68,26 @@ func (cfg Database) Delete(sql *gorm.DB) error {
 		return result.Error
 	}
 	tx := sql.Begin()
-	tx.Delete(&cfg)
 	for _, schedule := range cfg.Schedules {
-		sql.Preload("Backups").First(&schedule, schedule)
+		tx.Preload("Backups").First(&schedule, schedule)
 		tx.Delete(&schedule)
 		if err := os.Remove(schedule.Directory); err != nil {
 			tx.Rollback()
 		}
 		for _, backup := range schedule.Backups {
-			sql.Delete(&backup)
+			tx.Delete(&backup)
 		}
 	}
+	tx.Delete(&cfg)
 	tx.Commit()
-	logrus.Infof("Удалена база данных и все связанные данные %d", cfg.ID)
+	logrus.Infof("Удалена база данных %s", cfg.Name)
 	return nil
 }
 
 // Получение базы данных по имени из таблицы Databases
 func GetDb(sql *gorm.DB, id int) (Database, error) {
 	var db Database
-	result := sql.First(&db, "ID = ?", id)
+	result := sql.Preload("Schedules").First(&db, db)
 	if result.Error != nil {
 		return db, result.Error
 	}

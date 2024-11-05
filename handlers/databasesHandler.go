@@ -64,11 +64,10 @@ func (h *Handler) createBackupHandler(c *gin.Context) {
 		//c.HTML(http.StatusBadRequest, "databases.html", gin.H{"error": err.Error()})
 		return
 	}
-	// db, _ := strconv.Atoi(data.ID)
-	// schedule := db.Schedule{
-	// 	DatabaseID: db,
-	// 	Directory:  config.DEFAULT_BACKUP_DIR,
-	// }
-	// schedule.SaveManual(h.DB)
+	id, _ := strconv.Atoi(data.ID)
+	config := db.Schedule{
+		DatabaseID: id,
+	}
+	config.Save(h.DB, h.CRON)
 	c.Redirect(http.StatusFound, "/databases/")
 }

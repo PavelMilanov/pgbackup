@@ -12,7 +12,7 @@ import (
 )
 
 func (h *Handler) scheduleHandler(c *gin.Context) {
-	schedules := db.GetScheduleAll(h.DB)
+	schedules := db.GetSchedules(h.DB)
 	databases := db.GetDbAll(h.DB)
 	c.HTML(http.StatusOK, "schedule.html", gin.H{
 		"header":           "Расписание | PgBackup",

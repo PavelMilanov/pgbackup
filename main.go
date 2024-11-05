@@ -17,9 +17,8 @@ import (
 )
 
 func init() {
-	// создаем дефолтные директории
+	// создаем директорию для бекапов
 	os.Mkdir(config.BACKUP_DIR, 0755)
-	os.Mkdir(config.DEFAULT_BACKUP_DIR, 0755)
 }
 
 func main() {

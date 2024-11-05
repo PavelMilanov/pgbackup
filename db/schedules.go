@@ -60,7 +60,6 @@ func (cfg *Schedule) Save(sql *gorm.DB, timer *cron.Cron) error {
 		return err
 	}
 	cfg.DatabaseName = dbModel.Name
-	cfg.Status = "активно"
 	dir := generateRandomBackupDir()
 	cfg.Directory = dir
 	scheduleId, err := ScheduleCreate(sql, *cfg)
@@ -68,54 +67,43 @@ func (cfg *Schedule) Save(sql *gorm.DB, timer *cron.Cron) error {
 		logrus.Error(err)
 		return err
 	}
-	cronTime := toCron(cfg.Time, cfg.Frequency)
-	entryID, _ := timer.AddFunc(cronTime, func() {
+	if cfg.Time != "" {
+		cfg.Status = config.SCHEDULE_STATUS[0]
+		cronTime := toCron(cfg.Time, cfg.Frequency)
+		entryID, _ := timer.AddFunc(cronTime, func() {
+			backup := Backup{
+				Directory:  cfg.Directory,
+				ScheduleID: scheduleId,
+			}
+			if err := backup.Save(dbModel, sql); err != nil {
+				logrus.Error(err)
+			}
+		})
+		entry := timer.Entry(entryID)
+		logrus.Infof("Добавлен планировщик %v", entry)
+		logrus.Infof("Добавлено расписание %s", cfg.DatabaseName)
+	} else {
+		for _, item := range dbModel.Schedules {
+			// если есть расписание без времени - создаем статические бекапы здесь
+			if item.Time == "" {
+				backup := Backup{
+					Directory:  item.Directory,
+					ScheduleID: item.ID,
+				}
+				if err := backup.Save(dbModel, sql); err != nil {
+					logrus.Error(err)
+				}
+				break
+			}
+		}
 		backup := Backup{
 			Directory:  cfg.Directory,
 			ScheduleID: scheduleId,
 		}
-		if err := backup.CreateSQL(dbModel); err != nil {
+		if err := backup.Save(dbModel, sql); err != nil {
 			logrus.Error(err)
 		}
-		if err := backup.Save(sql); err != nil {
-			logrus.Error(err)
-		}
-	})
-	entry := timer.Entry(entryID)
-	logrus.Infof("Добавлен планировщик %v", entry)
-	logrus.Infof("Добавлено расписание %v", cfg)
-	return nil
-}
-
-func (cfg *Schedule) SaveManual(sql *gorm.DB) error {
-	dbModel, err := GetDb(sql, cfg.DatabaseID)
-	if err != nil {
-		logrus.Error(err)
-		return err
 	}
-	schedule := Schedule{
-		Directory:  config.DEFAULT_BACKUP_DIR,
-		DatabaseID: dbModel.ID,
-	}
-	scheduleId, err := ScheduleCreate(sql, schedule)
-	if err != nil {
-		logrus.Error(err)
-		return err
-	}
-	fmt.Println(scheduleId)
-	// dbCfg := DBConfig{
-	// 	Name:     dbModel.Name,
-	// 	Host:     dbModel.Host,
-	// 	Port:     fmt.Sprintf("%d", dbModel.Port),
-	// 	User:     dbModel.Username,
-	// 	Password: dbModel.Password,
-	// }
-	// backup := BackupConfig{
-	// 	Directory:  schedule.Directory,
-	// 	ScheduleID: scheduleId,
-	// }
-	// backup.CreateSQL(dbCfg)
-	// backup.Save(sql)
 	return nil
 }
 
@@ -135,36 +123,17 @@ func (cfg *Schedule) Delete(sql *gorm.DB, timer *cron.Cron) error {
 		sql.Delete(&backup)
 	}
 	tx.Commit()
-	logrus.Infof("Удалено расписание %d", cfg.ID)
+	logrus.Infof("Удалено расписание %s", cfg.DatabaseName)
 	return nil
 }
 
 // Возвращает список конфигураций расписаний
-func GetScheduleAll(sql *gorm.DB) []Schedule {
+func GetSchedules(sql *gorm.DB) []Schedule {
 	var scheduleList []Schedule
-	result := sql.Find(&scheduleList)
+	result := sql.Where("Status = ?", config.SCHEDULE_STATUS[0]).Find(&scheduleList)
 	if result.Error != nil {
 		logrus.Error(result.Error)
 		return scheduleList
 	}
-	// for _, item := range scheduleList {
-	// 	id := fmt.Sprintf("%d", item.DatabaseID)
-	// 	db, err := GetDb(sql, id)
-	// 	if err != nil {
-	// 		logrus.Error(err)
-	// 		return scheduleList
-	// 	}
-	// 	config := &Schedule{
-	// 		ID:         fmt.Sprintf("%d", item.ID),
-	// 		DbID:       id,
-	// 		DbName:     db.Name,
-	// 		Directory:  item.Directory,
-	// 		Frequency:  item.Frequency,
-	// 		Time:       item.Time,
-	// 		LastBackup: "",
-	// 		Status:     "",
-	// 	}
-	// 	scheduleList = append(scheduleList, *config)
-	// }
 	return scheduleList
 }
