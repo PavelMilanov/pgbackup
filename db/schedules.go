@@ -91,6 +91,7 @@ func (cfg *Schedule) Save(sql *gorm.DB, timer *cron.Cron) error {
 					ScheduleID: item.ID,
 				}
 				if err := backup.Save(dbModel, sql); err != nil {
+					os.Remove(backup.Dump)
 					logrus.Error(err)
 				}
 				break
@@ -101,6 +102,7 @@ func (cfg *Schedule) Save(sql *gorm.DB, timer *cron.Cron) error {
 			ScheduleID: scheduleId,
 		}
 		if err := backup.Save(dbModel, sql); err != nil {
+			os.Remove(backup.Dump)
 			logrus.Error(err)
 		}
 	}
