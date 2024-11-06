@@ -79,9 +79,8 @@ func (cfg Database) Delete(sql *gorm.DB) error {
 		}
 	}
 	tx.Delete(&cfg)
-	tx.Commit()
 	logrus.Infof("Удалена база данных %s", cfg.Name)
-	return nil
+	return tx.Commit().Error
 }
 
 // Получение базы данных по имени из таблицы Databases

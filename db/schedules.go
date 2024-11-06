@@ -122,9 +122,8 @@ func (cfg *Schedule) Delete(sql *gorm.DB, timer *cron.Cron) error {
 	for _, backup := range cfg.Backups {
 		sql.Delete(&backup)
 	}
-	tx.Commit()
 	logrus.Infof("Удалено расписание %s", cfg.DatabaseName)
-	return nil
+	return tx.Commit().Error
 }
 
 // Возвращает список конфигураций расписаний

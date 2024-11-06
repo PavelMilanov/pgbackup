@@ -56,13 +56,6 @@ func (h *Handler) InitRouters() *gin.Engine {
 			// tasks.GET("/", h.tasksView)
 			// tasks.POST("/action", h.actionTaskHandler)
 		}
-		backups := web.Group("/backups")
-		backups.Use(authMiddleware)
-		{
-			backups.GET("/", h.backupsView)
-			// backups.POST("/create", h.backupHandler)
-			// backups.POST("/action", h.actionBackupHandler)
-		}
 	}
 	api := router.Group("/api")
 	{
