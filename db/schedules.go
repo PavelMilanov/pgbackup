@@ -116,16 +116,22 @@ func (cfg *Schedule) Delete(sql *gorm.DB, timer *cron.Cron) error {
 		logrus.Error(result.Error)
 		return result.Error
 	}
-	tx := sql.Begin()
-	tx.Delete(cfg)
-	if err := os.Remove(cfg.Directory); err != nil {
-		tx.Rollback()
-	}
-	for _, backup := range cfg.Backups {
-		sql.Delete(&backup)
+	err := sql.Transaction((func(tx *gorm.DB) error {
+		tx.Delete(cfg)
+		if err := os.RemoveAll(cfg.Directory); err != nil {
+			tx.Rollback()
+		}
+		for _, backup := range cfg.Backups {
+			tx.Delete(&backup)
+		}
+		return tx.Commit().Error
+	}))
+	if err != nil {
+		logrus.Infof("Ошибка при удалении расписания %s", cfg.DatabaseName)
+		return err
 	}
 	logrus.Infof("Удалено расписание %s", cfg.DatabaseName)
-	return tx.Commit().Error
+	return nil
 }
 
 // Возвращает список конфигураций расписаний

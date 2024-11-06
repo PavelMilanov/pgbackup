@@ -13,10 +13,10 @@ import (
 // Проверка подключения к базе данных
 func (cfg *Database) checkConnection() error {
 	command := fmt.Sprintf("pg_isready -h %s -U %s -d %s -p %d", cfg.Host, cfg.Username, cfg.Name, cfg.Port)
-	_, err := exec.Command("sh", "-c", command).Output()
+	output, err := exec.Command("sh", "-c", command).Output()
 	if err != nil {
 		cfg.Status = false
-		return errors.New(command)
+		return errors.New("Ошибка: " + string(output))
 	}
 	cfg.Status = true
 	return nil
@@ -27,7 +27,7 @@ func (cfg *Database) getDBSize() error {
 	command := fmt.Sprintf("export PGPASSWORD=%s && psql -h %s -U %s -p %d %s -c \"SELECT pg_size_pretty(pg_database_size('%s'))\"", cfg.Password, cfg.Host, cfg.Username, cfg.Port, cfg.Name, cfg.Name)
 	output, err := exec.Command("sh", "-c", command).Output()
 	if err != nil {
-		return errors.New(string(output))
+		return errors.New("Ошибка: " + string(output))
 	}
 	//pg_size_pretty
 	//----------------
@@ -67,20 +67,39 @@ func (cfg Database) Delete(sql *gorm.DB) error {
 		logrus.Error(result.Error)
 		return result.Error
 	}
-	tx := sql.Begin()
-	for _, schedule := range cfg.Schedules {
-		tx.Preload("Backups").First(&schedule, schedule)
-		tx.Delete(&schedule)
-		if err := os.Remove(schedule.Directory); err != nil {
+	err := sql.Transaction((func(tx *gorm.DB) error {
+		if err := tx.Delete(&cfg).Error; err != nil {
 			tx.Rollback()
+			return err
 		}
-		for _, backup := range schedule.Backups {
-			tx.Delete(&backup)
+		for _, schedule := range cfg.Schedules {
+			if err := tx.Preload("Backups").First(&schedule, schedule).Error; err != nil {
+				tx.Rollback()
+				return err
+			}
+			if err := tx.Delete(&schedule).Error; err != nil {
+				tx.Rollback()
+				return err
+			}
+			if err := os.RemoveAll(schedule.Directory); err != nil {
+				return err
+			}
+			for _, backup := range schedule.Backups {
+				if err := tx.Delete(&backup).Error; err != nil {
+					tx.Rollback()
+					return err
+				}
+			}
 		}
+		return tx.Commit().Error
+	}))
+	if err != nil {
+		fmt.Println(err)
+		logrus.Infof("Ошибка при удалении базы данных %s", cfg.Name)
+		return err
 	}
-	tx.Delete(&cfg)
 	logrus.Infof("Удалена база данных %s", cfg.Name)
-	return tx.Commit().Error
+	return nil
 }
 
 // Получение базы данных по имени из таблицы Databases
