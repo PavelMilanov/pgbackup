@@ -49,13 +49,6 @@ func (h *Handler) InitRouters() *gin.Engine {
 		}
 		web.GET("/settings", h.settingsHandler)
 		web.GET("/logout", h.logoutHandler)
-
-		tasks := web.Group("/tasks")
-		tasks.Use(authMiddleware)
-		{
-			// tasks.GET("/", h.tasksView)
-			// tasks.POST("/action", h.actionTaskHandler)
-		}
 	}
 	api := router.Group("/api")
 	{
