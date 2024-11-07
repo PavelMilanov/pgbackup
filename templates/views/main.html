@@ -42,13 +42,14 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="backup in recentBackups" :key="backup.id">
-            <td></td>
-            <td></td>
-            <td></td>
+          {{ range .backups }}
+          <tr>
+            <td>{{ .Name }}</td>
+            <td>{{ .Date }}</td>
+            <td>{{ .Size }}</td>
             <td>
               <span class="status" :class="'status-' + backup.status.toLowerCase()">
-               
+              {{ .Status }}
               </span>
             </td>
             <td>
@@ -56,6 +57,7 @@
               <button class="btn btn-secondary">Восстановить</button>
             </td>
           </tr>
+          {{ end }}
         </tbody>
       </table>
     </div>

@@ -79,7 +79,7 @@ func (cfg *Schedule) Save(sql *gorm.DB, timer *cron.Cron) error {
 		cfg.DatabaseName = dbModel.Name
 		dir := generateRandomBackupDir()
 		cfg.Directory = dir
-		cfg.Status = config.SCHEDULE_STATUS[0]
+		cfg.Status = config.SCHEDULE_STATUS[1]
 		scheduleId, err := ScheduleCreate(sql, *cfg)
 		if err != nil {
 			logrus.Error(err)

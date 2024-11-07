@@ -104,17 +104,48 @@ func (cfg Database) Delete(sql *gorm.DB) error {
 // Получение базы данных по имени из таблицы Databases
 func GetDb(sql *gorm.DB, id int) (Database, error) {
 	var db Database
-	result := sql.Preload("Schedules").First(&db, db)
+	result := sql.Preload("Schedules").First(&db, id)
 	if result.Error != nil {
-		return db, result.Error
+		return Database{}, result.Error
 	}
 	return db, nil
+}
+
+// Получение всех бекапов базы данных
+func GetDbBackups(sql *gorm.DB, id int) ([]Backup, error) {
+	var db Database
+	var backups []Backup
+	result := sql.
+		Preload("Schedules.Backups").
+		Order("created_at DESC").
+		First(&db, id)
+	if result.Error != nil {
+		return []Backup{}, result.Error
+	}
+	for _, schedule := range db.Schedules {
+		backups = append(backups, schedule.Backups...)
+	}
+	return backups, nil
 }
 
 // Возвращает список подключенных баз данных.
 func GetDbAll(sql *gorm.DB) []Database {
 	var DbList []Database
 	result := sql.Model(&Database{}).Preload("Schedules").Find(&DbList)
+	if result.Error != nil {
+		logrus.Error(result.Error)
+	}
+	return DbList
+}
+
+func GetDbLastBackup(sql *gorm.DB) []Database {
+	var DbList []Database
+	result := sql.
+		Model(&Database{}).
+		Preload("Schedules.Backups").
+		Order("created_at DESC").
+		Limit(1).
+		Find(&DbList)
 	if result.Error != nil {
 		logrus.Error(result.Error)
 	}

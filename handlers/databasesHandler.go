@@ -10,6 +10,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// Handler для главной страницы с базами данных.
 func (h *Handler) databasesHandler(c *gin.Context) {
 	databases := db.GetDbAll(h.DB)
 	c.HTML(http.StatusOK, "databases.html", gin.H{
@@ -23,6 +24,7 @@ func (h *Handler) databasesHandler(c *gin.Context) {
 		}})
 }
 
+// Handler для сохранения базы данных.
 func (h *Handler) databaseSaveHandler(c *gin.Context) {
 	var data web.DatabaseForm
 	if err := c.ShouldBind(&data); err != nil {
@@ -42,6 +44,7 @@ func (h *Handler) databaseSaveHandler(c *gin.Context) {
 	c.Redirect(http.StatusFound, "/databases/")
 }
 
+// Handler для удаления базы данных.
 func (h *Handler) databaseDeleteHandler(c *gin.Context) {
 	var data web.DatabaseForm
 	if err := c.ShouldBind(&data); err != nil {
@@ -57,6 +60,7 @@ func (h *Handler) databaseDeleteHandler(c *gin.Context) {
 	c.Redirect(http.StatusFound, "/databases/")
 }
 
+// Handler для создания ручного бекапа для базы данных.
 func (h *Handler) createBackupHandler(c *gin.Context) {
 	var data web.DatabaseForm
 	if err := c.ShouldBind(&data); err != nil {
@@ -70,4 +74,16 @@ func (h *Handler) createBackupHandler(c *gin.Context) {
 	}
 	config.Save(h.DB, h.CRON)
 	c.Redirect(http.StatusFound, "/databases/")
+}
+
+// Handler для вывода всех бекапов базы данных.
+func (h *Handler) getBackupsHandler(c *gin.Context) {
+	data := c.Param("id")
+	id, _ := strconv.Atoi(data)
+	DB, err := db.GetDbBackups(h.DB, id)
+	if err != nil {
+		c.JSON(404, gin.H{"message": "not found"})
+		return
+	}
+	c.JSON(200, gin.H{"message": DB})
 }

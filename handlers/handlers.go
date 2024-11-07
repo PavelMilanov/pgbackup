@@ -46,6 +46,7 @@ func (h *Handler) InitRouters() *gin.Engine {
 			databases.POST("/save", h.databaseSaveHandler)
 			databases.POST("/delete", h.databaseDeleteHandler)
 			databases.POST("/backup/create", h.createBackupHandler)
+			databases.GET("/:id/backups", h.getBackupsHandler)
 		}
 		web.GET("/settings", h.settingsHandler)
 		web.GET("/logout", h.logoutHandler)
