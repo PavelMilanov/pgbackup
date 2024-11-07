@@ -16,11 +16,11 @@ func (bk *Backup) Save(cfg Database, sql *gorm.DB) error {
 	dumpName := bk.Directory + "/" + currTime + ".dump"
 	bk.Date = currTime
 	bk.Dump = dumpName
-	command := fmt.Sprintf("export PGPASSWORD=%s && pg_dump -h %s -U %s %s > %s", cfg.Password, cfg.Host, cfg.Username, cfg.Name, dumpName)
+	command := fmt.Sprintf("export PGPASSWORD=%s && pg_dump -h %s -U %s -p %d %s > %s", cfg.Password, cfg.Host, cfg.Username, cfg.Port, cfg.Name, dumpName)
 	_, err := exec.Command("sh", "-c", command).Output()
 	if err != nil {
 		bk.Status = "ошибка"
-		return errors.New(string(command))
+		return errors.New(command)
 	}
 	timer := time.Since(start).Seconds()
 	elapsed := fmt.Sprintf("%.3f сек", timer)
@@ -28,7 +28,7 @@ func (bk *Backup) Save(cfg Database, sql *gorm.DB) error {
 	size, err := bk.getBackupSize(currTime)
 	if err != nil {
 		bk.Status = "ошибка"
-		return errors.New(string(command))
+		return err
 	}
 	bk.Size = size
 	bk.Status = "завершен"

@@ -13,10 +13,10 @@ import (
 // Проверка подключения к базе данных
 func (cfg *Database) checkConnection() error {
 	command := fmt.Sprintf("pg_isready -h %s -U %s -d %s -p %d", cfg.Host, cfg.Username, cfg.Name, cfg.Port)
-	output, err := exec.Command("sh", "-c", command).Output()
+	_, err := exec.Command("sh", "-c", command).Output()
 	if err != nil {
 		cfg.Status = false
-		return errors.New("Ошибка: " + string(output))
+		return errors.New("Ошибка: " + command)
 	}
 	cfg.Status = true
 	return nil
@@ -27,7 +27,7 @@ func (cfg *Database) getDBSize() error {
 	command := fmt.Sprintf("export PGPASSWORD=%s && psql -h %s -U %s -p %d %s -c \"SELECT pg_size_pretty(pg_database_size('%s'))\"", cfg.Password, cfg.Host, cfg.Username, cfg.Port, cfg.Name, cfg.Name)
 	output, err := exec.Command("sh", "-c", command).Output()
 	if err != nil {
-		return errors.New("Ошибка: " + string(output))
+		return errors.New("Ошибка: " + command)
 	}
 	//pg_size_pretty
 	//----------------
@@ -91,14 +91,13 @@ func (cfg Database) Delete(sql *gorm.DB) error {
 				}
 			}
 		}
+		logrus.Infof("Удалена база данных %s", cfg.Name)
 		return tx.Commit().Error
 	}))
 	if err != nil {
-		fmt.Println(err)
-		logrus.Infof("Ошибка при удалении базы данных %s", cfg.Name)
+		logrus.Infof("Ошибка при выполнении транзакции %s", err)
 		return err
 	}
-	logrus.Infof("Удалена база данных %s", cfg.Name)
 	return nil
 }
 

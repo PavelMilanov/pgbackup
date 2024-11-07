@@ -30,7 +30,7 @@ func toCron(time, frequency string) string {
 	return formatTime
 }
 
-// Генерирует случайную строку из цифр от 0 до 10000.
+// Генерирует случайную строку из цифр от 0 до 10000 и создает директорию.
 func generateRandomBackupDir() string {
 	s1 := rand.NewSource(time.Now().UnixNano())
 	r1 := rand.New(s1)
@@ -59,16 +59,53 @@ func (cfg *Schedule) Save(sql *gorm.DB, timer *cron.Cron) error {
 		logrus.Error(err)
 		return err
 	}
-	cfg.DatabaseName = dbModel.Name
-	dir := generateRandomBackupDir()
-	cfg.Directory = dir
-	scheduleId, err := ScheduleCreate(sql, *cfg)
-	if err != nil {
-		logrus.Error(err)
-		return err
-	}
-	if cfg.Time != "" {
+	// Для статических бекапов
+	// Если нет папки для статического бекапа - создать и сделать бекап
+	if cfg.Time == "" {
+		for _, item := range dbModel.Schedules {
+			// если есть расписание без времени - создаем статические бекапы здесь
+			if item.Time == "" {
+				backup := Backup{
+					Directory:  item.Directory,
+					ScheduleID: item.ID,
+				}
+				if err := backup.Save(dbModel, sql); err != nil {
+					os.Remove(backup.Dump)
+					logrus.Error(err)
+				}
+				return nil
+			}
+		}
+		cfg.DatabaseName = dbModel.Name
+		dir := generateRandomBackupDir()
+		cfg.Directory = dir
 		cfg.Status = config.SCHEDULE_STATUS[0]
+		scheduleId, err := ScheduleCreate(sql, *cfg)
+		if err != nil {
+			logrus.Error(err)
+			return err
+		}
+		logrus.Infof("Добавлено расписание %s", cfg.DatabaseName)
+		backup := Backup{
+			Directory:  cfg.Directory,
+			ScheduleID: scheduleId,
+		}
+		if err := backup.Save(dbModel, sql); err != nil {
+			os.Remove(backup.Dump)
+			logrus.Error(err)
+		}
+		// для бекапов по расписанию
+	} else {
+		cfg.DatabaseName = dbModel.Name
+		dir := generateRandomBackupDir()
+		cfg.Directory = dir
+		cfg.Status = config.SCHEDULE_STATUS[0]
+		scheduleId, err := ScheduleCreate(sql, *cfg)
+		if err != nil {
+			logrus.Error(err)
+			return err
+		}
+		logrus.Infof("Добавлено расписание %s", cfg.DatabaseName)
 		cronTime := toCron(cfg.Time, cfg.Frequency)
 		entryID, _ := timer.AddFunc(cronTime, func() {
 			backup := Backup{
@@ -81,30 +118,6 @@ func (cfg *Schedule) Save(sql *gorm.DB, timer *cron.Cron) error {
 		})
 		entry := timer.Entry(entryID)
 		logrus.Infof("Добавлен планировщик %v", entry)
-		logrus.Infof("Добавлено расписание %s", cfg.DatabaseName)
-	} else {
-		for _, item := range dbModel.Schedules {
-			// если есть расписание без времени - создаем статические бекапы здесь
-			if item.Time == "" {
-				backup := Backup{
-					Directory:  item.Directory,
-					ScheduleID: item.ID,
-				}
-				if err := backup.Save(dbModel, sql); err != nil {
-					os.Remove(backup.Dump)
-					logrus.Error(err)
-				}
-				break
-			}
-		}
-		backup := Backup{
-			Directory:  cfg.Directory,
-			ScheduleID: scheduleId,
-		}
-		if err := backup.Save(dbModel, sql); err != nil {
-			os.Remove(backup.Dump)
-			logrus.Error(err)
-		}
 	}
 	return nil
 }
@@ -134,7 +147,7 @@ func (cfg *Schedule) Delete(sql *gorm.DB, timer *cron.Cron) error {
 	return nil
 }
 
-// Возвращает список конфигураций расписаний
+// Возвращает список конфигураций расписаний, которые запускаются по расписанию
 func GetSchedules(sql *gorm.DB) []Schedule {
 	var scheduleList []Schedule
 	result := sql.Where("Status = ?", config.SCHEDULE_STATUS[0]).Find(&scheduleList)
