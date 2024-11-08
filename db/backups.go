@@ -1,7 +1,6 @@
 package db
 
 import (
-	"errors"
 	"fmt"
 	"os/exec"
 	"time"
@@ -11,7 +10,7 @@ import (
 )
 
 // Создает файл бекапа базы данных и сохраняет методанных в служебную БД.
-func (bk *Backup) Save(cfg Database, sql *gorm.DB) error {
+func (bk *Backup) Save(cfg Database, sql *gorm.DB) {
 	start := time.Now()
 	currTime := start.Format("2006-01-02-15:04") // шаблон GO для формата ГГГГ-мм-дд "2006-01-02 15:04:05" со временем
 	dumpName := bk.Directory + "/" + currTime + ".dump"
@@ -21,7 +20,6 @@ func (bk *Backup) Save(cfg Database, sql *gorm.DB) error {
 	_, err := exec.Command("sh", "-c", command).Output()
 	if err != nil {
 		bk.Status = "ошибка"
-		return errors.New(command)
 	}
 	timer := time.Since(start).Seconds()
 	elapsed := fmt.Sprintf("%.3f сек", timer)
@@ -30,7 +28,6 @@ func (bk *Backup) Save(cfg Database, sql *gorm.DB) error {
 	bk.Status = "завершен"
 	defer sql.Create(&bk)
 	logrus.Infof("Создан бекап %s", bk.Dump)
-	return nil
 }
 
 // Получение размера файла бекапа на диске.

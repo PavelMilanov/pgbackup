@@ -70,10 +70,7 @@ func (cfg *Schedule) Save(sql *gorm.DB, timer *cron.Cron) error {
 					ScheduleID: item.ID,
 					DatabaseID: dbModel.ID,
 				}
-				if err := backup.Save(dbModel, sql); err != nil {
-					os.Remove(backup.Dump)
-					logrus.Error(err)
-				}
+				backup.Save(dbModel, sql)
 				return nil
 			}
 		}
@@ -92,10 +89,7 @@ func (cfg *Schedule) Save(sql *gorm.DB, timer *cron.Cron) error {
 			ScheduleID: scheduleId,
 			DatabaseID: dbModel.ID,
 		}
-		if err := backup.Save(dbModel, sql); err != nil {
-			os.Remove(backup.Dump)
-			logrus.Error(err)
-		}
+		backup.Save(dbModel, sql)
 		// для бекапов по расписанию
 	} else {
 		cfg.DatabaseName = dbModel.Name
@@ -115,9 +109,7 @@ func (cfg *Schedule) Save(sql *gorm.DB, timer *cron.Cron) error {
 				ScheduleID: scheduleId,
 				DatabaseID: dbModel.ID,
 			}
-			if err := backup.Save(dbModel, sql); err != nil {
-				logrus.Error(err)
-			}
+			backup.Save(dbModel, sql)
 		})
 		entry := timer.Entry(entryID)
 		logrus.Infof("Добавлен планировщик %v", entry)
