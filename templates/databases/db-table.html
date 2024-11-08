@@ -21,7 +21,10 @@
                 <span class="getStatusBadgeClass(db.status)"></span>
             </td>
             <td>
-                <button id="backupMenu-btn" value="{{ .ID }}" class="btn btn-primary">Управление бекапами</button>
+                <a href="/databases/{{.ID}}/backups">
+                    <button id="backupMenu-btn" class="btn btn-primary">Управление бекапами</button>
+                </a>
+                <!-- <button id="backupMenu-btn" value="{{ .ID }}" class="btn btn-primary">Управление бекапами</button> -->
                 <button id="deleteDatabase-btn" value="{{ .ID }}" class="btn btn-secondary">Удалить</button>
             </td>
         </tr>

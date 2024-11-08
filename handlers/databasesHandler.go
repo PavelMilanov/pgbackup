@@ -80,10 +80,18 @@ func (h *Handler) createBackupHandler(c *gin.Context) {
 func (h *Handler) getBackupsHandler(c *gin.Context) {
 	data := c.Param("id")
 	id, _ := strconv.Atoi(data)
-	DB, err := db.GetDbBackups(h.DB, id)
+	db, err := db.GetDb(h.DB, id)
 	if err != nil {
 		c.JSON(404, gin.H{"message": "not found"})
 		return
 	}
-	c.JSON(200, gin.H{"message": DB})
+	c.HTML(http.StatusOK, "backups.html", gin.H{
+		"header":   "Базы данных | PgBackup",
+		"database": db,
+		"pages": []web.Page{
+			{Name: "Главная", URL: "/", IsVisible: false},
+			{Name: "Расписание", URL: "/schedule", IsVisible: false},
+			{Name: "Базы данных", URL: "/databases", IsVisible: true},
+			{Name: "Настройки", URL: "/settings", IsVisible: false},
+		}})
 }

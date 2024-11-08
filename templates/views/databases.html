@@ -1,10 +1,9 @@
 {{ template "header" . }}
   <div class="container" id="app">
     <h2>Управление базами данных</h2>
-    
     <div class="card">
       <button id="dbMenu-btn" class="btn btn-primary">Добавить базу данных</button>
-      {{ template "databases/table" .databases }}
+      {{ block "databases/table" .databases }}{{ end }}
     </div>
   </div>
   {{ template "modals/add_db"}}
