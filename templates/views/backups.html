@@ -1,29 +1,54 @@
-{{ template "header"}}
+{{ template "header" .}}
 <div class="container" id="app">
-    <h2>Управление базами данных</h2>
+    <h2>Управление бэкапами - {{ .Name }}</h2>
     <div class="card">
-        <div id="backupMenuModal">
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <h2>Управление бэкапами - {{ .Name }}</h2>
-                <form name="CreateBackup" action="/databases/backup/create" method="post">
-                    <div id="backupList" class="backup-list">
-                        {{ range .Schedules}}
-                        <div class="backup-item">
-                            {{ .Backups }}
-                            <span>${backup.date} (${backup.size})</span>
-                            <button class="btn btn-secondary download-backup">Скачать</button>
-                            <button class="btn btn-secondary delete-backup">Удалить</button>
-                        </div>
-                        {{ end }}
-                    </div>
-                    <div class="form-group">
-                        <button type="submit" name="ID" value="" id="createBackup-btn" class="btn btn-primary">Создать новый
-                            бэкап</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+        <button id="#" class="btn btn-primary">Создать бэкап</button>
+        <table>
+            <tbody>
+                <tr>
+                    <td>название</td>
+                    <td>время</td>
+                    <td>объем</td>
+                    <td>статус</td>
+                    <td>
+                        <button class="btn btn-primary">скачать</button>
+                        <button class="btn btn-secondary">удалить</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <!-- <table>
+            <thead>
+                <tr>
+                    <th>Название</th>
+                    <th>Хост</th>
+                    <th>Размер</th>
+                    <th>Статус</th>
+                    <th>Последний бэкап</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{ range . }}
+                <tr>
+                    <td>{{ .Name }}</td>
+                    <td>{{ .Host }}</td>
+                    <td>{{ .Size }}</td>
+                    <td>{{ .Status }}</td>
+                    <td>
+                        <span class="getStatusBadgeClass(db.status)"></span>
+                    </td>
+                    <td>
+                        <a href="/databases/{{.ID}}/backups">
+                            <button id="backupMenu-btn" class="btn btn-primary">Управление бекапами</button>
+                        </a> -->
+                        <!-- <button id="backupMenu-btn" value="{{ .ID }}" class="btn btn-primary">Управление бекапами</button> -->
+                        <!-- <button id="deleteDatabase-btn" value="{{ .ID }}" class="btn btn-secondary">Удалить</button>
+                    </td>
+                </tr>
+                {{ end }}
+            </tbody>
+        </table>  -->
     </div>
 </div>
 <script src="/static/js/databases.js"></script>
