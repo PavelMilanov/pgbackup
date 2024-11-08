@@ -15,6 +15,7 @@ type Database struct {
 	Status    bool
 	Size      string
 	Schedules []Schedule `gorm:"constraint:OnDelete:CASCADE;"`
+	Backups   []Backup   `gorm:"constraint:OnDelete:CASCADE;"`
 }
 
 type Schedule struct {
@@ -40,6 +41,7 @@ type Backup struct {
 	Directory  string
 	Dump       string `gorm:"unique"`
 	ScheduleID int
+	DatabaseID int
 }
 
 type Token struct {

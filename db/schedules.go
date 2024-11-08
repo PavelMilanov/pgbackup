@@ -68,6 +68,7 @@ func (cfg *Schedule) Save(sql *gorm.DB, timer *cron.Cron) error {
 				backup := Backup{
 					Directory:  item.Directory,
 					ScheduleID: item.ID,
+					DatabaseID: dbModel.ID,
 				}
 				if err := backup.Save(dbModel, sql); err != nil {
 					os.Remove(backup.Dump)
@@ -89,6 +90,7 @@ func (cfg *Schedule) Save(sql *gorm.DB, timer *cron.Cron) error {
 		backup := Backup{
 			Directory:  cfg.Directory,
 			ScheduleID: scheduleId,
+			DatabaseID: dbModel.ID,
 		}
 		if err := backup.Save(dbModel, sql); err != nil {
 			os.Remove(backup.Dump)
@@ -111,6 +113,7 @@ func (cfg *Schedule) Save(sql *gorm.DB, timer *cron.Cron) error {
 			backup := Backup{
 				Directory:  cfg.Directory,
 				ScheduleID: scheduleId,
+				DatabaseID: dbModel.ID,
 			}
 			if err := backup.Save(dbModel, sql); err != nil {
 				logrus.Error(err)

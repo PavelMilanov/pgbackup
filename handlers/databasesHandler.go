@@ -13,6 +13,7 @@ import (
 // Handler для главной страницы с базами данных.
 func (h *Handler) databasesHandler(c *gin.Context) {
 	databases := db.GetDbAll(h.DB)
+	// db.GetDbLastBackup(h.DB)
 	c.HTML(http.StatusOK, "databases.html", gin.H{
 		"header":    "Базы данных | PgBackup",
 		"databases": databases,
@@ -86,8 +87,8 @@ func (h *Handler) getBackupsHandler(c *gin.Context) {
 		return
 	}
 	c.HTML(http.StatusOK, "backups.html", gin.H{
-		"header":   "Базы данных | PgBackup",
-		"database": db,
+		"header": "Базы данных | PgBackup",
+		"db":     db,
 		"pages": []web.Page{
 			{Name: "Главная", URL: "/", IsVisible: false},
 			{Name: "Расписание", URL: "/schedule", IsVisible: false},

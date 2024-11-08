@@ -3,7 +3,7 @@
     <h2>Управление базами данных</h2>
     <div class="card">
       <button id="dbMenu-btn" class="btn btn-primary">Добавить базу данных</button>
-      {{ block "databases/table" .databases }}{{ end }}
+      {{ template "databases/table" .databases }}
     </div>
   </div>
   {{ template "modals/add_db"}}

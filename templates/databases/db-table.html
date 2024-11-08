@@ -6,7 +6,6 @@
             <th>Хост</th>
             <th>Размер</th>
             <th>Статус</th>
-            <th>Последний бэкап</th>
             <th>Действия</th>
         </tr>
     </thead>
@@ -16,15 +15,13 @@
             <td>{{ .Name }}</td>
             <td>{{ .Host }}</td>
             <td>{{ .Size }}</td>
-            <td>{{ .Status }}</td>
             <td>
-                <span class="getStatusBadgeClass(db.status)"></span>
+                <span class="getStatusBadgeClass(db.status)">{{ .Status }}</span>
             </td>
             <td>
                 <a href="/databases/{{.ID}}/backups">
                     <button id="backupMenu-btn" class="btn btn-primary">Управление бекапами</button>
                 </a>
-                <!-- <button id="backupMenu-btn" value="{{ .ID }}" class="btn btn-primary">Управление бекапами</button> -->
                 <button id="deleteDatabase-btn" value="{{ .ID }}" class="btn btn-secondary">Удалить</button>
             </td>
         </tr>
