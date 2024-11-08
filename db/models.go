@@ -4,6 +4,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// Модель базы данных для обслуживания.
 type Database struct {
 	gorm.Model
 	ID        int `gorm:"primaryKey"`
@@ -18,6 +19,7 @@ type Database struct {
 	Backups   []Backup   `gorm:"constraint:OnDelete:CASCADE;"`
 }
 
+// Модель расписания выполнения бекапов для выбранной базы даннах.
 type Schedule struct {
 	gorm.Model
 	ID           int    `gorm:"primaryKey"`
@@ -31,6 +33,7 @@ type Schedule struct {
 	Backups      []Backup `gorm:"constraint:OnDelete:CASCADE;"`
 }
 
+// Модель с метаданными бекапа.
 type Backup struct {
 	gorm.Model
 	ID         int `gorm:"primaryKey"`
@@ -44,6 +47,7 @@ type Backup struct {
 	DatabaseID int
 }
 
+// Модель токена аутентицикации
 type Token struct {
 	gorm.Model
 	ID   int `gorm:"primaryKey"`

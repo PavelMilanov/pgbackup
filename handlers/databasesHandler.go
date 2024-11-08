@@ -77,7 +77,7 @@ func (h *Handler) createBackupHandler(c *gin.Context) {
 	c.Redirect(http.StatusFound, "/databases/")
 }
 
-// Handler для вывода всех бекапов базы данных.
+// Handler для вывода всех бекапов для выбранной базы данных.
 func (h *Handler) getBackupsHandler(c *gin.Context) {
 	data := c.Param("id")
 	id, _ := strconv.Atoi(data)

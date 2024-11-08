@@ -10,6 +10,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// Создает файл бекапа базы данных и сохраняет методанных в служебную БД.
 func (bk *Backup) Save(cfg Database, sql *gorm.DB) error {
 	start := time.Now()
 	currTime := start.Format("2006-01-02-15:04") // шаблон GO для формата ГГГГ-мм-дд "2006-01-02 15:04:05" со временем
@@ -25,23 +26,16 @@ func (bk *Backup) Save(cfg Database, sql *gorm.DB) error {
 	timer := time.Since(start).Seconds()
 	elapsed := fmt.Sprintf("%.3f сек", timer)
 	bk.LeadTime = elapsed
-	size, err := bk.getBackupSize(currTime)
-	if err != nil {
-		bk.Status = "ошибка"
-		return err
-	}
-	bk.Size = size
+	bk.getBackupSize(currTime)
 	bk.Status = "завершен"
 	defer sql.Create(&bk)
 	logrus.Infof("Создан бекап %s", bk.Dump)
 	return nil
 }
 
-func (bk *Backup) getBackupSize(filename string) (string, error) {
+// Получение размера файла бекапа на диске.
+func (bk *Backup) getBackupSize(filename string) {
 	command := fmt.Sprintf("du -h %s/%s.dump | awk '{print $1}'", bk.Directory, filename)
-	cmd, err := exec.Command("sh", "-c", command).Output()
-	if err != nil {
-		return "", fmt.Errorf("%s", command)
-	}
-	return string(cmd), nil
+	cmd, _ := exec.Command("sh", "-c", command).Output()
+	bk.Size = string(cmd)
 }

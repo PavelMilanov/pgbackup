@@ -11,6 +11,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// Handler для главной страницы с расписаниями.
 func (h *Handler) scheduleHandler(c *gin.Context) {
 	schedules := db.GetSchedules(h.DB)
 	databases := db.GetDbAll(h.DB)
@@ -27,6 +28,7 @@ func (h *Handler) scheduleHandler(c *gin.Context) {
 		}})
 }
 
+// Handler для сохранения расписания.
 func (h *Handler) scheduleSaveHandler(c *gin.Context) {
 	var data web.ScheduleForm
 	if err := c.ShouldBind(&data); err != nil {
@@ -44,6 +46,7 @@ func (h *Handler) scheduleSaveHandler(c *gin.Context) {
 	c.Redirect(http.StatusFound, "/schedule/")
 }
 
+// Handler для удаления расписания.
 func (h *Handler) scheduleDeleteHandler(c *gin.Context) {
 	var data web.ScheduleForm
 	if err := c.ShouldBind(&data); err != nil {
