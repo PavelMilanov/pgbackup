@@ -8,7 +8,6 @@ import (
 	"github.com/PavelMilanov/pgbackup/db"
 	"github.com/PavelMilanov/pgbackup/web"
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 )
 
 // Handler для главной страницы с расписаниями.
@@ -32,7 +31,6 @@ func (h *Handler) scheduleHandler(c *gin.Context) {
 func (h *Handler) scheduleSaveHandler(c *gin.Context) {
 	var data web.ScheduleForm
 	if err := c.ShouldBind(&data); err != nil {
-		logrus.Error(err)
 		//c.HTML(http.StatusBadRequest, "databases.html", gin.H{"error": err.Error()})
 		return
 	}
@@ -42,7 +40,10 @@ func (h *Handler) scheduleSaveHandler(c *gin.Context) {
 		Frequency:  data.Frequency,
 		Time:       data.Time,
 	}
-	config.Save(h.DB, h.CRON)
+	if err := config.Save(h.DB, h.CRON); err != nil {
+		//c.HTML(http.StatusBadRequest, "databases.html", gin.H{"error": err.Error()})
+		return
+	}
 	c.Redirect(http.StatusFound, "/schedule/")
 }
 
@@ -50,7 +51,6 @@ func (h *Handler) scheduleSaveHandler(c *gin.Context) {
 func (h *Handler) scheduleDeleteHandler(c *gin.Context) {
 	var data web.ScheduleForm
 	if err := c.ShouldBind(&data); err != nil {
-		logrus.Error(err)
 		//c.HTML(http.StatusBadRequest, "databases.html", gin.H{"error": err.Error()})
 		return
 	}
@@ -58,6 +58,9 @@ func (h *Handler) scheduleDeleteHandler(c *gin.Context) {
 	config := db.Schedule{
 		ID: id,
 	}
-	config.Delete(h.DB, h.CRON)
+	if err := config.Delete(h.DB, h.CRON); err != nil {
+		//c.HTML(http.StatusBadRequest, "databases.html", gin.H{"error": err.Error()})
+		return
+	}
 	c.Redirect(http.StatusFound, "/schedule/")
 }
