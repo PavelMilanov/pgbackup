@@ -8,12 +8,7 @@ type Page struct {
 }
 
 type BackupForm struct {
-	SelectedDB      string `form:"backupDBName" binding:"required"`
-	SelectedRun     string `form:"backupRun" binding:"required"`
-	SelectedComment string `form:"backupComment"`
-	SelectedCount   string `form:"backupScheduleCount"`
-	SelectedTime    string `form:"backupScheduleTime"`
-	SelectedCron    string `form:"backupScheduleCron"`
+	ID string `form:"ID" binding:"required"`
 }
 
 // Форма для сохранения базы данных.

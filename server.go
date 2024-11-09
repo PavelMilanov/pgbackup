@@ -19,7 +19,7 @@ func (s *Server) Run(handler http.Handler) error {
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
-	logrus.Info("Сервер запущен")
+	logrus.Infof("Сервер запущен %s", s.httpServer.Addr)
 	return s.httpServer.ListenAndServe()
 }
 

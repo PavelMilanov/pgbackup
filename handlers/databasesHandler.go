@@ -98,3 +98,32 @@ func (h *Handler) getBackupsHandler(c *gin.Context) {
 			{Name: "Настройки", URL: "/settings", IsVisible: false},
 		}})
 }
+
+// Handler для скачивания файла бекапа.
+func (h *Handler) downloadBackupHandler(c *gin.Context) {
+	var data web.BackupForm
+	if err := c.ShouldBind(&data); err != nil {
+		return
+	}
+	id, _ := strconv.Atoi(data.ID)
+	config := db.Backup{
+		ID: id,
+	}
+	config.Get(h.DB)
+	filepath := config.Directory + "/" + config.Dump
+	c.FileAttachment(filepath, config.Dump)
+}
+
+// Handler для удаления файла бекапа.
+func (h *Handler) deleteBackupHandler(c *gin.Context) {
+	var data web.BackupForm
+	if err := c.ShouldBind(&data); err != nil {
+		return
+	}
+	id, _ := strconv.Atoi(data.ID)
+	config := db.Backup{
+		ID: id,
+	}
+	config.Delete(h.DB)
+	c.Redirect(http.StatusFound, "/databases/")
+}
