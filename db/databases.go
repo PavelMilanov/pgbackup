@@ -105,11 +105,12 @@ func (cfg Database) Delete(sql *gorm.DB) error {
 func GetDb(sql *gorm.DB, id int) (Database, error) {
 	var db Database
 	result := sql.
-		Preload("Backups").
-		Order("id DESC").
+		Preload("Backups", func(db *gorm.DB) *gorm.DB { // сортировка по последней дате
+			return db.Order("date desc")
+		}).
 		First(&db, id)
 	if result.Error != nil {
-		return Database{}, result.Error
+		return db, result.Error
 	}
 	return db, nil
 }

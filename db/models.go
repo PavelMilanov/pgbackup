@@ -27,7 +27,6 @@ type Schedule struct {
 	Time         string
 	Frequency    string
 	DatabaseName string
-	LastBackup   string
 	Status       string
 	DatabaseID   int
 	Backups      []Backup `gorm:"constraint:OnDelete:CASCADE;"`

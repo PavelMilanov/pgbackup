@@ -16,7 +16,7 @@
             <td id="scheduleDbName">{{ .DatabaseName }}</td>
             <td>{{ .Frequency }}</td>
             <td id="scheduleDbTime">{{ .Time }}</td>
-            <td>{{ .LastBackup }}</td>
+            <td>{{range .Backups}}{{.Date}}{{ end }}</td>
             <td>{{ .Status }}</td>
             <td>
                 <button id="deleteSchedule" type="submit" value="{{ .ID }}" class="btn btn-secondary">Удалить</button>

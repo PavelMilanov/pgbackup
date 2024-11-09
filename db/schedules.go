@@ -145,7 +145,9 @@ func (cfg *Schedule) Delete(sql *gorm.DB, timer *cron.Cron) error {
 // Возвращает список конфигураций расписаний, которые запускаются по расписанию
 func GetSchedules(sql *gorm.DB) []Schedule {
 	var scheduleList []Schedule
-	result := sql.Where("Status = ?", config.SCHEDULE_STATUS[0]).Find(&scheduleList)
+	result := sql.Preload("Backups", func(db *gorm.DB) *gorm.DB { // выбираем последений по дате бекап для отображения
+		return db.Order("date desc").Limit(1)
+	}).Where("Status = ?", config.SCHEDULE_STATUS[0]).Find(&scheduleList)
 	if result.Error != nil {
 		logrus.Error(result.Error)
 		return scheduleList
