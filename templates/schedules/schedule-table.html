@@ -13,13 +13,15 @@
     <tbody>
         {{ range . }}
         <tr>
-            <td id="scheduleDbName">{{ .DatabaseName }}</td>
+            <td>{{ .DatabaseName }}</td>
             <td>{{ .Frequency }}</td>
-            <td id="scheduleDbTime">{{ .Time }}</td>
+            <td>{{ .Time }}</td>
             <td>{{range .Backups}}{{.Date}}{{ end }}</td>
             <td>{{ .Status }}</td>
             <td>
-                <button id="deleteSchedule" type="submit" value="{{ .ID }}" class="btn btn-secondary">Удалить</button>
+                <form class="btn-form btn btn-secondary" action="/schedule/delete" method="post">
+                    <button type="submit" name="ID" value="{{.ID}}" class="btn btn-secondary">Удалить</button>
+                </form>
             </td>
         </tr>
         {{ end}}

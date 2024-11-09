@@ -13,12 +13,6 @@ $('#app').on('click', '.btn-primary', function () {
 })
 
 $('#app').on('click', '#changeShedule', function () {
-    var dbName = $('#scheduleDbName').text()
-    var dbTime = $('#scheduleDbTime').text()
-    var chedule = $('#changeShedule').val()
-    $('#ChangeScheduleFormDB').val(dbName)
-    $('#ChangeScheduleFormTime').val(dbTime)
-    $('#ChangeScheduleID').val(chedule)
     $('#changeScheduleModal').show()
 })
 
