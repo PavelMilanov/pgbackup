@@ -31,7 +31,6 @@ func (h *Handler) scheduleHandler(c *gin.Context) {
 func (h *Handler) scheduleSaveHandler(c *gin.Context) {
 	var data web.ScheduleForm
 	if err := c.ShouldBind(&data); err != nil {
-		//c.HTML(http.StatusBadRequest, "databases.html", gin.H{"error": err.Error()})
 		return
 	}
 	id, _ := strconv.Atoi(data.Name)
@@ -51,7 +50,6 @@ func (h *Handler) scheduleSaveHandler(c *gin.Context) {
 func (h *Handler) scheduleDeleteHandler(c *gin.Context) {
 	var data web.ScheduleForm
 	if err := c.ShouldBind(&data); err != nil {
-		//c.HTML(http.StatusBadRequest, "databases.html", gin.H{"error": err.Error()})
 		return
 	}
 	id, _ := strconv.Atoi(data.ID)
