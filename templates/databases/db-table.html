@@ -19,10 +19,12 @@
                 <span class="getStatusBadgeClass(db.status)">{{ .Status }}</span>
             </td>
             <td>
-                <a href="/databases/{{.ID}}/backups">
-                    <button id="backupMenu-btn" class="btn btn-primary">Управление бекапами</button>
-                </a>
-                <button id="deleteDatabase-btn" value="{{ .ID }}" class="btn btn-secondary">Удалить</button>
+                <form class="btn-form btn btn-primary" action="/databases/{{.ID}}/backups" method="get">
+                    <button id="backupMenu-btn" name="ID" value="{{.ID}}" class="btn btn-primary">Управление бекапами</button>
+                </form>
+                <form class="btn-form btn btn-secondary" action="/databases/{{.ID}}/backups" method="post">
+                    <button id="deleteDatabase-btn" name="ID" value="{{.ID}}" class="btn btn-secondary">Удалить</button>
+                </form>
             </td>
         </tr>
         {{ end }}

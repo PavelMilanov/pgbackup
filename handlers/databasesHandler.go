@@ -76,13 +76,16 @@ func (h *Handler) createBackupHandler(c *gin.Context) {
 		//c.HTML(http.StatusBadRequest, "databases.html", gin.H{"error": err.Error()})
 		return
 	}
-	c.Redirect(http.StatusFound, "/databases/")
+	c.Redirect(http.StatusFound, "/databases/1/backups")
 }
 
 // Handler для вывода всех бекапов для выбранной базы данных.
 func (h *Handler) getBackupsHandler(c *gin.Context) {
-	data := c.Param("id")
-	id, _ := strconv.Atoi(data)
+	var data web.BackupForm
+	if err := c.ShouldBind(&data); err != nil {
+		return
+	}
+	id, _ := strconv.Atoi(data.ID)
 	db, err := db.GetDb(h.DB, id)
 	if err != nil {
 		c.JSON(404, gin.H{"message": "not found"})
