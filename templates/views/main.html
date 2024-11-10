@@ -37,6 +37,7 @@
             <th>База данных</th>
             <th>Дата</th>
             <th>Размер</th>
+            <th>Время выполнения</th>
             <th>Статус</th>
             <th>Действия</th>
           </tr>
@@ -44,9 +45,10 @@
         <tbody>
           {{ range .backups }}
           <tr>
-            <td>{{ .Name }}</td>
+            <td>{{ .DatabaseID }}</td>
             <td>{{ .Date }}</td>
             <td>{{ .Size }}</td>
+            <td>{{ .LeadTime }}</td>
             <td>
               <span class="status" :class="'status-' + backup.status.toLowerCase()">
               {{ .Status }}

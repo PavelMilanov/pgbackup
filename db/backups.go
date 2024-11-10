@@ -50,8 +50,16 @@ func (bk *Backup) Delete(sql *gorm.DB) {
 	}
 }
 
+// Получение модели бекапа.
 func (bk *Backup) Get(sql *gorm.DB) {
 	sql.Find(&bk)
+}
+
+// Получение до 5 моделей бекапов с зависимостями.
+func GetBackupsAll(sql *gorm.DB) []Backup {
+	var bkList []Backup
+	sql.Find(&bkList).Limit(5)
+	return bkList
 }
 
 // Получение размера файла бекапа на диске.

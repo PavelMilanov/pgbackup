@@ -2,6 +2,9 @@ package db
 
 import (
 	"testing"
+	"time"
+
+	"github.com/robfig/cron/v3"
 )
 
 var testConfig = Database{
@@ -11,8 +14,10 @@ var testConfig = Database{
 	Username: "test",
 	Password: "test",
 }
+var location, _ = time.LoadLocation("Europe/Moscow")
+var testScheduler = cron.New(cron.WithLocation(location))
 
-var testDb = NewDatabase(&SQLite{Name: "test.db"})
+var testDb = NewDatabase(&SQLite{Name: "test.db"}, testScheduler)
 
 func TestCheckConnection(t *testing.T) {
 	if err := testConfig.checkConnection(); err != nil {

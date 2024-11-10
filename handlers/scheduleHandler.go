@@ -12,7 +12,7 @@ import (
 
 // Handler для главной страницы с расписаниями.
 func (h *Handler) scheduleHandler(c *gin.Context) {
-	schedules := db.GetSchedules(h.DB)
+	schedules := db.GetSchedulesAll(h.DB)
 	databases := db.GetDbAll(h.DB)
 	c.HTML(http.StatusOK, "schedule.html", gin.H{
 		"header":           "Расписание | PgBackup",

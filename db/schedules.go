@@ -83,7 +83,6 @@ func (cfg *Schedule) Save(sql *gorm.DB, timer *cron.Cron) error {
 			logrus.Error(err)
 			return err
 		}
-		logrus.Infof("Добавлено расписание %s", cfg.DatabaseName)
 		backup := Backup{
 			Directory:  cfg.Directory,
 			ScheduleID: scheduleId,
@@ -101,7 +100,6 @@ func (cfg *Schedule) Save(sql *gorm.DB, timer *cron.Cron) error {
 			logrus.Error(err)
 			return err
 		}
-		logrus.Infof("Добавлено расписание %s", cfg.DatabaseName)
 		cronTime := toCron(cfg.Time, cfg.Frequency)
 		entryID, _ := timer.AddFunc(cronTime, func() {
 			backup := Backup{
@@ -112,7 +110,7 @@ func (cfg *Schedule) Save(sql *gorm.DB, timer *cron.Cron) error {
 			backup.Save(dbModel, sql)
 		})
 		entry := timer.Entry(entryID)
-		logrus.Infof("Добавлен планировщик %v", entry)
+		logrus.Infof("Добавлено расписание %v для бекапа", entry)
 	}
 	return nil
 }
@@ -143,7 +141,7 @@ func (cfg *Schedule) Delete(sql *gorm.DB, timer *cron.Cron) error {
 }
 
 // Возвращает список конфигураций расписаний, которые запускаются по расписанию
-func GetSchedules(sql *gorm.DB) []Schedule {
+func GetSchedulesAll(sql *gorm.DB) []Schedule {
 	var scheduleList []Schedule
 	result := sql.Preload("Backups", func(db *gorm.DB) *gorm.DB { // выбираем последений по дате бекап для отображения
 		return db.Order("date desc").Limit(1)

@@ -9,7 +9,7 @@ import (
 )
 
 func (h *Handler) mainHandler(c *gin.Context) {
-	backups := db.GetDbAll(h.DB)
+	backups := db.GetBackupsAll(h.DB)
 	c.HTML(http.StatusOK, "main.html", gin.H{
 		"header":  "Главная | PgBackup",
 		"backups": backups,

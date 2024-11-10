@@ -22,34 +22,14 @@ func init() {
 }
 
 func main() {
-
-	// config := connector.Config{
-	// 	Host:     os.Getenv("POSTGRES_HOST"),
-	// 	Port:     os.Getenv("POSTGRES_PORT"),
-	// 	User:     os.Getenv("POSTGRES_USER"),
-	// 	Password: os.Getenv("POSTGRES_PASSWORD"),
-	// 	DBName:   os.Getenv("POSTGRES_DB"),
-	// }
-	/// база данных
-	/// первичная инициализация задания для ручных бекапов
-	sqlite := db.NewDatabase(&db.SQLite{Name: "pgbackup.db"})
-	// var defaultTask db.Task
-	// result := sqlite.Where("Alias = ?", "Default").First(&defaultTask)
-	// if result.Error != nil {
-	// 	// Запись не найдена, создаем новую
-	// 	if err := sqlite.Create(&db.Task{
-	// 		Alias:     "Default",
-	// 		Directory: connector.DEFAULT_BACKUP_DIR,
-	// 	}).Error; err != nil {
-	// 		log.Fatalf("failed to create task: %v", err)
-	// 	}
-	// }
-	///
 	/// Фоновые задачи
 	location, _ := time.LoadLocation("Europe/Moscow")
 	scheduler := cron.New(cron.WithLocation(location))
-	fmt.Println(scheduler.Entries())
-	///
+
+	/// база данных
+	/// первичная инициализация задания для ручных бекапов
+	sqlite := db.NewDatabase(&db.SQLite{Name: "pgbackup.db"}, scheduler)
+
 	/// логгер
 	logrus.SetOutput(os.Stdout)
 	logrus.SetReportCaller(true)
