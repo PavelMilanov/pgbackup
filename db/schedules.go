@@ -21,9 +21,9 @@ func toCron(time, frequency string) string {
 	crontime := strings.Split(time, ":") // 22:45 => ["22", "45"]
 	var cron string
 	switch frequency {
-	case config.BACKUP_FREQUENCY[0]:
+	case config.BACKUP_FREQUENCY["ежедневно"]:
 		cron = "1"
-	case config.BACKUP_FREQUENCY[1]:
+	case config.BACKUP_FREQUENCY["eженедельно"]:
 		cron = "7"
 	}
 	formatTime := fmt.Sprintf("%s %s */%s * *", crontime[1], crontime[0], cron)
@@ -77,7 +77,7 @@ func (cfg *Schedule) Save(sql *gorm.DB, timer *cron.Cron) error {
 		cfg.DatabaseName = dbModel.Name
 		dir := generateRandomBackupDir()
 		cfg.Directory = dir
-		cfg.Status = config.SCHEDULE_STATUS[1]
+		cfg.Status = config.SCHEDULE_STATUS["вручную"]
 		scheduleId, err := ScheduleCreate(sql, *cfg)
 		if err != nil {
 			logrus.Error(err)
@@ -94,7 +94,7 @@ func (cfg *Schedule) Save(sql *gorm.DB, timer *cron.Cron) error {
 		cfg.DatabaseName = dbModel.Name
 		dir := generateRandomBackupDir()
 		cfg.Directory = dir
-		cfg.Status = config.SCHEDULE_STATUS[0]
+		cfg.Status = config.SCHEDULE_STATUS["активно"]
 		scheduleId, err := ScheduleCreate(sql, *cfg)
 		if err != nil {
 			logrus.Error(err)
@@ -145,7 +145,7 @@ func GetSchedulesAll(sql *gorm.DB) []Schedule {
 	var scheduleList []Schedule
 	result := sql.Preload("Backups", func(db *gorm.DB) *gorm.DB { // выбираем последений по дате бекап для отображения
 		return db.Order("date desc").Limit(1)
-	}).Where("Status = ?", config.SCHEDULE_STATUS[0]).Find(&scheduleList)
+	}).Where("Status = ?", config.SCHEDULE_STATUS["активно"]).Find(&scheduleList)
 	if result.Error != nil {
 		logrus.Error(result.Error)
 		return scheduleList

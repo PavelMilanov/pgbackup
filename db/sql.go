@@ -32,7 +32,7 @@ func automigrate(db *gorm.DB) {
 func initCronTasks(sql *gorm.DB, timer *cron.Cron) {
 	schedules := GetSchedulesAll(sql)
 	for _, schedule := range schedules {
-		if schedule.Status == config.SCHEDULE_STATUS[0] {
+		if schedule.Status == config.SCHEDULE_STATUS["активно"] {
 			dbModel, _ := GetDb(sql, schedule.DatabaseID)
 			cronTime := toCron(schedule.Time, schedule.Frequency)
 			timer.AddFunc(cronTime, func() {
