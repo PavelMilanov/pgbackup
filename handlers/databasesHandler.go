@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -76,7 +77,8 @@ func (h *Handler) createBackupHandler(c *gin.Context) {
 		//c.HTML(http.StatusBadRequest, "databases.html", gin.H{"error": err.Error()})
 		return
 	}
-	c.Redirect(http.StatusFound, "/databases/1/backups")
+	page := fmt.Sprintf("/databases/backups?ID=%s", data.ID)
+	c.Redirect(http.StatusFound, page)
 }
 
 // Handler для вывода всех бекапов для выбранной базы данных.

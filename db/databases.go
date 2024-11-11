@@ -101,13 +101,14 @@ func (cfg Database) Delete(sql *gorm.DB) error {
 	return nil
 }
 
-// Получение базы данных по имени из таблицы Databases со связанными Backups.
+// Получение базы данных по имени из таблицы Databases со связанными Backups и Schedules.
 func GetDb(sql *gorm.DB, id int) (Database, error) {
 	var db Database
 	result := sql.
 		Preload("Backups", func(db *gorm.DB) *gorm.DB { // сортировка по последней дате
 			return db.Order("date desc")
 		}).
+		Preload("Schedules").
 		First(&db, id)
 	if result.Error != nil {
 		return db, result.Error

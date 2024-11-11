@@ -26,8 +26,8 @@ type Schedule struct {
 	Directory    string `gorm:"unique"`
 	Time         string
 	Frequency    string
-	DatabaseName string
 	Status       string
+	DatabaseName string
 	DatabaseID   int
 	Backups      []Backup `gorm:"constraint:OnDelete:CASCADE;"`
 }
@@ -35,15 +35,16 @@ type Schedule struct {
 // Модель с метаданными бекапа.
 type Backup struct {
 	gorm.Model
-	ID         int `gorm:"primaryKey"`
-	Date       string
-	Size       string
-	LeadTime   string
-	Status     string
-	Directory  string
-	Dump       string `gorm:"unique"`
-	ScheduleID int
-	DatabaseID int
+	ID           int `gorm:"primaryKey"`
+	Date         string
+	Size         string
+	LeadTime     string
+	Status       string
+	Directory    string
+	Dump         string `gorm:"unique"`
+	DatabaseName string
+	ScheduleID   int
+	DatabaseID   int
 }
 
 // Модель токена аутентицикации

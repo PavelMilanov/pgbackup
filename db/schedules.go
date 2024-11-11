@@ -64,11 +64,12 @@ func (cfg *Schedule) Save(sql *gorm.DB, timer *cron.Cron) error {
 	if cfg.Time == "" {
 		for _, item := range dbModel.Schedules {
 			// если есть расписание без времени - создаем статические бекапы здесь
-			if item.Time == "" {
+			if item.Time == cfg.Time {
 				backup := Backup{
-					Directory:  item.Directory,
-					ScheduleID: item.ID,
-					DatabaseID: dbModel.ID,
+					Directory:    item.Directory,
+					DatabaseName: dbModel.Name,
+					ScheduleID:   item.ID,
+					DatabaseID:   dbModel.ID,
 				}
 				backup.Save(dbModel, sql)
 				return nil
@@ -84,9 +85,10 @@ func (cfg *Schedule) Save(sql *gorm.DB, timer *cron.Cron) error {
 			return err
 		}
 		backup := Backup{
-			Directory:  cfg.Directory,
-			ScheduleID: scheduleId,
-			DatabaseID: dbModel.ID,
+			Directory:    cfg.Directory,
+			DatabaseName: dbModel.Name,
+			ScheduleID:   scheduleId,
+			DatabaseID:   dbModel.ID,
 		}
 		backup.Save(dbModel, sql)
 		// для бекапов по расписанию
@@ -103,9 +105,10 @@ func (cfg *Schedule) Save(sql *gorm.DB, timer *cron.Cron) error {
 		cronTime := toCron(cfg.Time, cfg.Frequency)
 		entryID, _ := timer.AddFunc(cronTime, func() {
 			backup := Backup{
-				Directory:  cfg.Directory,
-				ScheduleID: scheduleId,
-				DatabaseID: dbModel.ID,
+				Directory:    cfg.Directory,
+				DatabaseName: dbModel.Name,
+				ScheduleID:   scheduleId,
+				DatabaseID:   dbModel.ID,
 			}
 			backup.Save(dbModel, sql)
 		})
