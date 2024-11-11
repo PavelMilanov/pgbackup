@@ -10,8 +10,14 @@ import (
 
 func (h *Handler) mainHandler(c *gin.Context) {
 	backups := db.GetBackupsAll(h.DB)
+	storage := struct {
+		Used  int
+		Total int
+	}{Used: 1, Total: 2}
+
 	c.HTML(http.StatusOK, "main.html", gin.H{
 		"header":  "Главная | PgBackup",
+		"storage": storage,
 		"backups": backups,
 		"pages": []web.Page{
 			{Name: "Главная", URL: "/", IsVisible: true},

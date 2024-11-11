@@ -15,10 +15,10 @@
       
       <div class="card">
         <h3>Использование хранилища</h3>
-        <div class="stat">1 / 1</div>
+        <div class="stat">{{.storage.Used}} / {{.storage.Total}}</div>
         <div>Использовано / Всего</div>
         <div class="chart">
-          <canvas id="storageChart"></canvas>
+          <canvas id="storageChart" data-used="{{.storage.Used}}" data-total="{{.storage.Total}}"></canvas>
         </div>
       </div>
       
@@ -78,5 +78,6 @@
       <button class="btn btn-secondary">Отмена</button>
     </div>
   </div>
+  <script src="/static/js/main.js"></script>
 </body>
 </html>
