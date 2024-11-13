@@ -16,7 +16,15 @@
             <td>{{ .Host }}</td>
             <td>{{ .Size }}</td>
             <td>
-                <span class="getStatusBadgeClass(db.status)">{{ .Status }}</span>
+                {{if .Status}}
+                <span class="status status-success">
+                    Подключено
+                </span>
+                {{else}}
+                <span class="status status-error">
+                    Сбой
+                </span>
+                {{end}}
             </td>
             <td>
                 <form class="btn-form btn btn-primary" action="/databases/backups" method="get">

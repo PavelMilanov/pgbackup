@@ -28,7 +28,8 @@ func main() {
 
 	/// база данных
 	/// первичная инициализация задания для ручных бекапов
-	sqlite := db.NewDatabase(&db.SQLite{Name: "pgbackup.db"}, scheduler)
+	sqliteFIle := fmt.Sprintf("%s/pgbackup.db", config.DATA_DIR)
+	sqlite := db.NewDatabase(&db.SQLite{Name: sqliteFIle}, scheduler)
 
 	/// логгер
 	logrus.SetOutput(os.Stdout)
@@ -46,14 +47,6 @@ func main() {
 	/// фоновые задачи
 	go scheduler.Start()
 	defer scheduler.Stop()
-
-	// tasks := connector.GetTaskData()
-	// for _, task := range tasks {
-	// 	if task.Schedule.Run == connector.BACKUP_RUN[1] {
-	// 		task.CreateCronBackup(scheduler, config)
-	// 	}
-	// }
-	///
 
 	handler := handlers.NewHandler(sqlite, scheduler)
 

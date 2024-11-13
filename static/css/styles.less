@@ -108,6 +108,52 @@ th {
     color: #721c24;
 }
 
+.system-status-widget {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 6px;
+    background: #f8f9fa;
+    transition: all 0.3s ease;
+  }
+.status-indicator:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+.status-icon {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+  }
+.status-details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+.status-name {
+    font-weight: 500;
+    font-size: 0.9rem;
+  }
+.status-value {
+    font-size: 0.8rem;
+    color: #666;
+  }
+.status-time {
+    font-size: 0.75rem;
+    color: #888;
+  }
+
+.status-green { background: #28a745; }
+.status-yellow { background: #ffc107; }
+.status-red { background: #dc3545; }
+
 .btn {
     display: inline-block;
     padding: 0.375rem 0.75rem;

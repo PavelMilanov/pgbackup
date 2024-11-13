@@ -20,13 +20,13 @@ func (bk *Backup) Save(cfg Database, sql *gorm.DB) {
 	command := fmt.Sprintf("export PGPASSWORD=%s && pg_dump -h %s -U %s -p %d %s > %s", cfg.Password, cfg.Host, cfg.Username, cfg.Port, cfg.Name, bk.Directory+"/"+dumpName)
 	_, err := exec.Command("sh", "-c", command).Output()
 	if err != nil {
-		bk.Status = "ошибка"
+		bk.Status = false
 	}
 	timer := time.Since(start).Seconds()
 	elapsed := fmt.Sprintf("%.3f сек", timer)
 	bk.LeadTime = elapsed
 	bk.getBackupSize(currTime)
-	bk.Status = "завершен"
+	bk.Status = true
 	result := sql.Create(&bk)
 	if result.Error != nil {
 		logrus.Error(result.Error)
@@ -60,6 +60,16 @@ func GetBackupsAll(sql *gorm.DB) []Backup {
 	var bkList []Backup
 	sql.Find(&bkList).Limit(5)
 	return bkList
+}
+
+// Получение количества успешных и неуспешных бекапов.
+func CountBackupsStatus(sql *gorm.DB) []int64 {
+	var success int64
+	var failed int64
+	var bkList []Backup
+	sql.Where("Status == ?", 1).Find(&bkList).Count(&success)
+	sql.Where("Status == ?", 0).Find(&bkList).Count(&failed)
+	return []int64{success, failed}
 }
 
 // Получение размера файла бекапа на диске.

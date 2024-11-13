@@ -17,7 +17,11 @@
             <td>{{ .Frequency }}</td>
             <td>{{ .Time }}</td>
             <td>{{range .Backups}}{{.Date}}{{ end }}</td>
-            <td>{{ .Status }}</td>
+            <td>
+            <span class="status status-success">
+            {{ .Status }}
+            </span>
+            </td>
             <td>
                 <form class="btn-form btn btn-secondary" action="/schedule/delete" method="post">
                     <button type="submit" name="ID" value="{{.ID}}" class="btn btn-secondary">Удалить</button>

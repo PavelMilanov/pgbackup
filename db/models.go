@@ -39,7 +39,7 @@ type Backup struct {
 	Date         string
 	Size         string
 	LeadTime     string
-	Status       string
+	Status       bool
 	Directory    string
 	Dump         string `gorm:"unique"`
 	DatabaseName string

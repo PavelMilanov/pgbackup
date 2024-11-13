@@ -8,29 +8,13 @@ services:
         - USER_DOCKER=pgbackup
         - UID_DOCKER=10000
     container_name: pgbackup
-    depends_on:
-      - postgres
     restart: always
     environment:
       USER_LOGIN: pgbackup
       USER_PASSWORD: pgbackup
-      POSTGRES_HOST: postgres
-      POSTGRES_PORT: 5432
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin
-      POSTGRES_DB: dev
     volumes:
-      - ./data:/app/data
-      - ./dumps:/app/dumps
+      - ./dumps:/app/dumps:rw
+      - ./data:/app/data:rw
     ports:
     - 8080:8080
   
-  postgres:
-    image: postgres:16
-    container_name: postgres
-    command: postgres -c jit=off
-    restart: always
-    environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin
-      POSTGRES_DB: dev

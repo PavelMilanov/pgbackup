@@ -3,6 +3,7 @@ package config
 var DURATION = 3
 
 var BACKUP_DIR = "dumps"
+var DATA_DIR = "data"
 
 var BACKUP_FREQUENCY = map[string]string{
 	"ежедневно":   "ежедневно",
