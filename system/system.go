@@ -23,26 +23,28 @@ func GetStorageInfo() []string {
 	return strings.Split(output, " ")
 }
 
-// Возвращает загрузку CPU в %. (требует доработки)
+// Возвращает загрузку CPU в %.
 func GetCPUInfo() int {
-	// cmd1, err := exec.Command("sh", "-c", "grep 'model name' /proc/cpuinfo | wc -l").Output()
-	// if err != nil || len(cmd1) == 0 {
-	// 	logrus.Error(cmd1)
-	// 	return "0%"
-	// }
-	// countCPU := string(cmd1)
+	cmd1, err := exec.Command("sh", "-c", "nproc").Output()
+	if err != nil || len(cmd1) == 0 {
+		logrus.Error(cmd1)
+		return 0
+	}
+	re1 := regexp.MustCompile(`\d+`)
+	str1 := re1.FindString(string(cmd1))
+	countCPU, _ := strconv.Atoi(str1)
 	cmd2, err := exec.Command("sh", "-c", "cat /proc/loadavg | awk '{print $1}'").Output()
 	if err != nil || len(cmd2) == 0 {
 		logrus.Error(cmd2)
 		return 0
 	}
-	re := regexp.MustCompile(`\d.+`)
-	str := re.FindString(string(cmd2))
-	output, _ := strconv.ParseFloat(str, 32)
+	re2 := regexp.MustCompile(`\d.+`)
+	str2 := re2.FindString(string(cmd2))
+	output, _ := strconv.ParseFloat(str2, 32)
 	dataFloat := math.Round(output*100) / 100
-	loadCPU := dataFloat * 100
-	logrus.Infof("Загрузка CPU: %f%%", loadCPU)
-	return int(loadCPU)
+	loadCPU := (dataFloat * 100)
+	logrus.Infof("Загрузка CPU: %d%%, количество процессоров: %d", int(loadCPU), countCPU)
+	return int(loadCPU) / countCPU
 }
 
 // Возвращает загрузку MEMORY в %.
