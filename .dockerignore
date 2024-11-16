@@ -1,4 +1,8 @@
 docker-compoe.yaml
 dumps
 data
-.env
+go.sum
+Makefile
+README.md
+.github/
+.gitignore

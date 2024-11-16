@@ -6,9 +6,11 @@ WORKDIR /build
 
 COPY . /build
 
+ARG VERSION
+ENV VERSION="${VERSION}"
 ENV CGO_ENABLED=1
 
-RUN go mod tidy && go build .
+RUN go mod tidy && go build . -ldflags="-X 'config.VERSION=${VERSION}'
 
 FROM alpine:3.20
 

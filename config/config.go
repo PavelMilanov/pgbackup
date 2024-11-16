@@ -21,3 +21,5 @@ var TOKEN_EXPIRED_TIME = 72 // 72 часа
 
 var JWT_KEY = []byte(os.Getenv("JWT_KEY"))
 var AES_KEY = []byte(os.Getenv("AES_KEY"))
+
+var VERSION string

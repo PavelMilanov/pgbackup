@@ -26,11 +26,13 @@ jobs:
         uses: actions/checkout@v4.2.2
 
       - name: Install Docker
-        run: |
-          apt-get update
-          apt-get install -y docker.io          
+        run: apt update && apt-get install -y docker.io
 
       - name: Build pgbackup
+        run: make release version=$(cat version)
+      
+      - name: Push to DockerHub
         run: |
-          docker build . -t rosomilanov/pgbackup:0.1
-          docker images 
+          docker login -u ${{secrets.DOCKER_REGISTRY_LOGIN}} -p ${{secrets.DOCKER_REGISRTY_PWD}}
+          make push version=$(cat version)
+          docker logout
