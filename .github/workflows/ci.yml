@@ -19,14 +19,14 @@ jobs:
         options: --privileged
         volumes:
           - /var/run/docker.sock:/var/run/docker.sock:ro
-    # container:
-    #   image: ubuntu:latest
+    container:
+      image: ubuntu:latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4.2.2
 
       - name: Install
-        run: apt update && apt install -y make
+        run: apt update && apt install -y docker.io make
 
       - name: Build pgbackup
         run: make release version=$(cat version.txt)
