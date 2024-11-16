@@ -33,6 +33,7 @@ func (h *Handler) databaseSaveHandler(c *gin.Context) {
 	}
 	port, _ := strconv.Atoi(data.Port)
 	config := db.Database{
+		Alias:    data.Alias,
 		Name:     data.Name,
 		Host:     data.Host,
 		Port:     port,

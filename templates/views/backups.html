@@ -24,15 +24,17 @@
                     <td>{{.Date}}</td>
                     <td>{{.Size}}</td>
                     <td>{{.LeadTime}}</td>
-                    <td>{{if .Status}}
-                    <span class="status status-success">
+                    <td>
+                        {{if .Status}}
+                        <span class="status status-success">
                         Успешно
-                    </span>
-                    {{else}}
-                    <span class="status status-error">
+                        </span>
+                        {{else}}
+                        <span class="status status-error">
                         Ошибка
-                    </span>
-                    {{end}}</td>
+                        </span>
+                        {{end}}
+                    </td>
                     <td>
                         <form class="btn-form btn btn-primary" action="/databases/backup/download" method="get">
                             <button type="submit" name="ID" value="{{.ID}}" class="btn btn-primary">скачать</button>

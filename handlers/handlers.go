@@ -1,13 +1,18 @@
 package handlers
 
 import (
+	"net/http"
 	"text/template"
 
+	"github.com/PavelMilanov/pgbackup/db"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 
 	cron "github.com/robfig/cron/v3"
 )
+
+var expectedHost = "localhost:8080"
 
 type Handler struct {
 	DB   *gorm.DB
@@ -18,21 +23,49 @@ func NewHandler(db *gorm.DB, scheduler *cron.Cron) *Handler {
 	return &Handler{DB: db, CRON: scheduler}
 }
 
-func authMiddleware(c *gin.Context) {
-	// fmt.Print("ping!")
-	c.Next()
+func authMiddleware(sql *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		token := db.GetToken(sql)
+		if ok := token.Validate(); !ok {
+			if err := token.Delete(sql); err != nil {
+				logrus.Error(err)
+			}
+			c.HTML(http.StatusOK, "login.html", gin.H{})
+			c.Abort()
+		}
+		c.Next()
+	}
+}
+
+func baseSecurityMiddleware(host string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if c.Request.Host != host {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Invalid host header"})
+			return
+		}
+		c.Header("X-Frame-Options", "DENY")
+		c.Header("Content-Security-Policy", "default-src 'self'; connect-src *; font-src *; script-src-elem * 'unsafe-inline'; img-src * data:; style-src * 'unsafe-inline';")
+		c.Header("X-XSS-Protection", "1; mode=block")
+		c.Header("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload")
+		c.Header("Referrer-Policy", "strict-origin")
+		c.Header("X-Content-Type-Options", "nosniff")
+		c.Header("Permissions-Policy", "geolocation=(),midi=(),sync-xhr=(),microphone=(),camera=(),magnetometer=(),gyroscope=(),fullscreen=(self),payment=()")
+		c.Next()
+	}
 }
 
 func (h *Handler) InitRouters() *gin.Engine {
 	router := gin.Default()
-
+	router.Use(baseSecurityMiddleware(expectedHost))
 	// gin.SetMode(gin.ReleaseMode)
 	router.SetFuncMap(template.FuncMap{"add": func(x, y int) int { return x + y }})
 	router.LoadHTMLGlob("templates/**/*")
 	router.Static("/static/", "./static")
-	web := router.Group("/")
+	router.GET("/login", h.loginHandler)
+	router.POST("/login", h.loginHandler)
+	router.GET("/logout", h.logoutHandler)
+	web := router.Group("/", authMiddleware(h.DB))
 	{
-		web.GET("/login", h.loginHandler)
 		web.GET("/", h.mainHandler)
 		schedule := web.Group("/schedule")
 		{
@@ -51,7 +84,6 @@ func (h *Handler) InitRouters() *gin.Engine {
 			databases.GET("/backups", h.getBackupsHandler)
 		}
 		web.GET("/settings", h.settingsHandler)
-		web.GET("/logout", h.logoutHandler)
 	}
 	api := router.Group("/api")
 	{

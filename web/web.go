@@ -14,6 +14,7 @@ type BackupForm struct {
 // Форма для сохранения базы данных.
 type DatabaseForm struct {
 	ID       string `form:"ID"`
+	Alias    string `form:"Alias"`
 	Name     string `form:"Name"`
 	Host     string `form:"Host"`
 	Port     string `form:"Port"`
@@ -27,4 +28,9 @@ type ScheduleForm struct {
 	Name      string `form:"Name"`
 	Frequency string `form:"Frequency"`
 	Time      string `form:"Time"`
+}
+
+type LoginForm struct {
+	Username string `form:"Username" binding:"required"`
+	Password string `form:"Password" binding:"required"`
 }

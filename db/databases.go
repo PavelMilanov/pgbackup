@@ -56,7 +56,7 @@ func (cfg *Database) Save(sql *gorm.DB) error {
 		logrus.Error(result.Error)
 		return result.Error
 	}
-	logrus.Infof("Добавлена база данных %s", cfg.Name)
+	logrus.Infof("Добавлена база данных %s", cfg.Alias)
 	return nil
 }
 
@@ -91,7 +91,7 @@ func (cfg Database) Delete(sql *gorm.DB) error {
 				}
 			}
 		}
-		logrus.Infof("Удалена база данных %s", cfg.Name)
+		logrus.Infof("Удалена база данных %s", cfg.Alias)
 		return tx.Commit().Error
 	}))
 	if err != nil {

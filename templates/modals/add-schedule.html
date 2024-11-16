@@ -9,7 +9,7 @@
                 <label for="dbName">База данных:</label>
                 <select id="dbName" name="Name" required>
                     {{ range .databases }}
-                    <option value="{{.ID}}">{{.Name}}</option>
+                    <option value="{{.ID}}">{{.Alias}}</option>
                     {{ end }}
                 </select>
             </div>

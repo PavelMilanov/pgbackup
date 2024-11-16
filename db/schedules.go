@@ -66,16 +66,16 @@ func (cfg *Schedule) Save(sql *gorm.DB, timer *cron.Cron) error {
 			// если есть расписание без времени - создаем статические бекапы здесь
 			if item.Time == cfg.Time {
 				backup := Backup{
-					Directory:    item.Directory,
-					DatabaseName: dbModel.Name,
-					ScheduleID:   item.ID,
-					DatabaseID:   dbModel.ID,
+					Directory:     item.Directory,
+					DatabaseAlias: dbModel.Name,
+					ScheduleID:    item.ID,
+					DatabaseID:    dbModel.ID,
 				}
 				backup.Save(dbModel, sql)
 				return nil
 			}
 		}
-		cfg.DatabaseName = dbModel.Name
+		cfg.DatabaseAlias = dbModel.Alias
 		dir := generateRandomBackupDir()
 		cfg.Directory = dir
 		cfg.Status = config.SCHEDULE_STATUS["вручную"]
@@ -85,15 +85,15 @@ func (cfg *Schedule) Save(sql *gorm.DB, timer *cron.Cron) error {
 			return err
 		}
 		backup := Backup{
-			Directory:    cfg.Directory,
-			DatabaseName: dbModel.Name,
-			ScheduleID:   scheduleId,
-			DatabaseID:   dbModel.ID,
+			Directory:     cfg.Directory,
+			DatabaseAlias: dbModel.Alias,
+			ScheduleID:    scheduleId,
+			DatabaseID:    dbModel.ID,
 		}
 		backup.Save(dbModel, sql)
 		// для бекапов по расписанию
 	} else {
-		cfg.DatabaseName = dbModel.Name
+		cfg.DatabaseAlias = dbModel.Alias
 		dir := generateRandomBackupDir()
 		cfg.Directory = dir
 		cfg.Status = config.SCHEDULE_STATUS["активно"]
@@ -105,10 +105,10 @@ func (cfg *Schedule) Save(sql *gorm.DB, timer *cron.Cron) error {
 		cronTime := toCron(cfg.Time, cfg.Frequency)
 		entryID, _ := timer.AddFunc(cronTime, func() {
 			backup := Backup{
-				Directory:    cfg.Directory,
-				DatabaseName: dbModel.Name,
-				ScheduleID:   scheduleId,
-				DatabaseID:   dbModel.ID,
+				Directory:     cfg.Directory,
+				DatabaseAlias: dbModel.Alias,
+				ScheduleID:    scheduleId,
+				DatabaseID:    dbModel.ID,
 			}
 			backup.Save(dbModel, sql)
 		})
@@ -133,11 +133,11 @@ func (cfg *Schedule) Delete(sql *gorm.DB, timer *cron.Cron) error {
 		return nil
 	}))
 	if err != nil {
-		logrus.Infof("Ошибка при удалении расписания %s", cfg.DatabaseName)
+		logrus.Infof("Ошибка при удалении расписания %s", cfg.DatabaseAlias)
 		return err
 	} else {
 		os.RemoveAll(cfg.Directory)
-		logrus.Infof("Удалено расписание %s", cfg.DatabaseName)
+		logrus.Infof("Удалено расписание %s", cfg.DatabaseAlias)
 		return nil
 
 	}

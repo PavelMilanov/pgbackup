@@ -13,7 +13,7 @@
     <tbody>
         {{ range . }}
         <tr>
-            <td>{{ .DatabaseName }}</td>
+            <td>{{ .DatabaseAlias }}</td>
             <td>{{ .Frequency }}</td>
             <td>{{ .Time }}</td>
             <td>{{range .Backups}}{{.Date}}{{ end }}</td>

@@ -1,6 +1,5 @@
 <html>
 <head>
-  <base href="/login">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Вход | PgBackup</title>
@@ -10,16 +9,18 @@
 <body>
   <div class="login-container" id="app">
     <h1>Вход в систему</h1>
-    <form @submit.prevent="login">
+    <form action="/login" method="post">
       <label for="username">Имя пользователя:</label>
-      <input type="text" id="username" required>
-      
+      <input type="text" id="username" name="Username" required>
+
       <label for="password">Пароль:</label>
-      <input type="password" id="password" required>
-      
+      <input type="password" id="password" name="Password" required>
+
       <button type="submit">Войти</button>
     </form>
-    <p class="error-message"></p>
+    {{if .error}}
+    <p class="error-message">{{.error}}</p>
+    {{end}}
   </div>
   <script src="/static/js/login.js"></script>
 </body>
