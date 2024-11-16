@@ -30,7 +30,7 @@ jobs:
           apt-get update
           apt-get install -y docker.io          
 
-      - name: Test Docker
+      - name: Build pgbackup
         run: |
-          docker version
-          docker info          
+          docker buildx build --platform linux/amd64 . -t rosomilanov/pgbackup:0.1
+          docker images 
