@@ -1,4 +1,4 @@
-name: build pgbackup images
+name: Release PgBackup on DockerHub
 
 on:
   push:

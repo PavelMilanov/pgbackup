@@ -8,7 +8,7 @@ COPY . /build
 
 ENV CGO_ENABLED=1
 
-RUN go build .
+RUN go mod tidy && go build .
 
 FROM alpine:3.20
 
