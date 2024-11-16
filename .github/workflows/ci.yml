@@ -3,12 +3,12 @@ name: Release PgBackup on DockerHub
 on:
   push:
       paths-ignore:
-        # - '.github/**'
+        - '.github/**'
         - 'README.md'
         - 'Dockerfile'
         - docker-compose.yaml
       branches:
-      - dev
+      - main
 
 jobs:
   build:

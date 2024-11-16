@@ -3,6 +3,7 @@ dumps
 data
 go.sum
 Makefile
-README.md
 .github/
 .gitignore
+.obsidian
+docs

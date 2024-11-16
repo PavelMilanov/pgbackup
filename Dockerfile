@@ -31,6 +31,7 @@ COPY templates/ /app/templates/
 COPY static/ /app/static/
 
 RUN apk --update --no-cache add postgresql-client tzdata sqlite-libs && \
+    rm -rf /var/cache/apk/ && \
     addgroup -g ${UID_DOCKER} ${USER_DOCKER} && \
     adduser -u ${UID_DOCKER} -G ${USER_DOCKER} -s /bin/sh -D -H ${USER_DOCKER} && \
     chown -R ${USER_DOCKER}:${USER_DOCKER} /app
@@ -40,6 +41,6 @@ VOLUME [ "/app/data" ]
 
 EXPOSE 8080
 
-USER ${USER_DOCKER}:${USER_DOCKER}
-
 ENTRYPOINT ["./pgbackup" ]
+
+USER ${USER_DOCKER}:${USER_DOCKER}
