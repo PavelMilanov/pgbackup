@@ -37,7 +37,7 @@ jobs:
         uses: docker/login-action@v3
         with:
           username: ${{secrets.DOCKER_REGISTRY_LOGIN}}
-          password: ${{secrets.DOCKER_REGISTRY_PWD}}
+          password: ${{secrets.DOCKER_REGISRTY_PWD}}
       
-      - name: Push to DockerHub
+      - name: Push to Docker Hub
         run: make push version=$(cat version.txt)
