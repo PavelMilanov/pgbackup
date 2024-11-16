@@ -8,9 +8,10 @@ services:
     container_name: pgbackup
     restart: always
     environment:
-      USER_LOGIN: admin
-      USER_PASSWORD: admin
-      JWT_SECRET: very_secret_string
+      LOGIN: admin
+      PASSWORD: admin
+      JWT_KEY: very_secret_string
+      AES_KEY: key3456789012345
     volumes:
       - ./dumps:/app/dumps:rw
       - ./data:/app/data:rw

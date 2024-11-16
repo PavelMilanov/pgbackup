@@ -1,6 +1,7 @@
 package db
 
 import (
+	"os"
 	"testing"
 	"time"
 
@@ -37,4 +38,14 @@ func TestGetDb(t *testing.T) {
 		t.Errorf("%v", err)
 	}
 	t.Log(db)
+}
+
+func TestEncrypAndDecrypt(t *testing.T) {
+	os.Setenv("AES_KEY", "key3456789012345")
+	text := "hello world"
+	encrypted := encrypt("hello world")
+	decrypted := decrypt(encrypted)
+	if text != decrypted {
+		t.Fatalf("%s не равен %s", text, decrypted)
+	}
 }

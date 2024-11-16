@@ -17,8 +17,8 @@ func (h *Handler) loginHandler(c *gin.Context) {
 		if err := c.ShouldBind(&data); err != nil {
 			return
 		}
-		username := os.Getenv("USER_LOGIN")
-		password := os.Getenv("USER_PASSWORD")
+		username := os.Getenv("LOGIN")
+		password := os.Getenv("PASSWORD")
 		if data.Username != username || data.Password != password {
 			c.HTML(http.StatusBadRequest, "login.html", gin.H{
 				"error": "неправильные логин или пароль",
