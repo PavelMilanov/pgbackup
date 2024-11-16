@@ -25,8 +25,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.2.2
 
-      - name: Install
-        run: apt update && apt install -y docker.io make
+      - name: Install Dependencies
+        run: |
+          apt update && apt install -y curl make
+          curl -fsSL https://get.docker.com && sh get-docker.sh
 
       - name: Build pgbackup
         run: make release version=$(cat version.txt)

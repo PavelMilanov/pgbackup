@@ -16,7 +16,7 @@ build:
 	@docker buildx build --platform linux/amd64 . -t rosomilanov/pgbackup:${version}
 
 release:
-	@docker build . -t rosomilanov/pgbackup:${version} --build-arg VERSION=${version}
+	@docker buildx build --platform linux/amd64 . -t rosomilanov/pgbackup:${version} --build-arg VERSION=${version}
 
 push:
 	@docker push rosomilanov/pgbackup:${version}
