@@ -17,8 +17,8 @@ jobs:
       docker:
         image: docker:dind
         options: --privileged
-        # volumes:
-        #   - /var/run/docker.sock:/var/run/docker.sock:ro
+        volumes:
+          - /var/run/docker.sock:/var/run/docker.sock:ro
     # container:
     #   image: ubuntu:latest
     steps:
