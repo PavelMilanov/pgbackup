@@ -7,5 +7,9 @@ import (
 )
 
 func (h *Handler) logoutHandler(c *gin.Context) {
-	c.HTML(http.StatusOK, "logout.html", gin.H{})
+	if c.Request.Method == "GET" {
+		c.HTML(http.StatusOK, "logout.html", gin.H{})
+	} else if c.Request.Method == "POST" {
+		c.Redirect(http.StatusFound, "/login")
+	}
 }

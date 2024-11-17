@@ -63,7 +63,8 @@ func (h *Handler) InitRouters() *gin.Engine {
 	router.Static("/static/", "./static")
 	router.GET("/login", h.loginHandler)
 	router.POST("/login", h.loginHandler)
-	router.GET("/logout", h.logoutHandler)
+	router.GET("/logout", h.logoutHandler, authMiddleware(h.DB))
+	router.POST("/logout", h.logoutHandler)
 	web := router.Group("/", authMiddleware(h.DB))
 	{
 		web.GET("/", h.mainHandler)

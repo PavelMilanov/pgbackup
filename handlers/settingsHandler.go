@@ -9,7 +9,9 @@ import (
 
 func (h *Handler) settingsHandler(c *gin.Context) {
 	c.HTML(http.StatusOK, "settings.html", gin.H{
-		"header": "Настройки | PgBackup",
+		"header":  "Настройки | PgBackup",
+		"error":   true,
+		"message": "страница в разработке",
 		"pages": []web.Page{
 			{Name: "Главная", URL: "/", IsVisible: false},
 			{Name: "Расписание", URL: "/schedule", IsVisible: false},
