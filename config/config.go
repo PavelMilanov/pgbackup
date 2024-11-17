@@ -2,7 +2,7 @@ package config
 
 import "os"
 
-var DURATION = 10
+var DURATION = 3
 
 var (
 	BACKUP_DIR = "dumps"
