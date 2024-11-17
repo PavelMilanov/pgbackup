@@ -11,7 +11,7 @@ ARG VERSION
 ENV VERSION="${VERSION}"
 ENV CGO_ENABLED=1
 
-RUN go mod tidy && go build -ldflags="-X 'config.VERSION=${VERSION}'"
+RUN go mod tidy && go install -ldflags="-X 'config.VERSION=${VERSION}'"
 
 FROM alpine:3.20
 
@@ -25,7 +25,7 @@ ENV TZ=Europe/Moscow
 
 WORKDIR /app
 
-COPY --from=builder /build/pgbackup /app
+COPY --from=builder /go/bin/pgbackup /app
 
 COPY templates/ /app/templates/
 COPY static/ /app/static/
