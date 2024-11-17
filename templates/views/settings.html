@@ -93,5 +93,9 @@
       </form>
     </div>
   </div>
+  {{if .error}}
+  {{ template "modal/error" .message }}
+  {{end}}
+  <script src="/static/js/settings.js"></script>
 </body>
 </html>

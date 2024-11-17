@@ -41,7 +41,7 @@ func (t *Token) Validate() bool {
 			return false
 		}
 	} else {
-		logrus.Error("Invalid token")
+		logrus.Error("Токен не валиден")
 		return false
 	}
 	return true

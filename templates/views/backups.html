@@ -1,6 +1,6 @@
 {{ template "header" .}}
 <div class="container backup-card" id="app">
-    <h2>Управление бекапами - {{.db.Name}}</h2>
+    <h2>Управление бекапами - {{.db.Alias}}</h2>
     <div class="card">
         <form class="btn-form btn btn-primary" action="/databases/backup/create" method="post">
             <button id="#" type="submit" name="ID" value="{{.db.ID}}" class="btn btn-primary">Создать бекап</button>

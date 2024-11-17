@@ -2,9 +2,6 @@ services:
   pgbackup:
     build:
       context: .
-      args:
-        - USER_DOCKER=pgbackup
-        - UID_DOCKER=10000
     container_name: pgbackup
     restart: always
     environment:

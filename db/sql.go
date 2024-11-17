@@ -17,9 +17,17 @@ func NewDatabase(sql *SQLite, timer *cron.Cron) *gorm.DB {
 	if err != nil {
 		logrus.Error("Ошибка при подключении к базе данных")
 	}
+	logrus.Info("Соединение с базой данных установлено")
 	automigrate(db)
 	initCronTasks(db, timer)
 	return db
+}
+
+func CloseDatabase(db *gorm.DB) {
+	sqlDB, _ := db.DB()
+	if err := sqlDB.Close(); err != nil {
+		logrus.Fatal("Ошибка при закрытии соединения с базой данных:", err)
+	}
 }
 
 func automigrate(db *gorm.DB) {
@@ -46,5 +54,5 @@ func initCronTasks(sql *gorm.DB, timer *cron.Cron) {
 		}
 	}
 	entris := timer.Entries()
-	logrus.Infof("Фоновые задачи для бекапов инициализированы %v", entris)
+	logrus.Infof("Фоновые задачи для бекапов инициализированы %+v", entris)
 }

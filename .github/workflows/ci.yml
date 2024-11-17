@@ -1,0 +1,43 @@
+name: Release PgBackup on DockerHub
+
+on:
+  push:
+      paths-ignore:
+        - '.github/**'
+        - 'README.md'
+        - 'Dockerfile'
+        - docker-compose.yaml
+      branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    services:
+      docker:
+        image: docker:dind
+        options: --privileged
+        volumes:
+          - /var/run/docker.sock:/var/run/docker.sock:ro
+    container:
+      image: ubuntu:latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+
+      - name: Install Dependencies
+        run: |
+          apt update && apt install -y curl make
+          curl -fsSL https://get.docker.com -o get-docker.sh && bash get-docker.sh
+
+      - name: Build pgbackup
+        run: make release version=$(cat version.txt)
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{secrets.DOCKER_REGISTRY_LOGIN}}
+          password: ${{secrets.DOCKER_REGISRTY_PWD}}
+      
+      - name: Push to Docker Hub
+        run: make push version=$(cat version.txt)

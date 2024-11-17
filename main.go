@@ -30,7 +30,7 @@ func main() {
 	/// первичная инициализация задания для ручных бекапов
 	sqliteFIle := fmt.Sprintf("%s/pgbackup.db", config.DATA_DIR)
 	sqlite := db.NewDatabase(&db.SQLite{Name: sqliteFIle}, scheduler)
-
+	defer db.CloseDatabase(sqlite)
 	/// логгер
 	logrus.SetOutput(os.Stdout)
 	logrus.SetReportCaller(true)
@@ -43,13 +43,12 @@ func main() {
 			return "", filename
 		},
 	})
-	///
+
 	/// фоновые задачи
 	go scheduler.Start()
 	defer scheduler.Stop()
 
 	handler := handlers.NewHandler(sqlite, scheduler)
-
 	srv := new(Server)
 	go func() {
 		if err := srv.Run(handler.InitRouters()); err != nil {
@@ -59,7 +58,7 @@ func main() {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
-	logrus.Infof("Shutdown signal of %d seconds\n", config.DURATION)
+	logrus.Infof("Сигнал остановки сервера через %d секунды\n", config.DURATION)
 	if err := srv.Shutdown(time.Duration(config.DURATION)); err != nil {
 		logrus.WithError(err).Error("ошибка при остановке сервера")
 	}
