@@ -11,7 +11,7 @@ ARG VERSION
 ENV VERSION="${VERSION}"
 ENV CGO_ENABLED=1
 
-RUN go mod tidy && go install -ldflags="-X 'config.VERSION=${VERSION}'"
+RUN go mod tidy && go build -ldflags="-s -w -X 'config.VERSION=${VERSION}'"
 
 FROM alpine:3.20
 
@@ -22,13 +22,17 @@ ENV USER_DOCKER="$USER_DOCKER"
 ENV UID_DOCKER="$UID_DOCKER"
 
 ENV TZ=Europe/Moscow
+ENV GIN_MODE=release
 
 WORKDIR /app
 
-COPY --from=builder /go/bin/pgbackup /app
+COPY --from=builder /build/pgbackup /app
 
 COPY templates/ /app/templates/
 COPY static/ /app/static/
+
+VOLUME [ "/app/dumps" ]
+VOLUME [ "/app/data" ]
 
 RUN apk --update --no-cache add postgresql-client tzdata sqlite-libs && \
     rm -rf /var/cache/apk/ && \
@@ -36,10 +40,8 @@ RUN apk --update --no-cache add postgresql-client tzdata sqlite-libs && \
     adduser -u ${UID_DOCKER} -G ${USER_DOCKER} -s /bin/sh -D -H ${USER_DOCKER} && \
     chown -R ${USER_DOCKER}:${USER_DOCKER} /app
 
-VOLUME [ "/app/dumps" ]
-VOLUME [ "/app/data" ]
 
-EXPOSE 8080
+EXPOSE 8080/tcp
 
 ENTRYPOINT ["./pgbackup" ]
 

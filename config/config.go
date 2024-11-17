@@ -2,7 +2,7 @@ package config
 
 import "os"
 
-var DURATION = 3
+var DURATION = 10
 
 var (
 	BACKUP_DIR = "dumps"
@@ -27,4 +27,6 @@ var (
 	AES_KEY = []byte(os.Getenv("AES_KEY"))
 )
 
-var VERSION string
+var (
+	VERSION string
+)

@@ -57,7 +57,6 @@ func baseSecurityMiddleware(host string) gin.HandlerFunc {
 func (h *Handler) InitRouters() *gin.Engine {
 	router := gin.Default()
 	router.Use(baseSecurityMiddleware(expectedHost))
-	// gin.SetMode(gin.ReleaseMode)
 	router.SetFuncMap(template.FuncMap{"add": func(x, y int) int { return x + y }})
 	router.LoadHTMLGlob("templates/**/*")
 	router.Static("/static/", "./static")
@@ -88,7 +87,9 @@ func (h *Handler) InitRouters() *gin.Engine {
 	}
 	api := router.Group("/api")
 	{
-		api.GET("/check")
+		api.GET("/check", func(c *gin.Context) {
+			c.JSON(http.StatusOK, gin.H{"status": "ok"})
+		})
 	}
 	return router
 }
