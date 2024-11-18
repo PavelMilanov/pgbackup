@@ -43,7 +43,7 @@ RUN apk --update --no-cache add postgresql-client tzdata sqlite-libs curl && \
 
 EXPOSE 8080/tcp
 
-HEALTHCHECK --interval=1m --timeout=2s --start-period=2s --retries=3 CMD curl http://localhost:8080/api/check || exit 1
+HEALTHCHECK --interval=1m --timeout=2s --start-period=2s --retries=3 CMD curl -f http://localhost:8080/api/check || exit 1
 
 ENTRYPOINT ["./pgbackup" ]
 
