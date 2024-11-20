@@ -19,6 +19,7 @@ func NewDatabase(sql *SQLite, timer *cron.Cron) *gorm.DB {
 	}
 	logrus.Info("Соединение с базой данных установлено")
 	automigrate(db)
+	setDefaultSettings(db)
 	initCronTasks(db, timer)
 	return db
 }
@@ -31,9 +32,16 @@ func CloseDatabase(db *gorm.DB) {
 }
 
 func automigrate(db *gorm.DB) {
-	if err := db.AutoMigrate(&Database{}, &Schedule{}, &Backup{}, &Token{}); err != nil {
-		logrus.Errorf("%s", err)
+	if err := db.AutoMigrate(&Database{}, &Schedule{}, &Backup{}, &User{}, &Token{}, &Setting{}); err != nil {
+		logrus.Fatalf("%s", err)
 		return
+	}
+}
+
+func setDefaultSettings(db *gorm.DB) {
+	var settings Setting
+	if err := db.FirstOrCreate(&settings, Setting{BackupDays: config.DEFAULT_BACKUP_EXPIRED_DAYS}).Error; err != nil {
+		logrus.Fatal("Ошибка при создании или получении настроек")
 	}
 }
 

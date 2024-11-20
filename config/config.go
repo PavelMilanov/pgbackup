@@ -2,14 +2,16 @@ package config
 
 import "os"
 
-var DURATION = 3
-
 var (
-	BACKUP_DIR = "dumps"
-	DATA_DIR   = "data"
-)
+	JWT_KEY                     = []byte(os.Getenv("JWT_KEY"))
+	AES_KEY                     = []byte(os.Getenv("AES_KEY"))
+	VERSION                     string
+	DEFAULT_BACKUP_EXPIRED_DAYS = 5  // дней
+	TOKEN_EXPIRED_TIME          = 24 // часов
+	BACKUP_DIR                  = "dumps"
+	DATA_DIR                    = "data"
+	DURATION                    = 3 // время остановки сервера
 
-var (
 	BACKUP_FREQUENCY = map[string]string{
 		"ежедневно":   "ежедневно",
 		"еженедельно": "еженедельно",
@@ -18,15 +20,4 @@ var (
 		"активно": "активно",
 		"вручную": "вручную",
 	}
-)
-
-var TOKEN_EXPIRED_TIME = 72 // 72 часа
-
-var (
-	JWT_KEY = []byte(os.Getenv("JWT_KEY"))
-	AES_KEY = []byte(os.Getenv("AES_KEY"))
-)
-
-var (
-	VERSION string
 )

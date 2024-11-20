@@ -1,6 +1,7 @@
 package db
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/PavelMilanov/pgbackup/config"
@@ -11,9 +12,10 @@ import (
 
 // Генерирует токен доступа при успешной авторизации.
 func (t *Token) Generate() error {
+
 	claims := jwt.RegisteredClaims{
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Duration(config.TOKEN_EXPIRED_TIME) * time.Hour)),
-		IssuedAt:  jwt.NewNumericDate(time.Now()),
+		Subject:   strconv.Itoa(t.UserID),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString(config.JWT_KEY)
@@ -41,7 +43,7 @@ func (t *Token) Validate() bool {
 			return false
 		}
 	} else {
-		logrus.Error("Токен не валиден")
+		logrus.Debug("Токен не валиден")
 		return false
 	}
 	return true
@@ -65,9 +67,9 @@ func (t *Token) Delete(sql *gorm.DB) error {
 	return nil
 }
 
-func GetToken(sql *gorm.DB) Token {
+func GetToken(sql *gorm.DB, data string) Token {
 	var t Token
-	result := sql.First(&t)
+	result := sql.Select("Hash", "UserID").Where("Hash = ?", data).First(&t)
 	if result.Error != nil {
 		logrus.Error(result.Error)
 		return t

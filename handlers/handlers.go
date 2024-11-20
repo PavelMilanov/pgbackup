@@ -5,11 +5,12 @@ import (
 	"text/template"
 
 	"github.com/PavelMilanov/pgbackup/db"
+	"github.com/gin-contrib/sessions"
+	gormsessions "github.com/gin-contrib/sessions/gorm"
 	"github.com/gin-gonic/gin"
+	cron "github.com/robfig/cron/v3"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
-
-	cron "github.com/robfig/cron/v3"
 )
 
 var expectedHost = "localhost:8080"
@@ -23,20 +24,25 @@ func NewHandler(db *gorm.DB, scheduler *cron.Cron) *Handler {
 	return &Handler{DB: db, CRON: scheduler}
 }
 
+// Основной middleware для авторизации.
 func authMiddleware(sql *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		token := db.GetToken(sql)
+		sessions := sessions.Default(c)
+		data := sessions.Get("token")
+		token := db.GetToken(sql, data.(string))
 		if ok := token.Validate(); !ok {
 			if err := token.Delete(sql); err != nil {
 				logrus.Error(err)
 			}
-			c.HTML(http.StatusOK, "login.html", gin.H{})
+			c.HTML(http.StatusUnauthorized, "login.html", gin.H{})
 			c.Abort()
+			return
 		}
 		c.Next()
 	}
 }
 
+// Базовый middleware безопасности.
 func baseSecurityMiddleware(host string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if c.Request.Host != host {
@@ -56,16 +62,24 @@ func baseSecurityMiddleware(host string) gin.HandlerFunc {
 
 func (h *Handler) InitRouters() *gin.Engine {
 	router := gin.Default()
+	store := gormsessions.NewStore(h.DB, true, []byte("mysessions"))
+
 	router.Use(baseSecurityMiddleware(expectedHost))
+	router.Use(sessions.Sessions("token", store))
+
 	router.SetFuncMap(template.FuncMap{"add": func(x, y int) int { return x + y }})
 	router.LoadHTMLGlob("templates/**/*")
 	router.Static("/static/", "./static")
+
+	router.GET("/registration", h.registrationHandler)
+	router.POST("/registration", h.registrationHandler)
 	router.GET("/login", h.loginHandler)
 	router.POST("/login", h.loginHandler)
-	router.GET("/logout", h.logoutHandler, authMiddleware(h.DB))
-	router.POST("/logout", h.logoutHandler)
+
 	web := router.Group("/", authMiddleware(h.DB))
 	{
+		web.GET("/logout", h.logoutHandler)
+		web.POST("/logout", h.logoutHandler)
 		web.GET("/", h.mainHandler)
 		schedule := web.Group("/schedule")
 		{

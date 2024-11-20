@@ -1,16 +1,12 @@
 package db
 
 import (
-	"bytes"
-	"crypto/aes"
-	"crypto/cipher"
-	"encoding/base64"
 	"errors"
 	"fmt"
 	"os"
 	"os/exec"
 
-	"github.com/PavelMilanov/pgbackup/config"
+	"github.com/PavelMilanov/pgbackup/system"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
@@ -56,9 +52,9 @@ func (cfg *Database) Save(sql *gorm.DB) error {
 		logrus.Error(err)
 		return err
 	}
-	encryptedUsername := encrypt(cfg.Username)
+	encryptedUsername := system.Encrypt(cfg.Username)
 	cfg.Username = encryptedUsername
-	encryptedPassword := encrypt(cfg.Password)
+	encryptedPassword := system.Encrypt(cfg.Password)
 	cfg.Password = encryptedPassword
 	result := sql.Create(&cfg)
 	if result.Error != nil {
@@ -122,9 +118,9 @@ func GetDb(sql *gorm.DB, id int) (Database, error) {
 	if result.Error != nil {
 		return db, result.Error
 	}
-	descriptedUsername := decrypt(db.Username)
+	descriptedUsername := system.Decrypt(db.Username)
 	db.Username = descriptedUsername
-	descriptedPassword := decrypt(db.Password)
+	descriptedPassword := system.Decrypt(db.Password)
 	db.Password = descriptedPassword
 	return db, nil
 }
@@ -137,49 +133,4 @@ func GetDbAll(sql *gorm.DB) []Database {
 		logrus.Error(result.Error)
 	}
 	return DbList
-}
-
-// Шифрование строки по алгоритму AES.
-func encrypt(plaintext string) string {
-	bc, err := aes.NewCipher(config.AES_KEY)
-	if err != nil {
-		logrus.Error(err)
-	}
-	paddedText := pad([]byte(plaintext), aes.BlockSize)
-	dst := make([]byte, len(paddedText))
-	cipher.NewCBCEncrypter(bc, config.AES_KEY[:aes.BlockSize]).CryptBlocks(dst, paddedText)
-	return base64.StdEncoding.EncodeToString(dst)
-}
-
-// Дешифрование строки по алгоритму AES.
-func decrypt(ciphertext string) string {
-	bc, err := aes.NewCipher(config.AES_KEY)
-	if err != nil {
-		logrus.Fatal(err)
-	}
-	ciphertextBytes, _ := base64.StdEncoding.DecodeString(ciphertext)
-	res := make([]byte, len(ciphertextBytes))
-	cipher.NewCBCDecrypter(bc, config.AES_KEY[:aes.BlockSize]).CryptBlocks(res, ciphertextBytes)
-	unpaddedText, err := unpad(res)
-	if err != nil {
-		logrus.Fatal(err)
-	}
-	return string(unpaddedText)
-}
-
-// Функция добавляет padding по стандарту PKCS#7
-func pad(src []byte, blockSize int) []byte {
-	padding := blockSize - len(src)%blockSize
-	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
-	return append(src, padtext...)
-}
-
-// Функция удаляет padding по стандарту PKCS#7
-func unpad(src []byte) ([]byte, error) {
-	padding := src[len(src)-1]
-	length := len(src) - int(padding)
-	if length < 0 {
-		return nil, errors.New("invalid padding")
-	}
-	return src[:length], nil
 }

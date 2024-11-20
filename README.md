@@ -37,7 +37,6 @@ ___
 ```bash
 docker run -d --name pgbackup -p 8080:8080 \ 
 	-v ./dumps:/app/dumps:rw -v ./data:/app/data:rw \
-	-e LOGIN=<логин> -e PASSWORD=<пароль> \
 	-e JWT_KEY=<токен JWT> -e AES_KEY=<токен AES> \
 	--restart=always pavelmilanov/pgbackup:latest
 ```
@@ -47,19 +46,17 @@ docker run -d --name pgbackup -p 8080:8080 \
 ```bash
 
 services:
-	pgbackup:
-		image: rosomilanov/pgbackup:latest
-		container_name: pgbackup
-		restart: always
-		environment:
-			LOGIN: admin
-			PASSWORD: admin
-			JWT_KEY: very_secret_string
-			AES_KEY: key3456789012345
-		volumes:
-			- ./dumps:/app/dumps:rw
-			- ./data:/app/data:rw
-		ports:
-			- 8080:8080
+  pgbackup:
+	image: rosomilanov/pgbackup:latest
+	container_name: pgbackup
+	restart: always
+	environment:
+		JWT_KEY: very_secret_string
+		AES_KEY: key3456789012345
+	volumes:
+		- ./dumps:/app/dumps:rw
+		- ./data:/app/data:rw
+	ports:
+		- 8080:8080
 ```
 

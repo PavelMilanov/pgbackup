@@ -31,15 +31,16 @@ func main() {
 	sqliteFIle := fmt.Sprintf("%s/pgbackup.db", config.DATA_DIR)
 	sqlite := db.NewDatabase(&db.SQLite{Name: sqliteFIle}, scheduler)
 	defer db.CloseDatabase(sqlite)
+
 	/// логгер
-	logrus.SetOutput(os.Stdout)
+	logrus.SetLevel(logrus.DebugLevel)
 	logrus.SetReportCaller(true)
 	logrus.SetFormatter(&logrus.TextFormatter{
 		FullTimestamp:   true,
 		TimestampFormat: "2006/01/02 15:04:00",
 		CallerPrettyfier: func(f *runtime.Frame) (string, string) {
 			_, filename := path.Split(f.File)
-			filename = fmt.Sprintf("[ %s:%d]", filename, f.Line)
+			filename = fmt.Sprintf("[%s:%d]", filename, f.Line)
 			return "", filename
 		},
 	})

@@ -1,6 +1,8 @@
 package db
 
 import (
+	"time"
+
 	"github.com/golang-jwt/jwt/v5"
 	"gorm.io/gorm"
 )
@@ -19,6 +21,7 @@ type Database struct {
 	Size      string
 	Schedules []Schedule `gorm:"constraint:OnDelete:CASCADE;"`
 	Backups   []Backup   `gorm:"constraint:OnDelete:CASCADE;"`
+	UpdatedAt time.Time  `gorm:"autoUpdateTime:false"`
 }
 
 // Модель расписания выполнения бекапов для выбранной базы даннах.
@@ -31,7 +34,8 @@ type Schedule struct {
 	Status        string
 	DatabaseAlias string
 	DatabaseID    int
-	Backups       []Backup `gorm:"constraint:OnDelete:CASCADE;"`
+	Backups       []Backup  `gorm:"constraint:OnDelete:CASCADE;"`
+	UpdatedAt     time.Time `gorm:"autoUpdateTime:false"`
 }
 
 // Модель с метаданными бекапа.
@@ -47,12 +51,32 @@ type Backup struct {
 	DatabaseAlias string
 	ScheduleID    int
 	DatabaseID    int
+	UpdatedAt     time.Time `gorm:"autoUpdateTime:false"`
 }
 
-// Модель токена аутентицикации
+// Модель пользователя приложения.
+type User struct {
+	gorm.Model
+	ID        int    `gorm:"primaryKey"`
+	Username  string `gorm:"unique"`
+	Password  string
+	Token     Token
+	UpdatedAt time.Time `gorm:"autoUpdateTime:false"`
+}
+
+// Модель токена аутентицикации.
 type Token struct {
 	gorm.Model
 	ID                   int `gorm:"primaryKey"`
 	Hash                 string
+	UserID               int
 	jwt.RegisteredClaims `gorm:"-"`
+	UpdatedAt            time.Time `gorm:"autoUpdateTime:false"`
+}
+
+// Модель настроек приложения.
+type Setting struct {
+	gorm.Model
+	ID         int `gorm:"primaryKey"`
+	BackupDays int
 }
