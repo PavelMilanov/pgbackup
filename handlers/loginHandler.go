@@ -29,8 +29,7 @@ func (h *Handler) loginHandler(c *gin.Context) {
 			})
 			return
 		}
-		token := user.GetToken(h.DB)
-		sessions.Set("token", token.Hash)
+		sessions.Set("token", user.ID)
 		sessions.Save()
 		c.Redirect(http.StatusFound, "/")
 	}
@@ -52,10 +51,6 @@ func (h *Handler) registrationHandler(c *gin.Context) {
 			c.HTML(http.StatusOK, "registration.html", gin.H{"error": err.Error()})
 		}
 		token := db.Token{UserID: user.ID}
-		if err := token.Generate(); err != nil {
-			c.HTML(http.StatusUnauthorized, "login.html", gin.H{"error": err.Error()})
-			return
-		}
 		token.Save(h.DB)
 		c.HTML(http.StatusOK, "login.html", gin.H{})
 	}

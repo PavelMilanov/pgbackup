@@ -17,7 +17,8 @@ func (cfg *Database) checkConnection() error {
 	_, err := exec.Command("sh", "-c", command).Output()
 	if err != nil {
 		cfg.Status = false
-		return errors.New("Ошибка: " + command)
+		logrus.Error("Ошибка: " + command)
+		return errors.New("Неудалось подключиться к базе данных " + cfg.Alias)
 	}
 	cfg.Status = true
 	return nil
@@ -28,7 +29,8 @@ func (cfg *Database) getDBSize() error {
 	command := fmt.Sprintf("export PGPASSWORD=%s && psql -h %s -U %s -p %d %s -c \"SELECT pg_size_pretty(pg_database_size('%s'))\"", cfg.Password, cfg.Host, cfg.Username, cfg.Port, cfg.Name, cfg.Name)
 	output, err := exec.Command("sh", "-c", command).Output()
 	if err != nil {
-		return errors.New("Ошибка: " + command)
+		logrus.Error("Ошибка: " + command)
+		return errors.New("Неудалось получить размер базы данных")
 	}
 	//pg_size_pretty
 	//----------------
@@ -45,11 +47,9 @@ func (cfg *Database) getDBSize() error {
 // Перед добавлением в таблицу проверяется подключение.
 func (cfg *Database) Save(sql *gorm.DB) error {
 	if err := cfg.checkConnection(); err != nil {
-		logrus.Error(err)
 		return err
 	}
 	if err := cfg.getDBSize(); err != nil {
-		logrus.Error(err)
 		return err
 	}
 	encryptedUsername := system.Encrypt(cfg.Username)
@@ -59,7 +59,7 @@ func (cfg *Database) Save(sql *gorm.DB) error {
 	result := sql.Create(&cfg)
 	if result.Error != nil {
 		logrus.Error(result.Error)
-		return result.Error
+		return errors.New("Ошибка при сохранении базы данных: " + cfg.Alias)
 	}
 	logrus.Infof("Добавлена база данных %s", cfg.Alias)
 	return nil

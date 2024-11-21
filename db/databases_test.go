@@ -10,7 +10,8 @@ import (
 )
 
 var testConfig = Database{
-	Name:     "dev",
+	Alias:    "test",
+	Name:     "test",
 	Host:     "localhost",
 	Port:     5433,
 	Username: "test",

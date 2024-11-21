@@ -11,20 +11,19 @@ import (
 )
 
 // Генерирует токен доступа при успешной авторизации.
-func (t *Token) Generate() error {
-
+func generateToken(userID int) string {
 	claims := jwt.RegisteredClaims{
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Duration(config.TOKEN_EXPIRED_TIME) * time.Hour)),
-		Subject:   strconv.Itoa(t.UserID),
+		IssuedAt:  jwt.NewNumericDate(time.Now()),
+		Subject:   strconv.Itoa(userID),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString(config.JWT_KEY)
 	if err != nil {
 		logrus.Error(err)
-		return err
+		return err.Error()
 	}
-	t.Hash = tokenString
-	return nil
+	return tokenString
 }
 
 // Валидирует токен аутентификации.
@@ -50,6 +49,7 @@ func (t *Token) Validate() bool {
 }
 
 func (t *Token) Save(sql *gorm.DB) error {
+	t.Hash = generateToken(t.UserID)
 	result := sql.Create(&t)
 	if result.Error != nil {
 		logrus.Error(result.Error)
@@ -58,18 +58,20 @@ func (t *Token) Save(sql *gorm.DB) error {
 	return nil
 }
 
-func (t *Token) Delete(sql *gorm.DB) error {
-	result := sql.Where("Hash = ?", t.Hash).Delete(&t)
+func (t *Token) Refresh(sql *gorm.DB) error {
+	newHash := generateToken(t.UserID)
+	result := sql.Model(&t).Where("Hash = ?", t.Hash).Update("Hash", newHash)
 	if result.Error != nil {
 		logrus.Error(result.Error)
 		return result.Error
 	}
+	logrus.Debug("Обновлен токен авторизации")
 	return nil
 }
 
-func GetToken(sql *gorm.DB, data string) Token {
+func GetToken(sql *gorm.DB, user int) Token {
 	var t Token
-	result := sql.Select("Hash", "UserID").Where("Hash = ?", data).First(&t)
+	result := sql.Raw("Select hash,user_id FROM tokens WHERE user_id = ?", user).Scan(&t)
 	if result.Error != nil {
 		logrus.Error(result.Error)
 		return t

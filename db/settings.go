@@ -14,3 +14,12 @@ func GetSettings(sql *gorm.DB) (Setting, error) {
 	}
 	return cfg, nil
 }
+
+func (cfg *Setting) Update(sql *gorm.DB) error {
+	result := sql.Raw("UPDATE settings SET backup_count = ?", cfg.BackupCount).Scan(&cfg)
+	if result.Error != nil {
+		logrus.Error(result.Error)
+		return result.Error
+	}
+	return nil
+}

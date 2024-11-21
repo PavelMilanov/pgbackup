@@ -38,7 +38,7 @@ func (bk *Backup) Save(cfg Database, sql *gorm.DB) {
 // Удаление файла бекапа и его метаданных.
 func (bk *Backup) Delete(sql *gorm.DB) {
 	err := sql.Transaction((func(tx *gorm.DB) error {
-		tx.Find(&bk)
+		tx.First(&bk)
 		tx.Delete(&bk)
 		return nil
 	}))
@@ -77,4 +77,17 @@ func (bk *Backup) getBackupSize(filename string) {
 	command := fmt.Sprintf("du -h %s/%s.dump | awk '{print $1}'", bk.Directory, filename)
 	cmd, _ := exec.Command("sh", "-c", command).Output()
 	bk.Size = string(cmd)
+}
+
+func DeleteOldBackups(files []string, sql *gorm.DB) {
+	var model Backup
+	for _, file := range files {
+		result := sql.Raw("DELETE FROM backups WHERE dump = ?", file).Scan(&model)
+		if result.Error != nil {
+			logrus.Error(result.Error)
+			continue
+		}
+		os.Remove(model.Directory + "/" + model.Dump)
+	}
+	logrus.Infof("Удалено %d бекапа", len(files))
 }

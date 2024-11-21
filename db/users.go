@@ -26,11 +26,11 @@ func (cfg *User) IsRegister(sql *gorm.DB) bool {
 	return true
 }
 
-// Возвращает токен пользователя.
+// Возвращает модель токена пользователя.
 func (cfg *User) GetToken(sql *gorm.DB) Token {
 	result := sql.Preload("Token").Where("Username = ? AND Password = ?", cfg.Username, cfg.Password).First(&cfg)
-	if result.Error != nil || result.RowsAffected == 0 {
-		logrus.Error(result.Error)
+	if result.Error != nil {
+		logrus.Debug(gorm.ErrRecordNotFound)
 		return cfg.Token
 	}
 	return cfg.Token

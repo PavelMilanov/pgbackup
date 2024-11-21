@@ -77,6 +77,6 @@ type Token struct {
 // Модель настроек приложения.
 type Setting struct {
 	gorm.Model
-	ID         int `gorm:"primaryKey"`
-	BackupDays int
+	ID          int `gorm:"primaryKey"`
+	BackupCount int
 }

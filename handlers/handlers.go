@@ -29,9 +29,16 @@ func authMiddleware(sql *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sessions := sessions.Default(c)
 		data := sessions.Get("token")
-		token := db.GetToken(sql, data.(string))
+		// если пришел пустое значение сессии.
+		if data == nil {
+			c.HTML(http.StatusUnauthorized, "login.html", gin.H{})
+			c.Abort()
+			return
+		}
+		token := db.GetToken(sql, data.(int))
+		// валидириуем сам токен.
 		if ok := token.Validate(); !ok {
-			if err := token.Delete(sql); err != nil {
+			if err := token.Refresh(sql); err != nil {
 				logrus.Error(err)
 			}
 			c.HTML(http.StatusUnauthorized, "login.html", gin.H{})
@@ -98,6 +105,7 @@ func (h *Handler) InitRouters() *gin.Engine {
 			databases.GET("/backups", h.getBackupsHandler)
 		}
 		web.GET("/settings", h.settingsHandler)
+		web.POST("/settings", h.settingsHandler)
 	}
 	api := router.Group("/api")
 	{
