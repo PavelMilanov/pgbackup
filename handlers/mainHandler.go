@@ -10,7 +10,9 @@ import (
 )
 
 func (h *Handler) mainHandler(c *gin.Context) {
-	backups := db.GetBackupsAll(h.DB)
+	lastBackups := db.GetLastBackups(h.DB)
+	countBackups := db.GetCountBackups(h.DB)
+	countSchedules := db.GetCountSchedules(h.DB)
 	countData := db.CountBackupsStatus(h.DB)
 	storageData := system.GetStorageInfo()
 	cpu := system.GetCPUInfo()
@@ -34,11 +36,13 @@ func (h *Handler) mainHandler(c *gin.Context) {
 	}{CPU: cpu, RAM: ram, Storage: storageData[2]}
 
 	c.HTML(http.StatusOK, "main.html", gin.H{
-		"header":  "Главная | PgBackup",
-		"storage": storage,
-		"count":   count,
-		"system":  system,
-		"backups": backups,
+		"header":          "Главная | PgBackup",
+		"storage":         storage,
+		"count":           count,
+		"system":          system,
+		"backups":         lastBackups,
+		"backups_count":   countBackups,
+		"schedules_count": countSchedules,
 		"pages": []web.Page{
 			{Name: "Главная", URL: "/", IsVisible: true},
 			{Name: "Расписание", URL: "/schedule", IsVisible: false},

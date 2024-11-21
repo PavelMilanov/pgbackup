@@ -6,7 +6,7 @@
       <div class="card">
         <h3>Общая статистика</h3>
         <div class="stat">{{.count.Total}}</div>
-        <div>Всего бэкапов</div>
+        <div>Статистика дампов</div>
         <div class="chart">
           <canvas id="backupsChart" data-completed="{{.count.Completed}}" data-failed="{{.count.Failed}}"></canvas>
         </div>
@@ -27,10 +27,22 @@
             </div>
             <div class="status-details">
               <div class="status-name">
-                Очередь задач
+                Всего расписаний
               </div>
               <div class="status-value">
-                (в разработке)
+                {{.schedules_count}}
+            </div>
+          </div>
+        </div>
+        <div class="status-indicator">
+          <div class="status-icon status-green">
+          </div>
+          <div class="status-details">
+            <div class="status-name">
+             Всего дампов
+            </div>
+            <div class="status-value">
+              {{.backups_count}}
             </div>
           </div>
         </div>
@@ -55,18 +67,6 @@
             </div>
             <div class="status-value">
               {{.system.Storage}} свободно
-            </div>
-          </div>
-        </div>
-        <div class="status-indicator">
-          <div class="status-icon status-green">
-          </div>
-          <div class="status-details">
-            <div class="status-name">
-              Запущен
-            </div>
-            <div class="status-value">
-              (в разработке)
             </div>
           </div>
         </div>

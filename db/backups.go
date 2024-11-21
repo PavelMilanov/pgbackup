@@ -20,7 +20,19 @@ func (bk *Backup) Save(cfg Database, sql *gorm.DB) {
 	command := fmt.Sprintf("export PGPASSWORD=%s && pg_dump -h %s -U %s -p %d %s > %s", cfg.Password, cfg.Host, cfg.Username, cfg.Port, cfg.Name, bk.Directory+"/"+dumpName)
 	_, err := exec.Command("sh", "-c", command).Output()
 	if err != nil {
+		errCommand := fmt.Sprintf("touch %s", bk.Directory+"/"+dumpName)
+		exec.Command("sh", "-c", errCommand).Output()
+		timer := time.Since(start).Seconds()
+		elapsed := fmt.Sprintf("%.3f сек", timer)
+		bk.LeadTime = elapsed
+		bk.getBackupSize(currTime)
 		bk.Status = false
+		result := sql.Create(&bk)
+		if result.Error != nil {
+			logrus.Error(result.Error)
+		}
+		logrus.Warnf("Ошибка при создании дампа %s", bk.Directory+"/"+bk.Dump)
+		return
 	}
 	timer := time.Since(start).Seconds()
 	elapsed := fmt.Sprintf("%.3f сек", timer)
@@ -32,7 +44,7 @@ func (bk *Backup) Save(cfg Database, sql *gorm.DB) {
 		logrus.Error(result.Error)
 		os.Remove(bk.Directory + "/" + bk.Dump)
 	}
-	logrus.Infof("Создан бекап %s", bk.Directory+"/"+bk.Dump)
+	logrus.Infof("Создан дамп %s", bk.Directory+"/"+bk.Dump)
 }
 
 // Удаление файла бекапа и его метаданных.
@@ -56,10 +68,17 @@ func (bk *Backup) Get(sql *gorm.DB) {
 }
 
 // Получение до 5 моделей бекапов с зависимостями.
-func GetBackupsAll(sql *gorm.DB) []Backup {
+func GetLastBackups(sql *gorm.DB) []Backup {
 	var bkList []Backup
 	sql.Find(&bkList).Limit(5)
 	return bkList
+}
+
+// Получение общего числа дампов.
+func GetCountBackups(sql *gorm.DB) int64 {
+	var count int64
+	sql.Raw("SELECT count(*) FROM backups").Scan(&count)
+	return count
 }
 
 // Получение количества успешных и неуспешных бекапов.

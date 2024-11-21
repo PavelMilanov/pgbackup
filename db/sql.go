@@ -15,7 +15,7 @@ type SQLite struct {
 func NewDatabase(sql *SQLite, timer *cron.Cron) *gorm.DB {
 	db, err := gorm.Open(sqlite.Open(sql.Name), &gorm.Config{PrepareStmt: true})
 	if err != nil {
-		logrus.Error("Ошибка при подключении к базе данных")
+		logrus.Fatal("Ошибка при подключении к базе данных")
 	}
 	logrus.Info("Соединение с базой данных установлено")
 	automigrate(db)

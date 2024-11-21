@@ -71,7 +71,7 @@ func (cfg *Schedule) Save(sql *gorm.DB, timer *cron.Cron) error {
 					ScheduleID:    item.ID,
 					DatabaseID:    dbModel.ID,
 				}
-				backup.Save(dbModel, sql)
+				go backup.Save(dbModel, sql)
 				return nil
 			}
 		}
@@ -90,7 +90,7 @@ func (cfg *Schedule) Save(sql *gorm.DB, timer *cron.Cron) error {
 			ScheduleID:    scheduleId,
 			DatabaseID:    dbModel.ID,
 		}
-		backup.Save(dbModel, sql)
+		go backup.Save(dbModel, sql)
 		// для бекапов по расписанию
 	} else {
 		cfg.DatabaseAlias = dbModel.Alias
@@ -154,4 +154,11 @@ func GetSchedulesAll(sql *gorm.DB) []Schedule {
 		return scheduleList
 	}
 	return scheduleList
+}
+
+// Получение общего числа расписаний.
+func GetCountSchedules(sql *gorm.DB) int64 {
+	var count int64
+	sql.Raw("SELECT count(*) FROM schedules WHERE status = ?", config.SCHEDULE_STATUS["активно"]).Scan(&count)
+	return count
 }
