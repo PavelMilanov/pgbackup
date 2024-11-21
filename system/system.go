@@ -2,11 +2,14 @@ package system
 
 import (
 	"math"
+	"os"
 	"os/exec"
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
+	"github.com/PavelMilanov/pgbackup/config"
 	"github.com/sirupsen/logrus"
 )
 
@@ -15,7 +18,7 @@ import (
 func GetStorageInfo() []string {
 	cmd, err := exec.Command("sh", "-c", "df -h /app | awk '{print $2,$3,$5}' | tail -1").Output()
 	if err != nil || len(cmd) == 0 {
-		logrus.Error(cmd)
+		logrus.Warn(cmd)
 		return []string{"0G", "0G", ""}
 	}
 	output := string(cmd)
@@ -35,7 +38,7 @@ func GetCPUInfo() int {
 	countCPU, _ := strconv.Atoi(str1)
 	cmd2, err := exec.Command("sh", "-c", "cat /proc/loadavg | awk '{print $1}'").Output()
 	if err != nil || len(cmd2) == 0 {
-		logrus.Error(cmd2)
+		logrus.Warn(cmd2)
 		return 0
 	}
 	re2 := regexp.MustCompile(`\d.+`)
@@ -51,7 +54,7 @@ func GetCPUInfo() int {
 func GetMemoryInfo() int {
 	cmd, err := exec.Command("sh", "-c", "free | awk '(NR == 2)' | awk '{print $2,$3}'").Output()
 	if err != nil || len(cmd) == 0 {
-		logrus.Error(cmd)
+		logrus.Warn(cmd)
 		return 0
 	}
 	re := regexp.MustCompile(`\d+`)
@@ -62,4 +65,25 @@ func GetMemoryInfo() int {
 	loadMEMORY := (usedMemory / totalMemory) * 100
 	logrus.Infof("Загркузка RAM: %f%%", loadMEMORY)
 	return int(loadMEMORY)
+}
+
+// Возвращает список файлов, старше указанного условия
+func ParseOldFiles(expired float64) []string {
+	var filesDeleted []string
+	root := "./" + config.BACKUP_DIR
+	dirs, _ := os.ReadDir(root)
+	for _, dir := range dirs {
+		if dir.IsDir() {
+			files, _ := os.ReadDir(root + "/" + dir.Name())
+			for _, file := range files {
+				info, _ := file.Info()
+				timeMode := info.ModTime()
+				dif := time.Since(timeMode).Abs().Hours()
+				if dif > expired {
+					filesDeleted = append(filesDeleted, file.Name())
+				}
+			}
+		}
+	}
+	return filesDeleted
 }

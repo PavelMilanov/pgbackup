@@ -4,14 +4,13 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
-	"path"
-	"runtime"
 	"syscall"
 	"time"
 
 	"github.com/PavelMilanov/pgbackup/config"
 	"github.com/PavelMilanov/pgbackup/db"
 	"github.com/PavelMilanov/pgbackup/handlers"
+	"github.com/PavelMilanov/pgbackup/tasks"
 	"github.com/robfig/cron/v3"
 	"github.com/sirupsen/logrus"
 )
@@ -31,22 +30,20 @@ func main() {
 	sqliteFIle := fmt.Sprintf("%s/pgbackup.db", config.DATA_DIR)
 	sqlite := db.NewDatabase(&db.SQLite{Name: sqliteFIle}, scheduler)
 	defer db.CloseDatabase(sqlite)
+
 	/// логгер
-	logrus.SetOutput(os.Stdout)
+	logrus.SetLevel(logrus.TraceLevel)
 	logrus.SetReportCaller(true)
 	logrus.SetFormatter(&logrus.TextFormatter{
 		FullTimestamp:   true,
 		TimestampFormat: "2006/01/02 15:04:00",
-		CallerPrettyfier: func(f *runtime.Frame) (string, string) {
-			_, filename := path.Split(f.File)
-			filename = fmt.Sprintf("[ %s:%d]", filename, f.Line)
-			return "", filename
-		},
 	})
 
 	/// фоновые задачи
 	go scheduler.Start()
 	defer scheduler.Stop()
+	newScheduler := tasks.NewTaskScheduler(1)
+	go newScheduler.StartSystemTasks(sqlite)
 
 	handler := handlers.NewHandler(sqlite, scheduler)
 	srv := new(Server)

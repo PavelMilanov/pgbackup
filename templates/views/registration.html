@@ -1,0 +1,34 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация | PgBackup</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <link rel="stylesheet/less" href="/static/css/login.less" />
+    <script src="https://cdn.jsdelivr.net/npm/less"></script>
+</head>
+<body>
+    <div id="app" class="login-container">
+        <h1>Регистрация</h1>
+        <form action="/registration" method="post">
+            <label for="username">Имя пользователя:</label>
+            <input type="text" id="username" name="Username" required="required">
+            <label for="password">Пароль:</label>
+            <input type="password" id="password" name="Password" required="required">
+            <label for="confirmPassword">Подтвердите пароль:</label>
+            <input type="password" id="confirmPassword" required="required">
+            <button type="submit">Зарегистрироваться</button>
+        </form>
+        <div class="divider">
+            <span>или</span>
+        </div>
+        <button class="register-button">
+            <a href="http:/login">Вернуться ко входу</a>
+        </button>
+        {{if .error}}
+        <p class="error-message">{{.error}}</p>
+        {{end}}
+        <script src="/static/js/login.js"></script>
+    </div>
+</body>
+</html>

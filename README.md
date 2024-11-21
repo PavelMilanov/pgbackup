@@ -21,14 +21,12 @@ ___
 - [Страница](./docs/images/main.png) с состоянием системы;
 - [Страница](./docs/images/databases.png) для подключения баз данных;
 - [Страница](./docs/images/schedules.png) для создания автоматических бэкапов для баз данных;
-- [Страница](./docs/images/main.png) для создания ручных бэкапов для выбранной базы данных.
+- [Страница](./docs/images/main.png) для создания ручных бэкапов выбранной базы данных.
 
 #### Установка:
 
 Для запуска необходимы следующие переменные окружения:
 
-`LOGIN` : имя пользователя в панели управления;
-`PASSWORD`: пароль пользователя в панели управления;
 `JWT_KEY`: ***(Не рекомендовано хранить в открытом виде)*** ключ для генерации токенов аутентификации;
 `AES_KEY`: ***(Не рекомендовано хранить в открытом виде)*** ключ для шифрования некоторых критических данных. Алгоритм [AES](https://pkg.go.dev/crypto/aes "пакет реализации AES golang") шифрует блоками по 16 байт, поэтому длина ключа должна быть <u>***16 символов***</u>.
 
@@ -37,7 +35,6 @@ ___
 ```bash
 docker run -d --name pgbackup -p 8080:8080 \ 
 	-v ./dumps:/app/dumps:rw -v ./data:/app/data:rw \
-	-e LOGIN=<логин> -e PASSWORD=<пароль> \
 	-e JWT_KEY=<токен JWT> -e AES_KEY=<токен AES> \
 	--restart=always pavelmilanov/pgbackup:latest
 ```
@@ -47,19 +44,17 @@ docker run -d --name pgbackup -p 8080:8080 \
 ```bash
 
 services:
-	pgbackup:
-		image: rosomilanov/pgbackup:latest
-		container_name: pgbackup
-		restart: always
-		environment:
-			LOGIN: admin
-			PASSWORD: admin
-			JWT_KEY: very_secret_string
-			AES_KEY: key3456789012345
-		volumes:
-			- ./dumps:/app/dumps:rw
-			- ./data:/app/data:rw
-		ports:
-			- 8080:8080
+  pgbackup:
+	image: rosomilanov/pgbackup:latest
+	container_name: pgbackup
+	restart: always
+	environment:
+		JWT_KEY: very_secret_string
+		AES_KEY: key3456789012345
+	volumes:
+		- ./dumps:/app/dumps:rw
+		- ./data:/app/data:rw
+	ports:
+		- 8080:8080
 ```
 

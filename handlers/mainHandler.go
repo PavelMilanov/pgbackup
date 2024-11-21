@@ -10,8 +10,6 @@ import (
 )
 
 func (h *Handler) mainHandler(c *gin.Context) {
-	// example := c.MustGet("example")
-	// log.Println(example)
 	backups := db.GetBackupsAll(h.DB)
 	countData := db.CountBackupsStatus(h.DB)
 	storageData := system.GetStorageInfo()

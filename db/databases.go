@@ -1,16 +1,12 @@
 package db
 
 import (
-	"bytes"
-	"crypto/aes"
-	"crypto/cipher"
-	"encoding/base64"
 	"errors"
 	"fmt"
 	"os"
 	"os/exec"
 
-	"github.com/PavelMilanov/pgbackup/config"
+	"github.com/PavelMilanov/pgbackup/system"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
@@ -21,7 +17,8 @@ func (cfg *Database) checkConnection() error {
 	_, err := exec.Command("sh", "-c", command).Output()
 	if err != nil {
 		cfg.Status = false
-		return errors.New("Ошибка: " + command)
+		logrus.Error("Ошибка: " + command)
+		return errors.New("Неудалось подключиться к базе данных " + cfg.Alias)
 	}
 	cfg.Status = true
 	return nil
@@ -32,7 +29,8 @@ func (cfg *Database) getDBSize() error {
 	command := fmt.Sprintf("export PGPASSWORD=%s && psql -h %s -U %s -p %d %s -c \"SELECT pg_size_pretty(pg_database_size('%s'))\"", cfg.Password, cfg.Host, cfg.Username, cfg.Port, cfg.Name, cfg.Name)
 	output, err := exec.Command("sh", "-c", command).Output()
 	if err != nil {
-		return errors.New("Ошибка: " + command)
+		logrus.Error("Ошибка: " + command)
+		return errors.New("Неудалось получить размер базы данных")
 	}
 	//pg_size_pretty
 	//----------------
@@ -49,21 +47,19 @@ func (cfg *Database) getDBSize() error {
 // Перед добавлением в таблицу проверяется подключение.
 func (cfg *Database) Save(sql *gorm.DB) error {
 	if err := cfg.checkConnection(); err != nil {
-		logrus.Error(err)
 		return err
 	}
 	if err := cfg.getDBSize(); err != nil {
-		logrus.Error(err)
 		return err
 	}
-	encryptedUsername := encrypt(cfg.Username)
+	encryptedUsername := system.Encrypt(cfg.Username)
 	cfg.Username = encryptedUsername
-	encryptedPassword := encrypt(cfg.Password)
+	encryptedPassword := system.Encrypt(cfg.Password)
 	cfg.Password = encryptedPassword
 	result := sql.Create(&cfg)
 	if result.Error != nil {
 		logrus.Error(result.Error)
-		return result.Error
+		return errors.New("Ошибка при сохранении базы данных: " + cfg.Alias)
 	}
 	logrus.Infof("Добавлена база данных %s", cfg.Alias)
 	return nil
@@ -122,9 +118,9 @@ func GetDb(sql *gorm.DB, id int) (Database, error) {
 	if result.Error != nil {
 		return db, result.Error
 	}
-	descriptedUsername := decrypt(db.Username)
+	descriptedUsername := system.Decrypt(db.Username)
 	db.Username = descriptedUsername
-	descriptedPassword := decrypt(db.Password)
+	descriptedPassword := system.Decrypt(db.Password)
 	db.Password = descriptedPassword
 	return db, nil
 }
@@ -137,49 +133,4 @@ func GetDbAll(sql *gorm.DB) []Database {
 		logrus.Error(result.Error)
 	}
 	return DbList
-}
-
-// Шифрование строки по алгоритму AES.
-func encrypt(plaintext string) string {
-	bc, err := aes.NewCipher(config.AES_KEY)
-	if err != nil {
-		logrus.Error(err)
-	}
-	paddedText := pad([]byte(plaintext), aes.BlockSize)
-	dst := make([]byte, len(paddedText))
-	cipher.NewCBCEncrypter(bc, config.AES_KEY[:aes.BlockSize]).CryptBlocks(dst, paddedText)
-	return base64.StdEncoding.EncodeToString(dst)
-}
-
-// Дешифрование строки по алгоритму AES.
-func decrypt(ciphertext string) string {
-	bc, err := aes.NewCipher(config.AES_KEY)
-	if err != nil {
-		logrus.Fatal(err)
-	}
-	ciphertextBytes, _ := base64.StdEncoding.DecodeString(ciphertext)
-	res := make([]byte, len(ciphertextBytes))
-	cipher.NewCBCDecrypter(bc, config.AES_KEY[:aes.BlockSize]).CryptBlocks(res, ciphertextBytes)
-	unpaddedText, err := unpad(res)
-	if err != nil {
-		logrus.Fatal(err)
-	}
-	return string(unpaddedText)
-}
-
-// Функция добавляет padding по стандарту PKCS#7
-func pad(src []byte, blockSize int) []byte {
-	padding := blockSize - len(src)%blockSize
-	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
-	return append(src, padtext...)
-}
-
-// Функция удаляет padding по стандарту PKCS#7
-func unpad(src []byte) ([]byte, error) {
-	padding := src[len(src)-1]
-	length := len(src) - int(padding)
-	if length < 0 {
-		return nil, errors.New("invalid padding")
-	}
-	return src[:length], nil
 }

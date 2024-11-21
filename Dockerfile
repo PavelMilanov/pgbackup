@@ -34,7 +34,7 @@ COPY static/ /app/static/
 VOLUME [ "/app/dumps" ]
 VOLUME [ "/app/data" ]
 
-RUN apk --update --no-cache add postgresql-client tzdata sqlite-libs && \
+RUN apk --update --no-cache add postgresql-client tzdata sqlite-libs curl && \
     rm -rf /var/cache/apk/ && \
     addgroup -g ${UID_DOCKER} ${USER_DOCKER} && \
     adduser -u ${UID_DOCKER} -G ${USER_DOCKER} -s /bin/sh -D -H ${USER_DOCKER} && \
@@ -42,6 +42,8 @@ RUN apk --update --no-cache add postgresql-client tzdata sqlite-libs && \
 
 
 EXPOSE 8080/tcp
+
+HEALTHCHECK --interval=1m --timeout=2s --start-period=2s --retries=3 CMD curl -f http://localhost:8080/api/check || exit 1
 
 ENTRYPOINT ["./pgbackup" ]
 
