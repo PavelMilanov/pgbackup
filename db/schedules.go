@@ -1,34 +1,18 @@
 package db
 
 import (
-	"fmt"
 	"os"
 	"strconv"
-	"strings"
 	"time"
 
 	"math/rand"
 
 	"github.com/PavelMilanov/pgbackup/config"
+	"github.com/PavelMilanov/pgbackup/system"
 	"github.com/robfig/cron/v3"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
-
-// Возвращает строку в формате cron для модели Task.
-func toCron(time, frequency string) string {
-	// минуты часы день(*/1 каждый день) * *
-	crontime := strings.Split(time, ":") // 22:45 => ["22", "45"]
-	var cron string
-	switch frequency {
-	case config.BACKUP_FREQUENCY["ежедневно"]:
-		cron = "1"
-	case config.BACKUP_FREQUENCY["eженедельно"]:
-		cron = "7"
-	}
-	formatTime := fmt.Sprintf("%s %s */%s * *", crontime[1], crontime[0], cron)
-	return formatTime
-}
 
 // Генерирует случайную строку из цифр от 0 до 10000 и создает директорию.
 func generateRandomBackupDir() string {
@@ -102,7 +86,7 @@ func (cfg *Schedule) Save(sql *gorm.DB, timer *cron.Cron) error {
 			logrus.Error(err)
 			return err
 		}
-		cronTime := toCron(cfg.Time, cfg.Frequency)
+		cronTime := system.ToCron(cfg.Time, cfg.Frequency)
 		entryID, _ := timer.AddFunc(cronTime, func() {
 			backup := Backup{
 				Directory:     cfg.Directory,

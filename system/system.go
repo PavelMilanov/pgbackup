@@ -1,6 +1,7 @@
 package system
 
 import (
+	"fmt"
 	"math"
 	"os"
 	"os/exec"
@@ -86,4 +87,19 @@ func ParseOldFiles(expired float64) []string {
 		}
 	}
 	return filesDeleted
+}
+
+// Возвращает строку в формате cron для модели Task.
+func ToCron(time, frequency string) string {
+	// минуты часы день(*/1 каждый день) * *
+	crontime := strings.Split(time, ":") // 22:45 => ["22", "45"]
+	var cron string
+	switch frequency {
+	case config.BACKUP_FREQUENCY["ежедневно"]:
+		cron = "1"
+	case config.BACKUP_FREQUENCY["eженедельно"]:
+		cron = "7"
+	}
+	formatTime := fmt.Sprintf("%s %s */%s * *", crontime[1], crontime[0], cron)
+	return formatTime
 }

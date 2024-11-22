@@ -70,7 +70,7 @@ func (bk *Backup) Get(sql *gorm.DB) {
 // Получение до 5 моделей бекапов с зависимостями.
 func GetLastBackups(sql *gorm.DB) []Backup {
 	var bkList []Backup
-	sql.Find(&bkList).Limit(5)
+	sql.Raw("SELECT * FROM backups ORDER BY date DESC LIMIT 5").Scan(&bkList)
 	return bkList
 }
 

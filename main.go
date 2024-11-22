@@ -42,8 +42,9 @@ func main() {
 	/// фоновые задачи
 	go scheduler.Start()
 	defer scheduler.Stop()
-	newScheduler := tasks.NewTaskScheduler(1)
-	go newScheduler.StartSystemTasks(sqlite)
+	newScheduler := tasks.NewTaskScheduler(*location)
+	newScheduler.Start(sqlite)
+	tasks.InitBackupsTasks(sqlite, scheduler)
 
 	handler := handlers.NewHandler(sqlite, scheduler)
 	srv := new(Server)
