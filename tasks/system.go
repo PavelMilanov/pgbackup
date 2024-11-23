@@ -67,7 +67,7 @@ func (s *Sheduler) CheckDBconnection(sql *gorm.DB) {
 				} else if !item.Status && status {
 					item.Status = status
 					sql.Save(&item)
-					logrus.Infof("Восстановлено соединение с базой данных %s", item.Alias)
+					logrus.Debugf("Восстановлено соединение с базой данных %s", item.Alias)
 				}
 			}
 		}
