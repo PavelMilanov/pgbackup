@@ -79,4 +79,5 @@ type Setting struct {
 	gorm.Model
 	ID          int `gorm:"primaryKey"`
 	BackupCount int
+	Version     string `gorm:"-"`
 }

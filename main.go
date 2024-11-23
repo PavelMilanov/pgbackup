@@ -39,6 +39,8 @@ func main() {
 		TimestampFormat: "2006/01/02 15:04:00",
 	})
 
+	logrus.Debug("Версия сборки: ", config.VERSION)
+
 	/// фоновые задачи
 	go scheduler.Start()
 	defer scheduler.Stop()

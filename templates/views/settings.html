@@ -12,6 +12,10 @@
           <label for="timezone">Часовой пояс:</label>
           <input type="text" id="timezone" value="Europe/Moscow" required>
         </div>
+        <div class="form-group">
+          <label for="version">Версия сборки:</label>
+          <p name="version">v{{.config.Version}}</p>
+        </div>
         <button type="submit" class="btn btn-primary">Сохранить общие настройки</button>
       </form>
     </div>
