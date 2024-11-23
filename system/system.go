@@ -1,6 +1,7 @@
 package system
 
 import (
+	"fmt"
 	"math"
 	"os"
 	"os/exec"
@@ -18,7 +19,7 @@ import (
 func GetStorageInfo() []string {
 	cmd, err := exec.Command("sh", "-c", "df -h /app | awk '{print $2,$3,$5}' | tail -1").Output()
 	if err != nil || len(cmd) == 0 {
-		logrus.Warn(cmd)
+		logrus.Warn("Ошибка при получении состояния диска")
 		return []string{"0G", "0G", ""}
 	}
 	output := string(cmd)
@@ -30,7 +31,7 @@ func GetStorageInfo() []string {
 func GetCPUInfo() int {
 	cmd1, err := exec.Command("sh", "-c", "nproc").Output()
 	if err != nil || len(cmd1) == 0 {
-		logrus.Error(cmd1)
+		logrus.Warn("Ошибка при получении данных о процессоре")
 		return 0
 	}
 	re1 := regexp.MustCompile(`\d+`)
@@ -38,7 +39,7 @@ func GetCPUInfo() int {
 	countCPU, _ := strconv.Atoi(str1)
 	cmd2, err := exec.Command("sh", "-c", "cat /proc/loadavg | awk '{print $1}'").Output()
 	if err != nil || len(cmd2) == 0 {
-		logrus.Warn(cmd2)
+		logrus.Warn("Ошибка при получении данных о процессоре")
 		return 0
 	}
 	re2 := regexp.MustCompile(`\d.+`)
@@ -54,7 +55,7 @@ func GetCPUInfo() int {
 func GetMemoryInfo() int {
 	cmd, err := exec.Command("sh", "-c", "free | awk '(NR == 2)' | awk '{print $2,$3}'").Output()
 	if err != nil || len(cmd) == 0 {
-		logrus.Warn(cmd)
+		logrus.Warn("Ошибка при получении данных об оперативной памяти")
 		return 0
 	}
 	re := regexp.MustCompile(`\d+`)
@@ -86,4 +87,19 @@ func ParseOldFiles(expired float64) []string {
 		}
 	}
 	return filesDeleted
+}
+
+// Возвращает строку в формате cron для модели Task.
+func ToCron(time, frequency string) string {
+	// минуты часы день(*/1 каждый день) * *
+	crontime := strings.Split(time, ":") // 22:45 => ["22", "45"]
+	var cron string
+	switch frequency {
+	case config.BACKUP_FREQUENCY["ежедневно"]:
+		cron = "1"
+	case config.BACKUP_FREQUENCY["eженедельно"]:
+		cron = "7"
+	}
+	formatTime := fmt.Sprintf("%s %s */%s * *", crontime[1], crontime[0], cron)
+	return formatTime
 }

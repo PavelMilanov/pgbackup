@@ -1,10 +1,10 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
+	"github.com/PavelMilanov/pgbackup/config"
 	"github.com/PavelMilanov/pgbackup/db"
 	"github.com/PavelMilanov/pgbackup/web"
 	"github.com/gin-gonic/gin"
@@ -13,7 +13,6 @@ import (
 // Handler для главной страницы с базами данных.
 func (h *Handler) databasesHandler(c *gin.Context) {
 	databases := db.GetDbAll(h.DB)
-	// db.GetDbLastBackup(h.DB)
 	c.HTML(http.StatusOK, "databases.html", gin.H{
 		"header":    "Базы данных | PgBackup",
 		"databases": databases,
@@ -32,7 +31,7 @@ func (h *Handler) databaseSaveHandler(c *gin.Context) {
 		return
 	}
 	port, _ := strconv.Atoi(data.Port)
-	config := db.Database{
+	cfg := db.Database{
 		Alias:    data.Alias,
 		Name:     data.Name,
 		Host:     data.Host,
@@ -40,8 +39,21 @@ func (h *Handler) databaseSaveHandler(c *gin.Context) {
 		Username: data.Username,
 		Password: data.Password,
 	}
-	if err := config.Save(h.DB); err != nil {
-		//c.HTML(http.StatusBadRequest, "databases.html", gin.H{"error": err.Error()})
+	if err := cfg.Save(h.DB); err != nil {
+		databases := db.GetDbAll(h.DB)
+		c.HTML(http.StatusOK, "databases.html", gin.H{
+			"header": "Базы данных | PgBackup",
+			"db":     databases,
+			"notification": web.Notify{
+				Message: err.Error(),
+				Type:    config.NOTIFY_STATUS["ошибка"],
+			},
+			"pages": []web.Page{
+				{Name: "Главная", URL: "/", IsVisible: false},
+				{Name: "Расписание", URL: "/schedule", IsVisible: false},
+				{Name: "Базы данных", URL: "/databases", IsVisible: true},
+				{Name: "Настройки", URL: "/settings", IsVisible: false},
+			}})
 		return
 	}
 	c.Redirect(http.StatusFound, "/databases/")
@@ -54,11 +66,24 @@ func (h *Handler) databaseDeleteHandler(c *gin.Context) {
 		return
 	}
 	id, _ := strconv.Atoi(data.ID)
-	config := db.Database{
+	cfg := db.Database{
 		ID: id,
 	}
-	if err := config.Delete(h.DB); err != nil {
-		//c.HTML(http.StatusBadRequest, "databases.html", gin.H{"error": err.Error()})
+	if err := cfg.Delete(h.DB); err != nil {
+		db, _ := db.GetDb(h.DB, id)
+		c.HTML(http.StatusOK, "databases.html", gin.H{
+			"header": "Базы данных | PgBackup",
+			"db":     db,
+			"notification": web.Notify{
+				Message: err.Error(),
+				Type:    config.NOTIFY_STATUS["ошибка"],
+			},
+			"pages": []web.Page{
+				{Name: "Главная", URL: "/", IsVisible: false},
+				{Name: "Расписание", URL: "/schedule", IsVisible: false},
+				{Name: "Базы данных", URL: "/databases", IsVisible: true},
+				{Name: "Настройки", URL: "/settings", IsVisible: false},
+			}})
 		return
 	}
 	c.Redirect(http.StatusFound, "/databases/")
@@ -71,15 +96,39 @@ func (h *Handler) createBackupHandler(c *gin.Context) {
 		return
 	}
 	id, _ := strconv.Atoi(data.ID)
-	config := db.Schedule{
+	cfg := db.Schedule{
 		DatabaseID: id,
 	}
-	if err := config.Save(h.DB, h.CRON); err != nil {
-		//c.HTML(http.StatusBadRequest, "databases.html", gin.H{"error": err.Error()})
+	db, _ := db.GetDb(h.DB, id)
+	if err := cfg.Save(h.DB, h.CRON); err != nil {
+		c.HTML(http.StatusOK, "backups.html", gin.H{
+			"header": "Базы данных | PgBackup",
+			"db":     db,
+			"notification": web.Notify{
+				Message: err.Error(),
+				Type:    config.NOTIFY_STATUS["ошибка"],
+			},
+			"pages": []web.Page{
+				{Name: "Главная", URL: "/", IsVisible: false},
+				{Name: "Расписание", URL: "/schedule", IsVisible: false},
+				{Name: "Базы данных", URL: "/databases", IsVisible: true},
+				{Name: "Настройки", URL: "/settings", IsVisible: false},
+			}})
 		return
 	}
-	page := fmt.Sprintf("/databases/backups?ID=%s", data.ID)
-	c.Redirect(http.StatusFound, page)
+	c.HTML(http.StatusOK, "backups.html", gin.H{
+		"header": "Базы данных | PgBackup",
+		"db":     db,
+		"notification": web.Notify{
+			Message: "Выполнение дампа начато!",
+			Type:    config.NOTIFY_STATUS["инфо"],
+		},
+		"pages": []web.Page{
+			{Name: "Главная", URL: "/", IsVisible: false},
+			{Name: "Расписание", URL: "/schedule", IsVisible: false},
+			{Name: "Базы данных", URL: "/databases", IsVisible: true},
+			{Name: "Настройки", URL: "/settings", IsVisible: false},
+		}})
 }
 
 // Handler для вывода всех бекапов для выбранной базы данных.

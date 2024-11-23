@@ -3,7 +3,7 @@
     <h2>Управление бекапами - {{.db.Alias}}</h2>
     <div class="card">
         <form class="btn-form btn btn-primary" action="/databases/backup/create" method="post">
-            <button id="#" type="submit" name="ID" value="{{.db.ID}}" class="btn btn-primary">Создать бекап</button>
+            <button id="createBackup-btn" type="submit" name="ID" value="{{.db.ID}}" class="btn btn-primary">Создать бекап</button>
         </form>
         <a href="/databases">
             <span class="close">x</span>
@@ -13,7 +13,7 @@
                 <tr>
                     <th>Дата</th>
                     <th>Размер</th>
-                    <th>Продолжительность</th>
+                    <th>Время</th>
                     <th>Статус</th>
                     <th>Действия</th>
                 </tr>
@@ -47,6 +47,10 @@
                 {{ end }}
             </tbody>
         </table>
+        {{ if .notification }}
+        <script src="/static/js/animations.js"></script>
+        <script>showNotification({{.notification.Message}})</script>
+        {{ end}}
     </div>
 </div>
 {{ template "github-link"}}

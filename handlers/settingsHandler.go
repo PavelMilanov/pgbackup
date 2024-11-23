@@ -5,17 +5,19 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/PavelMilanov/pgbackup/config"
 	"github.com/PavelMilanov/pgbackup/db"
 	"github.com/PavelMilanov/pgbackup/web"
 	"github.com/gin-gonic/gin"
 )
 
 func (h *Handler) settingsHandler(c *gin.Context) {
-	config, _ := db.GetSettings(h.DB)
+	settings, _ := db.GetSettings(h.DB)
+	settings.Version = config.VERSION
 	if c.Request.Method == "GET" {
 		c.HTML(http.StatusOK, "settings.html", gin.H{
 			"header": "Настройки | PgBackup",
-			"config": config,
+			"config": settings,
 			"pages": []web.Page{
 				{Name: "Главная", URL: "/", IsVisible: false},
 				{Name: "Расписание", URL: "/schedule", IsVisible: false},
@@ -28,13 +30,13 @@ func (h *Handler) settingsHandler(c *gin.Context) {
 			return
 		}
 		count, _ := strconv.Atoi(data.BackupCount)
-		config := db.Setting{BackupCount: count}
-		if err := config.Update(h.DB); err != nil {
+		settings.BackupCount = count
+		if err := settings.Update(h.DB); err != nil {
 			fmt.Println(err)
 		}
 		c.HTML(http.StatusOK, "settings.html", gin.H{
 			"header": "Настройки | PgBackup",
-			"config": config,
+			"config": settings,
 			"pages": []web.Page{
 				{Name: "Главная", URL: "/", IsVisible: false},
 				{Name: "Расписание", URL: "/schedule", IsVisible: false},

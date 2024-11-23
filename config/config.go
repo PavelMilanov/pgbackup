@@ -20,4 +20,10 @@ var (
 		"активно": "активно",
 		"вручную": "вручную",
 	}
+
+	NOTIFY_STATUS = map[string]string{
+		"инфо":    "info",
+		"успешно": "success",
+		"ошибка":  "error",
+	}
 )

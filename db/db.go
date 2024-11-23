@@ -15,12 +15,11 @@ type SQLite struct {
 func NewDatabase(sql *SQLite, timer *cron.Cron) *gorm.DB {
 	db, err := gorm.Open(sqlite.Open(sql.Name), &gorm.Config{PrepareStmt: true})
 	if err != nil {
-		logrus.Error("Ошибка при подключении к базе данных")
+		logrus.Fatal("Ошибка при подключении к базе данных")
 	}
 	logrus.Info("Соединение с базой данных установлено")
 	automigrate(db)
 	setDefaultSettings(db)
-	initBackupsTasks(db, timer)
 	return db
 }
 
@@ -43,24 +42,4 @@ func setDefaultSettings(db *gorm.DB) {
 	if err := db.FirstOrCreate(&settings, Setting{BackupCount: config.DEFAULT_BACKUP_EXPIRED_DAYS}).Error; err != nil {
 		logrus.Fatal("Ошибка при создании или получении настроек")
 	}
-}
-
-func initBackupsTasks(sql *gorm.DB, timer *cron.Cron) {
-	schedules := GetSchedulesAll(sql)
-	for _, schedule := range schedules {
-		if schedule.Status == config.SCHEDULE_STATUS["активно"] {
-			dbModel, _ := GetDb(sql, schedule.DatabaseID)
-			cronTime := toCron(schedule.Time, schedule.Frequency)
-			timer.AddFunc(cronTime, func() {
-				backup := Backup{
-					Directory:  schedule.Directory,
-					ScheduleID: schedule.ID,
-					DatabaseID: schedule.DatabaseID,
-				}
-				backup.Save(dbModel, sql)
-			})
-		}
-	}
-	entris := timer.Entries()
-	logrus.Infof("Фоновые задачи для бекапов инициализированы %+v", entris)
 }

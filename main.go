@@ -39,11 +39,14 @@ func main() {
 		TimestampFormat: "2006/01/02 15:04:00",
 	})
 
+	logrus.Debug("Версия сборки: ", config.VERSION)
+
 	/// фоновые задачи
 	go scheduler.Start()
 	defer scheduler.Stop()
-	newScheduler := tasks.NewTaskScheduler(1)
-	go newScheduler.StartSystemTasks(sqlite)
+	newScheduler := tasks.NewTaskScheduler(*location)
+	newScheduler.Start(sqlite)
+	tasks.InitBackupsTasks(sqlite, scheduler)
 
 	handler := handlers.NewHandler(sqlite, scheduler)
 	srv := new(Server)

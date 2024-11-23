@@ -12,25 +12,23 @@ import (
 )
 
 // Проверка подключения к базе данных
-func (cfg *Database) checkConnection() error {
+func (cfg *Database) CheckConnection() bool {
 	command := fmt.Sprintf("pg_isready -h %s -U %s -d %s -p %d", cfg.Host, cfg.Username, cfg.Name, cfg.Port)
 	_, err := exec.Command("sh", "-c", command).Output()
 	if err != nil {
-		cfg.Status = false
 		logrus.Error("Ошибка: " + command)
-		return errors.New("Неудалось подключиться к базе данных " + cfg.Alias)
+		return false
 	}
-	cfg.Status = true
-	return nil
+	return true
 }
 
 // получение размера базы данных по имени.
-func (cfg *Database) getDBSize() error {
+func (cfg *Database) GetDBSize() string {
 	command := fmt.Sprintf("export PGPASSWORD=%s && psql -h %s -U %s -p %d %s -c \"SELECT pg_size_pretty(pg_database_size('%s'))\"", cfg.Password, cfg.Host, cfg.Username, cfg.Port, cfg.Name, cfg.Name)
 	output, err := exec.Command("sh", "-c", command).Output()
 	if err != nil {
 		logrus.Error("Ошибка: " + command)
-		return errors.New("Неудалось получить размер базы данных")
+		return ""
 	}
 	//pg_size_pretty
 	//----------------
@@ -39,19 +37,19 @@ func (cfg *Database) getDBSize() error {
 	startIndex := 35
 	endIndex := len(string(output)) - 10
 	size := fmt.Sprint(string(output)[startIndex:endIndex]) // -> 7453 kB
-	cfg.Size = size
-	return nil
+	return size
 }
 
 // Добавляет данные о базе данных в служебную БД.
 // Перед добавлением в таблицу проверяется подключение.
 func (cfg *Database) Save(sql *gorm.DB) error {
-	if err := cfg.checkConnection(); err != nil {
-		return err
+	status := cfg.CheckConnection()
+	size := cfg.GetDBSize()
+	if !status || size == "" {
+		return errors.New("Не удалось подключиться к базе данных " + cfg.Alias)
 	}
-	if err := cfg.getDBSize(); err != nil {
-		return err
-	}
+	cfg.Status = status
+	cfg.Size = size
 	encryptedUsername := system.Encrypt(cfg.Username)
 	cfg.Username = encryptedUsername
 	encryptedPassword := system.Encrypt(cfg.Password)

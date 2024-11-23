@@ -11,7 +11,7 @@ ARG VERSION
 ENV VERSION="${VERSION}"
 ENV CGO_ENABLED=1
 
-RUN go mod tidy && go build -ldflags="-s -w -X 'config.VERSION=${VERSION}'"
+RUN go mod tidy && go build -ldflags="-s -w -X 'github.com/PavelMilanov/pgbackup/config.VERSION=${VERSION}'"
 
 FROM alpine:3.20
 

@@ -38,3 +38,8 @@ type LoginForm struct {
 type GeneralSettingsForm struct {
 	BackupCount string `form:"BackupCount" binding:"required"`
 }
+
+type Notify struct {
+	Message string
+	Type    string
+}
