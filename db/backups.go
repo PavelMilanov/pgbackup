@@ -14,10 +14,10 @@ import (
 func (bk *Backup) Save(cfg Database, sql *gorm.DB) {
 	start := time.Now()
 	currTime := start.Format("2006-01-02-15:04") // шаблон GO для формата ГГГГ-мм-дд "2006-01-02 15:04:05" со временем
-	dumpName := currTime + ".dump"
+	dumpName := currTime + ".dump.gz"
 	bk.Date = start.Format(time.RFC1123)
 	bk.Dump = dumpName
-	command := fmt.Sprintf("export PGPASSWORD=%s && pg_dump -h %s -U %s -p %d %s > %s", cfg.Password, cfg.Host, cfg.Username, cfg.Port, cfg.Name, bk.Directory+"/"+dumpName)
+	command := fmt.Sprintf("export PGPASSWORD=%s && pg_dump -h %s -U %s -p %d %s | gzip > %s", cfg.Password, cfg.Host, cfg.Username, cfg.Port, cfg.Name, bk.Directory+"/"+dumpName)
 	_, err := exec.Command("sh", "-c", command).Output()
 	if err != nil {
 		errCommand := fmt.Sprintf("touch %s", bk.Directory+"/"+dumpName)

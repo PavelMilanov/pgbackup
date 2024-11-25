@@ -109,7 +109,7 @@ func GetDb(sql *gorm.DB, id int) (Database, error) {
 	var db Database
 	result := sql.
 		Preload("Backups", func(db *gorm.DB) *gorm.DB { // сортировка по последней дате
-			return db.Order("date desc")
+			return db.Order("created_at desc")
 		}).
 		Preload("Schedules").
 		First(&db, id)

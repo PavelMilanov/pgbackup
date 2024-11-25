@@ -21,7 +21,7 @@ func generateRandomBackupDir() string {
 	dir := strconv.Itoa(r1.Intn(10000))
 	if err := os.Mkdir(config.BACKUP_DIR+"/"+dir, 0755); err != nil {
 		if !os.IsExist(err) {
-			logrus.Infof("%s - директория создана", dir)
+			logrus.Debugf("%s - директория создана", dir)
 		}
 	}
 	return config.BACKUP_DIR + "/" + dir
