@@ -18,6 +18,14 @@ import (
 func init() {
 	// создаем директорию для бекапов
 	os.Mkdir(config.BACKUP_DIR, 0755)
+	// создаем директорию для базы
+	os.Mkdir(config.DATA_DIR, 0755)
+
+	jwt := os.Getenv("JWT_KEY")
+	aes := os.Getenv("AES_KEY")
+	if jwt == "" || aes == "" {
+		logrus.Fatalf("Не указана переменная окружения JWT_KEY или AES_KEY")
+	}
 }
 
 func main() {

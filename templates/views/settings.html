@@ -66,6 +66,10 @@
       </form>
     </div> -->
   </div>
+  {{ if .notification }}
+  <script src="/static/js/animations.js"></script>
+  <script>showNotification({{.notification.Message }}, {{.notification.Type }})</script>
+  {{ end}}
   <script src="/static/js/settings.js"></script>
 </body>
 </html>

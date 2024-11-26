@@ -39,8 +39,12 @@ func (h *Handler) registrationHandler(c *gin.Context) {
 	if c.Request.Method == "GET" {
 		c.HTML(http.StatusOK, "registration.html", gin.H{})
 	} else if c.Request.Method == "POST" {
-		var data web.LoginForm
+		var data web.RegistrationForm
 		if err := c.ShouldBind(&data); err != nil {
+			return
+		}
+		if data.Password != data.ConfirmPassword {
+			c.HTML(http.StatusBadRequest, "registration.html", gin.H{"error": "пароли не совпадают"})
 			return
 		}
 		user := db.User{

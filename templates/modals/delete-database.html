@@ -2,10 +2,9 @@
 <div id="deleteDatabaseModal" class="modal">
     <div class="modal-content">
         <span class="close">&times;</span>
-        <h2>Удалить базу данных и ее расписания?</h2>
-        <form name="ChangeScheduleForm" action="/databases/delete" method="post">
-            <input type="hidden" id="DeleteDatabaseID" name="ID" value="">
-            <button type="submit" class="btn btn-primary">Удалить</button>
+        <h2>Удалить базу данных и ее дампы?</h2>
+        <form action="/databases/delete" method="post">
+            <button id="modal-deleteDatabase-btn" type="submit" name="ID" value="{{.ID}}" class="btn btn-primary">Удалить</button>
         </form>
     </div>
 </div>

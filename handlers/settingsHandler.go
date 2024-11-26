@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -32,11 +31,27 @@ func (h *Handler) settingsHandler(c *gin.Context) {
 		count, _ := strconv.Atoi(data.BackupCount)
 		settings.BackupCount = count
 		if err := settings.Update(h.DB); err != nil {
-			fmt.Println(err)
+			c.HTML(http.StatusOK, "settings.html", gin.H{
+				"header": "Настройки | PgBackup",
+				"config": settings,
+				"notification": web.Notify{
+					Message: err.Error(),
+					Type:    config.NOTIFY_STATUS["ошибка"],
+				},
+				"pages": []web.Page{
+					{Name: "Главная", URL: "/", IsVisible: false},
+					{Name: "Расписание", URL: "/schedule", IsVisible: false},
+					{Name: "Базы данных", URL: "/databases", IsVisible: false},
+					{Name: "Настройки", URL: "/settings", IsVisible: true},
+				}})
 		}
 		c.HTML(http.StatusOK, "settings.html", gin.H{
 			"header": "Настройки | PgBackup",
 			"config": settings,
+			"notification": web.Notify{
+				Message: "Настройки обновлены!",
+				Type:    config.NOTIFY_STATUS["инфо"],
+			},
 			"pages": []web.Page{
 				{Name: "Главная", URL: "/", IsVisible: false},
 				{Name: "Расписание", URL: "/schedule", IsVisible: false},

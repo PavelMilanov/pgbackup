@@ -16,14 +16,14 @@
             <label for="password">Пароль:</label>
             <input type="password" id="password" name="Password" required="required">
             <label for="confirmPassword">Подтвердите пароль:</label>
-            <input type="password" id="confirmPassword" required="required">
+            <input type="password" id="confirmPassword" name="ConfirmPassword" required="required">
             <button type="submit">Зарегистрироваться</button>
         </form>
         <div class="divider">
             <span>или</span>
         </div>
         <button class="register-button">
-            <a href="http:/login">Вернуться ко входу</a>
+            <a href="/login">Вернуться ко входу</a>
         </button>
         {{if .error}}
         <p class="error-message">{{.error}}</p>
