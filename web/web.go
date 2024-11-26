@@ -35,6 +35,12 @@ type LoginForm struct {
 	Password string `form:"Password" binding:"required"`
 }
 
+type RegistrationForm struct {
+	Username        string `form:"Username" binding:"required"`
+	Password        string `form:"Password" binding:"required"`
+	ConfirmPassword string `form:"ConfirmPassword" binding:"required"`
+}
+
 type GeneralSettingsForm struct {
 	BackupCount string `form:"BackupCount" binding:"required"`
 }
