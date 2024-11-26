@@ -1,4 +1,5 @@
 go.sum
+go.mod
 pgbackup
 test.db
 .DS_Store

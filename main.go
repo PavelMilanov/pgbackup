@@ -18,6 +18,8 @@ import (
 func init() {
 	// создаем директорию для бекапов
 	os.Mkdir(config.BACKUP_DIR, 0755)
+	// создаем директорию для базы
+	os.Mkdir(config.DATA_DIR, 0755)
 }
 
 func main() {
