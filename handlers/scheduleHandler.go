@@ -34,16 +34,47 @@ func (h *Handler) scheduleSaveHandler(c *gin.Context) {
 		return
 	}
 	id, _ := strconv.Atoi(data.Name)
-	config := db.Schedule{
+	cfg := db.Schedule{
 		DatabaseID: id,
 		Frequency:  data.Frequency,
 		Time:       data.Time,
 	}
-	if err := config.Save(h.DB, h.CRON); err != nil {
-		//c.HTML(http.StatusBadRequest, "databases.html", gin.H{"error": err.Error()})
-		return
+	if err := cfg.Save(h.DB, h.CRON); err != nil {
+		schedules := db.GetSchedulesAll(h.DB)
+		databases := db.GetDbAll(h.DB)
+		c.HTML(http.StatusOK, "schedule.html", gin.H{
+			"header":           "Расписание | PgBackup",
+			"databases":        databases,
+			"backup_frequency": config.BACKUP_FREQUENCY,
+			"schedules":        schedules,
+			"notification": web.Notify{
+				Message: err.Error(),
+				Type:    config.NOTIFY_STATUS["ошибка"],
+			},
+			"pages": []web.Page{
+				{Name: "Главная", URL: "/", IsVisible: false},
+				{Name: "Расписание", URL: "/schedule", IsVisible: true},
+				{Name: "Базы данных", URL: "/databases", IsVisible: false},
+				{Name: "Настройки", URL: "/settings", IsVisible: false},
+			}})
 	}
-	c.Redirect(http.StatusFound, "/schedule/")
+	schedules := db.GetSchedulesAll(h.DB)
+	databases := db.GetDbAll(h.DB)
+	c.HTML(http.StatusOK, "schedule.html", gin.H{
+		"header":           "Расписание | PgBackup",
+		"databases":        databases,
+		"backup_frequency": config.BACKUP_FREQUENCY,
+		"schedules":        schedules,
+		"notification": web.Notify{
+			Message: "Расписание добавлено!",
+			Type:    config.NOTIFY_STATUS["инфо"],
+		},
+		"pages": []web.Page{
+			{Name: "Главная", URL: "/", IsVisible: false},
+			{Name: "Расписание", URL: "/schedule", IsVisible: true},
+			{Name: "Базы данных", URL: "/databases", IsVisible: false},
+			{Name: "Настройки", URL: "/settings", IsVisible: false},
+		}})
 }
 
 // Handler для удаления расписания.
@@ -53,12 +84,43 @@ func (h *Handler) scheduleDeleteHandler(c *gin.Context) {
 		return
 	}
 	id, _ := strconv.Atoi(data.ID)
-	config := db.Schedule{
+	cfg := db.Schedule{
 		ID: id,
 	}
-	if err := config.Delete(h.DB, h.CRON); err != nil {
-		//c.HTML(http.StatusBadRequest, "databases.html", gin.H{"error": err.Error()})
-		return
+	if err := cfg.Delete(h.DB, h.CRON); err != nil {
+		schedules := db.GetSchedulesAll(h.DB)
+		databases := db.GetDbAll(h.DB)
+		c.HTML(http.StatusOK, "schedule.html", gin.H{
+			"header":           "Расписание | PgBackup",
+			"databases":        databases,
+			"backup_frequency": config.BACKUP_FREQUENCY,
+			"schedules":        schedules,
+			"notification": web.Notify{
+				Message: err.Error(),
+				Type:    config.NOTIFY_STATUS["ошибка"],
+			},
+			"pages": []web.Page{
+				{Name: "Главная", URL: "/", IsVisible: false},
+				{Name: "Расписание", URL: "/schedule", IsVisible: true},
+				{Name: "Базы данных", URL: "/databases", IsVisible: false},
+				{Name: "Настройки", URL: "/settings", IsVisible: false},
+			}})
 	}
-	c.Redirect(http.StatusFound, "/schedule/")
+	schedules := db.GetSchedulesAll(h.DB)
+	databases := db.GetDbAll(h.DB)
+	c.HTML(http.StatusOK, "schedule.html", gin.H{
+		"header":           "Расписание | PgBackup",
+		"databases":        databases,
+		"backup_frequency": config.BACKUP_FREQUENCY,
+		"schedules":        schedules,
+		"notification": web.Notify{
+			Message: "Расписание удалено!",
+			Type:    config.NOTIFY_STATUS["инфо"],
+		},
+		"pages": []web.Page{
+			{Name: "Главная", URL: "/", IsVisible: false},
+			{Name: "Расписание", URL: "/schedule", IsVisible: true},
+			{Name: "Базы данных", URL: "/databases", IsVisible: false},
+			{Name: "Настройки", URL: "/settings", IsVisible: false},
+		}})
 }

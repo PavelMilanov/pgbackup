@@ -21,5 +21,6 @@ func (cfg *Setting) Update(sql *gorm.DB) error {
 		logrus.Error(result.Error)
 		return result.Error
 	}
+	logrus.Debugf("Настройки приложения изменены: %+v", cfg)
 	return nil
 }
