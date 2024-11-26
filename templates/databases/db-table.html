@@ -30,9 +30,7 @@
                 <form class="btn-form btn btn-primary" action="/databases/backups" method="get">
                     <button id="backupMenu-btn" name="ID" value="{{.ID}}" class="btn btn-primary">Управление бекапами</button>
                 </form>
-                <form class="btn-form btn btn-secondary" action="/databases/{{.ID}}/backups" method="post">
-                    <button id="deleteDatabase-btn" name="ID" value="{{.ID}}" class="btn btn-secondary">Удалить</button>
-                </form>
+                <button id="deleteDatabase-btn" name="ID" value="{{.ID}}" class="btn btn-secondary">Удалить</button>
             </td>
         </tr>
         {{ end }}

@@ -95,7 +95,7 @@ func (cfg Database) Delete(sql *gorm.DB) error {
 			}
 		}
 		logrus.Infof("Удалена база данных %s", cfg.Alias)
-		return tx.Commit().Error
+		return nil
 	}))
 	if err != nil {
 		logrus.Infof("Ошибка при выполнении транзакции %s", err)

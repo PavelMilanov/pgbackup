@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -42,8 +43,8 @@ func (h *Handler) databaseSaveHandler(c *gin.Context) {
 	if err := cfg.Save(h.DB); err != nil {
 		databases := db.GetDbAll(h.DB)
 		c.HTML(http.StatusOK, "databases.html", gin.H{
-			"header": "Базы данных | PgBackup",
-			"db":     databases,
+			"header":    "Базы данных | PgBackup",
+			"databases": databases,
 			"notification": web.Notify{
 				Message: err.Error(),
 				Type:    config.NOTIFY_STATUS["ошибка"],
@@ -57,9 +58,10 @@ func (h *Handler) databaseSaveHandler(c *gin.Context) {
 		return
 	}
 	databases := db.GetDbAll(h.DB)
+	fmt.Println(databases)
 	c.HTML(http.StatusOK, "databases.html", gin.H{
-		"header": "Базы данных | PgBackup",
-		"db":     databases,
+		"header":    "Базы данных | PgBackup",
+		"databases": databases,
 		"notification": web.Notify{
 			Message: "База данных добавлена!",
 			Type:    config.NOTIFY_STATUS["инфо"],
@@ -83,10 +85,10 @@ func (h *Handler) databaseDeleteHandler(c *gin.Context) {
 		ID: id,
 	}
 	if err := cfg.Delete(h.DB); err != nil {
-		db, _ := db.GetDb(h.DB, id)
+		databases := db.GetDbAll(h.DB)
 		c.HTML(http.StatusOK, "databases.html", gin.H{
-			"header": "Базы данных | PgBackup",
-			"db":     db,
+			"header":    "Базы данных | PgBackup",
+			"databases": databases,
 			"notification": web.Notify{
 				Message: err.Error(),
 				Type:    config.NOTIFY_STATUS["ошибка"],
@@ -99,10 +101,10 @@ func (h *Handler) databaseDeleteHandler(c *gin.Context) {
 			}})
 		return
 	}
-	db, _ := db.GetDb(h.DB, id)
+	databases := db.GetDbAll(h.DB)
 	c.HTML(http.StatusOK, "databases.html", gin.H{
-		"header": "Базы данных | PgBackup",
-		"db":     db,
+		"header":    "Базы данных | PgBackup",
+		"databases": databases,
 		"notification": web.Notify{
 			Message: "База данных удалена!",
 			Type:    config.NOTIFY_STATUS["инфо"],
@@ -125,8 +127,8 @@ func (h *Handler) createBackupHandler(c *gin.Context) {
 	cfg := db.Schedule{
 		DatabaseID: id,
 	}
-	db, _ := db.GetDb(h.DB, id)
 	if err := cfg.Save(h.DB, h.CRON); err != nil {
+		db, _ := db.GetDb(h.DB, id)
 		c.HTML(http.StatusOK, "backups.html", gin.H{
 			"header": "Базы данных | PgBackup",
 			"db":     db,
@@ -142,6 +144,7 @@ func (h *Handler) createBackupHandler(c *gin.Context) {
 			}})
 		return
 	}
+	db, _ := db.GetDb(h.DB, id)
 	c.HTML(http.StatusOK, "backups.html", gin.H{
 		"header": "Базы данных | PgBackup",
 		"db":     db,
@@ -164,11 +167,7 @@ func (h *Handler) getBackupsHandler(c *gin.Context) {
 		return
 	}
 	id, _ := strconv.Atoi(data.ID)
-	db, err := db.GetDb(h.DB, id)
-	if err != nil {
-		c.JSON(404, gin.H{"message": "not found"})
-		return
-	}
+	db, _ := db.GetDb(h.DB, id)
 	c.HTML(http.StatusOK, "backups.html", gin.H{
 		"header": "Базы данных | PgBackup",
 		"db":     db,

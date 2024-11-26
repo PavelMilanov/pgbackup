@@ -17,5 +17,7 @@ $('#app').on('click', '#backupMenu-btn', function () {
 })
 
 $('#app').on('click', '#deleteDatabase-btn', function () {
+    var db = $('deleteDatabase-btn').val()
+    $('#modal-deleteDatabase-btn').val(db)
     $('#deleteDatabaseModal').show()
 })
