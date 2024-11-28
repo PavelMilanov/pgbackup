@@ -20,7 +20,7 @@ var testConfig = Database{
 var location, _ = time.LoadLocation("Europe/Moscow")
 var testScheduler = cron.New(cron.WithLocation(location))
 
-var testDb = NewDatabase(&SQLite{Name: "test.db"}, testScheduler)
+var testDb = NewDatabase("test.db", testScheduler)
 
 func TestCheckConnection(t *testing.T) {
 	testConfig.CheckConnection()
@@ -31,7 +31,7 @@ func TestGetDBSize(t *testing.T) {
 }
 
 func TestGetDb(t *testing.T) {
-	db, err := GetDb(testDb, 1)
+	db, err := GetDb(testDb.Sql, 1)
 	if err != nil {
 		t.Errorf("%v", err)
 	}

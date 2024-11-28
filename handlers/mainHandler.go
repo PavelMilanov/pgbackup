@@ -10,10 +10,10 @@ import (
 )
 
 func (h *Handler) mainHandler(c *gin.Context) {
-	lastBackups := db.GetLastBackups(h.DB)
-	countBackups := db.GetCountBackups(h.DB)
-	countSchedules := db.GetCountSchedules(h.DB)
-	countData := db.CountBackupsStatus(h.DB)
+	lastBackups := db.GetLastBackups(h.DB.Sql)
+	countBackups := db.GetCountBackups(h.DB.Sql)
+	countSchedules := db.GetCountSchedules(h.DB.Sql)
+	countData := db.CountBackupsStatus(h.DB.Sql)
 	storageData := system.GetStorageInfo()
 	cpu := system.GetCPUInfo()
 	ram := system.GetMemoryInfo()

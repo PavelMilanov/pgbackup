@@ -36,8 +36,8 @@ func main() {
 	/// база данных
 	/// первичная инициализация задания для ручных бекапов
 	sqliteFIle := fmt.Sprintf("%s/pgbackup.db", config.DATA_DIR)
-	sqlite := db.NewDatabase(&db.SQLite{Name: sqliteFIle}, scheduler)
-	defer db.CloseDatabase(sqlite)
+	sqlite := db.NewDatabase(sqliteFIle, scheduler)
+	defer db.CloseDatabase(sqlite.Sql)
 
 	/// логгер
 	logrus.SetLevel(logrus.TraceLevel)
@@ -53,10 +53,9 @@ func main() {
 	go scheduler.Start()
 	defer scheduler.Stop()
 	newScheduler := tasks.NewTaskScheduler(*location)
-	newScheduler.Start(sqlite)
-	tasks.InitBackupsTasks(sqlite, scheduler)
+	newScheduler.Start(&sqlite, scheduler)
 
-	handler := handlers.NewHandler(sqlite, scheduler)
+	handler := handlers.NewHandler(&sqlite, scheduler)
 	srv := new(Server)
 	go func() {
 		if err := srv.Run(handler.InitRouters()); err != nil {

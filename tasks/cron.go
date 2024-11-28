@@ -6,14 +6,13 @@ import (
 	"github.com/PavelMilanov/pgbackup/system"
 	"github.com/robfig/cron/v3"
 	"github.com/sirupsen/logrus"
-	"gorm.io/gorm"
 )
 
-func InitBackupsTasks(sql *gorm.DB, timer *cron.Cron) {
-	schedules := db.GetSchedulesAll(sql)
+func (s Sheduler) initBackupsTasks(conn *db.SQLite, timer *cron.Cron) {
+	schedules := db.GetSchedulesAll(conn.Sql)
 	for _, schedule := range schedules {
 		if schedule.Status == config.SCHEDULE_STATUS["активно"] {
-			dbModel, _ := db.GetDb(sql, schedule.DatabaseID)
+			dbModel, _ := db.GetDb(conn.Sql, schedule.DatabaseID)
 			cronTime := system.ToCron(schedule.Time, schedule.Frequency)
 			timer.AddFunc(cronTime, func() {
 				backup := db.Backup{
@@ -21,7 +20,7 @@ func InitBackupsTasks(sql *gorm.DB, timer *cron.Cron) {
 					ScheduleID: schedule.ID,
 					DatabaseID: schedule.DatabaseID,
 				}
-				backup.Save(dbModel, sql)
+				backup.Save(dbModel, conn)
 			})
 		}
 	}

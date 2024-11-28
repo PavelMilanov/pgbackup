@@ -11,7 +11,7 @@ import (
 )
 
 func (h *Handler) settingsHandler(c *gin.Context) {
-	settings, _ := db.GetSettings(h.DB)
+	settings, _ := db.GetSettings(h.DB.Sql)
 	settings.Version = config.VERSION
 	if c.Request.Method == "GET" {
 		c.HTML(http.StatusOK, "settings.html", gin.H{
@@ -30,7 +30,7 @@ func (h *Handler) settingsHandler(c *gin.Context) {
 		}
 		count, _ := strconv.Atoi(data.BackupCount)
 		settings.BackupCount = count
-		if err := settings.Update(h.DB); err != nil {
+		if err := settings.Update(h.DB.Sql); err != nil {
 			c.HTML(http.StatusOK, "settings.html", gin.H{
 				"header": "Настройки | PgBackup",
 				"config": settings,

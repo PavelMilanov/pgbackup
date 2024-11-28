@@ -12,8 +12,8 @@ import (
 
 // Handler для главной страницы с расписаниями.
 func (h *Handler) scheduleHandler(c *gin.Context) {
-	schedules := db.GetSchedulesAll(h.DB)
-	databases := db.GetDbAll(h.DB)
+	schedules := db.GetSchedulesAll(h.DB.Sql)
+	databases := db.GetDbAll(h.DB.Sql)
 	c.HTML(http.StatusOK, "schedule.html", gin.H{
 		"header":           "Расписание | PgBackup",
 		"databases":        databases,
@@ -40,8 +40,8 @@ func (h *Handler) scheduleSaveHandler(c *gin.Context) {
 		Time:       data.Time,
 	}
 	if err := cfg.Save(h.DB, h.CRON); err != nil {
-		schedules := db.GetSchedulesAll(h.DB)
-		databases := db.GetDbAll(h.DB)
+		schedules := db.GetSchedulesAll(h.DB.Sql)
+		databases := db.GetDbAll(h.DB.Sql)
 		c.HTML(http.StatusOK, "schedule.html", gin.H{
 			"header":           "Расписание | PgBackup",
 			"databases":        databases,
@@ -58,8 +58,8 @@ func (h *Handler) scheduleSaveHandler(c *gin.Context) {
 				{Name: "Настройки", URL: "/settings", IsVisible: false},
 			}})
 	}
-	schedules := db.GetSchedulesAll(h.DB)
-	databases := db.GetDbAll(h.DB)
+	schedules := db.GetSchedulesAll(h.DB.Sql)
+	databases := db.GetDbAll(h.DB.Sql)
 	c.HTML(http.StatusOK, "schedule.html", gin.H{
 		"header":           "Расписание | PgBackup",
 		"databases":        databases,
@@ -87,9 +87,9 @@ func (h *Handler) scheduleDeleteHandler(c *gin.Context) {
 	cfg := db.Schedule{
 		ID: id,
 	}
-	if err := cfg.Delete(h.DB, h.CRON); err != nil {
-		schedules := db.GetSchedulesAll(h.DB)
-		databases := db.GetDbAll(h.DB)
+	if err := cfg.Delete(h.DB.Sql, h.CRON); err != nil {
+		schedules := db.GetSchedulesAll(h.DB.Sql)
+		databases := db.GetDbAll(h.DB.Sql)
 		c.HTML(http.StatusOK, "schedule.html", gin.H{
 			"header":           "Расписание | PgBackup",
 			"databases":        databases,
@@ -106,8 +106,8 @@ func (h *Handler) scheduleDeleteHandler(c *gin.Context) {
 				{Name: "Настройки", URL: "/settings", IsVisible: false},
 			}})
 	}
-	schedules := db.GetSchedulesAll(h.DB)
-	databases := db.GetDbAll(h.DB)
+	schedules := db.GetSchedulesAll(h.DB.Sql)
+	databases := db.GetDbAll(h.DB.Sql)
 	c.HTML(http.StatusOK, "schedule.html", gin.H{
 		"header":           "Расписание | PgBackup",
 		"databases":        databases,
