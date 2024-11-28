@@ -23,7 +23,7 @@ func (h *Handler) loginHandler(c *gin.Context) {
 			Username: data.Username,
 			Password: system.Encrypt((data.Password)),
 		}
-		if check := user.IsRegister(h.DB); !check {
+		if check := user.IsRegister(h.DB.Sql); !check {
 			c.HTML(http.StatusBadRequest, "login.html", gin.H{
 				"error": "неправильные логин или пароль",
 			})
@@ -51,11 +51,11 @@ func (h *Handler) registrationHandler(c *gin.Context) {
 			Username: data.Username,
 			Password: system.Encrypt((data.Password)),
 		}
-		if err := user.Save(h.DB); err != nil {
+		if err := user.Save(h.DB.Sql); err != nil {
 			c.HTML(http.StatusOK, "registration.html", gin.H{"error": err.Error()})
 		}
 		token := db.Token{UserID: user.ID}
-		token.Save(h.DB)
+		token.Save(h.DB.Sql)
 		c.HTML(http.StatusOK, "login.html", gin.H{})
 	}
 }
