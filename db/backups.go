@@ -11,7 +11,7 @@ import (
 )
 
 // Создает файл бекапа базы данных и сохраняет методанных в служебную БД.
-func (bk *Backup) Save(cfg Database, sql *gorm.DB) {
+func (bk *Backup) Save(cfg Database, conn *SQLite) {
 	start := time.Now()
 	currTime := start.Format("2006-01-02-15:04") // шаблон GO для формата ГГГГ-мм-дд "2006-01-02 15:04:05" со временем
 	dumpName := currTime + ".dump.gz"
@@ -27,7 +27,9 @@ func (bk *Backup) Save(cfg Database, sql *gorm.DB) {
 		bk.LeadTime = elapsed
 		bk.getBackupSize(dumpName)
 		bk.Status = false
-		result := sql.Create(&bk)
+		conn.Mutex.Lock()
+		result := conn.Sql.Create(&bk)
+		conn.Mutex.Unlock()
 		if result.Error != nil {
 			logrus.Error(result.Error)
 		}
@@ -39,7 +41,9 @@ func (bk *Backup) Save(cfg Database, sql *gorm.DB) {
 	bk.LeadTime = elapsed
 	bk.getBackupSize(dumpName)
 	bk.Status = true
-	result := sql.Create(&bk)
+	conn.Mutex.Lock()
+	result := conn.Sql.Create(&bk)
+	conn.Mutex.Unlock()
 	if result.Error != nil {
 		logrus.Error(result.Error)
 		os.Remove(bk.Directory + "/" + bk.Dump)
@@ -49,12 +53,14 @@ func (bk *Backup) Save(cfg Database, sql *gorm.DB) {
 }
 
 // Удаление файла бекапа и его метаданных.
-func (bk *Backup) Delete(sql *gorm.DB) {
-	err := sql.Transaction((func(tx *gorm.DB) error {
+func (bk *Backup) Delete(conn *SQLite) {
+	conn.Mutex.Lock()
+	err := conn.Sql.Transaction((func(tx *gorm.DB) error {
 		tx.First(&bk)
 		tx.Delete(&bk)
 		return nil
 	}))
+	conn.Mutex.Unlock()
 	if err != nil {
 		logrus.Errorf("Ошибка при удалении бекапа %s %v", bk.Dump, err)
 	} else {
@@ -99,10 +105,14 @@ func (bk *Backup) getBackupSize(filename string) {
 	bk.Size = string(cmd)
 }
 
-func DeleteOldBackups(files []string, sql *gorm.DB) {
+// Удаление дампов из базы данных по условию.
+// Используется для планировщик для удалениея старых дампов.
+func DeleteOldBackups(files []string, conn *SQLite) {
 	var model Backup
 	for _, file := range files {
-		result := sql.Raw("DELETE FROM backups WHERE dump = ?", file).Scan(&model)
+		conn.Mutex.Lock()
+		result := conn.Sql.Raw("DELETE FROM backups WHERE dump = ?", file).Scan(&model)
+		conn.Mutex.Unlock()
 		if result.Error != nil {
 			logrus.Error(result.Error)
 			continue

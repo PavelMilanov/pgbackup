@@ -16,12 +16,12 @@ import (
 var expectedHost = "localhost:8080"
 
 type Handler struct {
-	DB   *gorm.DB
+	DB   *db.SQLite
 	CRON *cron.Cron
 }
 
-func NewHandler(db *gorm.DB, scheduler *cron.Cron) *Handler {
-	return &Handler{DB: db, CRON: scheduler}
+func NewHandler(conn *db.SQLite, scheduler *cron.Cron) *Handler {
+	return &Handler{DB: conn, CRON: scheduler}
 }
 
 // Основной middleware для авторизации.
@@ -69,7 +69,7 @@ func baseSecurityMiddleware(host string) gin.HandlerFunc {
 
 func (h *Handler) InitRouters() *gin.Engine {
 	router := gin.Default()
-	store := gormsessions.NewStore(h.DB, true, []byte("mysessions"))
+	store := gormsessions.NewStore(h.DB.Sql, true, []byte("mysessions"))
 
 	router.Use(baseSecurityMiddleware(expectedHost))
 	router.Use(sessions.Sessions("token", store))
@@ -83,7 +83,7 @@ func (h *Handler) InitRouters() *gin.Engine {
 	router.GET("/login", h.loginHandler)
 	router.POST("/login", h.loginHandler)
 
-	web := router.Group("/", authMiddleware(h.DB))
+	web := router.Group("/", authMiddleware(h.DB.Sql))
 	{
 		web.GET("/logout", h.logoutHandler)
 		web.POST("/logout", h.logoutHandler)

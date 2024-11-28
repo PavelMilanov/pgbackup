@@ -37,8 +37,8 @@ func ScheduleCreate(sql *gorm.DB, db Schedule) (int, error) {
 }
 
 // Сохраняет расписание
-func (cfg *Schedule) Save(sql *gorm.DB, timer *cron.Cron) error {
-	dbModel, err := GetDb(sql, cfg.DatabaseID)
+func (cfg *Schedule) Save(conn *SQLite, timer *cron.Cron) error {
+	dbModel, err := GetDb(conn.Sql, cfg.DatabaseID)
 	if err != nil {
 		logrus.Error(err)
 		return err
@@ -55,7 +55,7 @@ func (cfg *Schedule) Save(sql *gorm.DB, timer *cron.Cron) error {
 					ScheduleID:    item.ID,
 					DatabaseID:    dbModel.ID,
 				}
-				go backup.Save(dbModel, sql)
+				go backup.Save(dbModel, conn)
 				return nil
 			}
 		}
@@ -63,7 +63,7 @@ func (cfg *Schedule) Save(sql *gorm.DB, timer *cron.Cron) error {
 		dir := generateRandomBackupDir()
 		cfg.Directory = dir
 		cfg.Status = config.SCHEDULE_STATUS["вручную"]
-		scheduleId, err := ScheduleCreate(sql, *cfg)
+		scheduleId, err := ScheduleCreate(conn.Sql, *cfg)
 		if err != nil {
 			logrus.Error(err)
 			return err
@@ -74,14 +74,14 @@ func (cfg *Schedule) Save(sql *gorm.DB, timer *cron.Cron) error {
 			ScheduleID:    scheduleId,
 			DatabaseID:    dbModel.ID,
 		}
-		go backup.Save(dbModel, sql)
+		go backup.Save(dbModel, conn)
 		// для бекапов по расписанию
 	} else {
 		cfg.DatabaseAlias = dbModel.Alias
 		dir := generateRandomBackupDir()
 		cfg.Directory = dir
 		cfg.Status = config.SCHEDULE_STATUS["активно"]
-		scheduleId, err := ScheduleCreate(sql, *cfg)
+		scheduleId, err := ScheduleCreate(conn.Sql, *cfg)
 		if err != nil {
 			logrus.Error(err)
 			return err
@@ -94,7 +94,7 @@ func (cfg *Schedule) Save(sql *gorm.DB, timer *cron.Cron) error {
 				ScheduleID:    scheduleId,
 				DatabaseID:    dbModel.ID,
 			}
-			backup.Save(dbModel, sql)
+			backup.Save(dbModel, conn)
 		})
 		entry := timer.Entry(entryID)
 		logrus.Infof("Добавлено расписание %v для бекапа", entry)

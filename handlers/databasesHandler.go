@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -13,7 +12,7 @@ import (
 
 // Handler для главной страницы с базами данных.
 func (h *Handler) databasesHandler(c *gin.Context) {
-	databases := db.GetDbAll(h.DB)
+	databases := db.GetDbAll(h.DB.Sql)
 	c.HTML(http.StatusOK, "databases.html", gin.H{
 		"header":    "Базы данных | PgBackup",
 		"databases": databases,
@@ -40,8 +39,8 @@ func (h *Handler) databaseSaveHandler(c *gin.Context) {
 		Username: data.Username,
 		Password: data.Password,
 	}
-	if err := cfg.Save(h.DB); err != nil {
-		databases := db.GetDbAll(h.DB)
+	if err := cfg.Save(h.DB.Sql); err != nil {
+		databases := db.GetDbAll(h.DB.Sql)
 		c.HTML(http.StatusOK, "databases.html", gin.H{
 			"header":    "Базы данных | PgBackup",
 			"databases": databases,
@@ -57,8 +56,7 @@ func (h *Handler) databaseSaveHandler(c *gin.Context) {
 			}})
 		return
 	}
-	databases := db.GetDbAll(h.DB)
-	fmt.Println(databases)
+	databases := db.GetDbAll(h.DB.Sql)
 	c.HTML(http.StatusOK, "databases.html", gin.H{
 		"header":    "Базы данных | PgBackup",
 		"databases": databases,
@@ -84,8 +82,8 @@ func (h *Handler) databaseDeleteHandler(c *gin.Context) {
 	cfg := db.Database{
 		ID: id,
 	}
-	if err := cfg.Delete(h.DB); err != nil {
-		databases := db.GetDbAll(h.DB)
+	if err := cfg.Delete(h.DB.Sql); err != nil {
+		databases := db.GetDbAll(h.DB.Sql)
 		c.HTML(http.StatusOK, "databases.html", gin.H{
 			"header":    "Базы данных | PgBackup",
 			"databases": databases,
@@ -101,7 +99,7 @@ func (h *Handler) databaseDeleteHandler(c *gin.Context) {
 			}})
 		return
 	}
-	databases := db.GetDbAll(h.DB)
+	databases := db.GetDbAll(h.DB.Sql)
 	c.HTML(http.StatusOK, "databases.html", gin.H{
 		"header":    "Базы данных | PgBackup",
 		"databases": databases,
@@ -128,7 +126,7 @@ func (h *Handler) createBackupHandler(c *gin.Context) {
 		DatabaseID: id,
 	}
 	if err := cfg.Save(h.DB, h.CRON); err != nil {
-		db, _ := db.GetDb(h.DB, id)
+		db, _ := db.GetDb(h.DB.Sql, id)
 		c.HTML(http.StatusOK, "backups.html", gin.H{
 			"header": "Базы данных | PgBackup",
 			"db":     db,
@@ -144,7 +142,7 @@ func (h *Handler) createBackupHandler(c *gin.Context) {
 			}})
 		return
 	}
-	db, _ := db.GetDb(h.DB, id)
+	db, _ := db.GetDb(h.DB.Sql, id)
 	c.HTML(http.StatusOK, "backups.html", gin.H{
 		"header": "Базы данных | PgBackup",
 		"db":     db,
@@ -167,7 +165,7 @@ func (h *Handler) getBackupsHandler(c *gin.Context) {
 		return
 	}
 	id, _ := strconv.Atoi(data.ID)
-	db, _ := db.GetDb(h.DB, id)
+	db, _ := db.GetDb(h.DB.Sql, id)
 	c.HTML(http.StatusOK, "backups.html", gin.H{
 		"header": "Базы данных | PgBackup",
 		"db":     db,
@@ -189,7 +187,7 @@ func (h *Handler) downloadBackupHandler(c *gin.Context) {
 	config := db.Backup{
 		ID: id,
 	}
-	config.Get(h.DB)
+	config.Get(h.DB.Sql)
 	filepath := config.Directory + "/" + config.Dump
 	c.FileAttachment(filepath, config.Dump)
 }
@@ -205,7 +203,7 @@ func (h *Handler) deleteBackupHandler(c *gin.Context) {
 		ID: id,
 	}
 	cfg.Delete(h.DB)
-	databases := db.GetDbAll(h.DB)
+	databases := db.GetDbAll(h.DB.Sql)
 	c.HTML(http.StatusOK, "databases.html", gin.H{
 		"header":    "Базы данных | PgBackup",
 		"databases": databases,

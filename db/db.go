@@ -1,6 +1,8 @@
 package db
 
 import (
+	"sync"
+
 	"github.com/PavelMilanov/pgbackup/config"
 	"github.com/robfig/cron/v3"
 	"github.com/sirupsen/logrus"
@@ -9,17 +11,21 @@ import (
 )
 
 type SQLite struct {
-	Name string
+	Sql   *gorm.DB
+	Mutex *sync.Mutex
 }
 
-func NewDatabase(sql *SQLite, timer *cron.Cron) *gorm.DB {
-	db, err := gorm.Open(sqlite.Open(sql.Name), &gorm.Config{PrepareStmt: true})
+func NewDatabase(sql string, timer *cron.Cron) SQLite {
+	conn, err := gorm.Open(sqlite.Open(sql), &gorm.Config{PrepareStmt: true})
 	if err != nil {
 		logrus.Fatal("Ошибка при подключении к базе данных")
 	}
+	var mutex sync.Mutex
+	db := SQLite{Sql: conn, Mutex: &mutex}
+
 	logrus.Info("Соединение с базой данных установлено")
-	automigrate(db)
-	setDefaultSettings(db)
+	automigrate(db.Sql)
+	setDefaultSettings(db.Sql)
 	return db
 }
 
