@@ -132,3 +132,44 @@ func GetDbAll(sql *gorm.DB) []Database {
 	}
 	return DbList
 }
+
+func Test() {
+	// для восстановления базы нужно удалить схему и создать новую
+	// DROP SCHEMA public CASCADE;
+	// CREATE SCHEMA public;
+	// GRANT ALL ON SCHEMA public TO postgres;
+	// GRANT ALL ON SCHEMA public TO public;
+}
+
+DO $$
+DECLARE
+    schema_owner TEXT;
+    schema_comment TEXT;
+BEGIN
+    -- Сохранить владельца схемы
+    SELECT pg_catalog.pg_get_userbyid(nspowner)
+    INTO schema_owner
+    FROM pg_catalog.pg_namespace
+    WHERE nspname = 'public';
+
+    -- Сохранить комментарий схемы
+    SELECT obj_description(pg_namespace.oid)
+    INTO schema_comment
+    FROM pg_namespace
+    WHERE nspname = 'public';
+
+    -- Удалить схему
+    EXECUTE 'DROP SCHEMA public CASCADE';
+
+    -- Создать схему заново с восстановлением владельца
+    EXECUTE 'CREATE SCHEMA public AUTHORIZATION ' || quote_ident(schema_owner);
+
+    -- Восстановить комментарий
+    IF schema_comment IS NOT NULL THEN
+        EXECUTE 'COMMENT ON SCHEMA public IS ' || quote_literal(schema_comment);
+    END IF;
+
+    -- Восстановить права (пример на основе известных ролей)
+    EXECUTE 'GRANT ALL ON SCHEMA public TO postgres';
+    EXECUTE 'GRANT ALL ON SCHEMA public TO public';
+END $$;
