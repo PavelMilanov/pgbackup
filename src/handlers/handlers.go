@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"text/template"
 
+	"github.com/PavelMilanov/pgbackup/config"
 	"github.com/PavelMilanov/pgbackup/db"
 	"github.com/gin-contrib/sessions"
 	gormsessions "github.com/gin-contrib/sessions/gorm"
@@ -12,8 +13,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
-
-var expectedHost = "localhost:8080"
 
 type Handler struct {
 	DB   *db.SQLite
@@ -52,7 +51,10 @@ func authMiddleware(sql *gorm.DB) gin.HandlerFunc {
 // Базовый middleware безопасности.
 func baseSecurityMiddleware(host string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if c.Request.Host != host {
+		if host == "*" {
+			return
+		} else if c.Request.Host != host {
+			logrus.Debug("Host invalid: ", c.Request.Host)
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Invalid host header"})
 			return
 		}
@@ -71,7 +73,7 @@ func (h *Handler) InitRouters() *gin.Engine {
 	router := gin.Default()
 	store := gormsessions.NewStore(h.DB.Sql, true, []byte("mysessions"))
 
-	router.Use(baseSecurityMiddleware(expectedHost))
+	router.Use(baseSecurityMiddleware(config.HOST))
 	router.Use(sessions.Sessions("token", store))
 
 	router.SetFuncMap(template.FuncMap{"add": func(x, y int) int { return x + y }})
