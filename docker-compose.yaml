@@ -1,7 +1,7 @@
 services:
   pgbackup:
     build:
-      context: .
+      context: src
       args:
         VERSION: dev
     container_name: pgbackup

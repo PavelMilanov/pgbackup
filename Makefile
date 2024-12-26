@@ -15,11 +15,11 @@ test_postgres:
 
 # only for development
 build:
-	@docker buildx build --platform linux/amd64 . -t pgbackup:dev
+	@docker buildx build --platform linux/amd64 src -t pgbackup:dev
 
 release:
-	@docker buildx build --platform linux/amd64 . -t rosomilanov/pgbackup:${version} --build-arg VERSION=${version}
-	@docker buildx build --platform linux/amd64 . -t rosomilanov/pgbackup:latest --build-arg VERSION=${version}
+	@docker buildx build --platform linux/amd64 src -t rosomilanov/pgbackup:${version} --build-arg VERSION=${version}
+	@docker buildx build --platform linux/amd64 src -t rosomilanov/pgbackup:latest --build-arg VERSION=${version}
 
 push: release
 	@docker push rosomilanov/pgbackup:${version}
