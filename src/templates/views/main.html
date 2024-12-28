@@ -132,26 +132,17 @@
             <form class="btn-form btn btn-primary" action="/databases/backup/download" method="get">
               <button type="submit" name="ID" value="{{.ID}}" class="btn btn-primary">скачать</button>
             </form>
-            <!-- <button class="btn btn-secondary">Восстановить</button> -->
+            <form class="btn-form btn btn-secondary" action="/databases/backup/restore" method="get">
+              <button type="submit" name="ID" value="{{.ID}}" class="btn btn-primary">восстановить</button>
+            </form>
           </td>
         </tr>
         {{ end }}
       </tbody>
     </table>
   </div>
-  {{ template "github-link"}}
-  <!-- Модальное окно для подтверждения восстановления -->
-  <!-- <div id="restoreModal" class="modal">
-    <div class="modal-content">
-      <span class="close">&times;</span>
-      <h2>Подтверждение восстановления</h2>
-      <p>Вы уверены, что хотите восстановить базу данных  из бэкапа от ?</p>
-      <p><strong>Внимание:</strong> Это действие перезапишет текущую базу данных!</p>
-      <button class="btn btn-primary">Подтвердить восстановление</button>
-      <button class="btn btn-secondary">Отмена</button>
-    </div>
-  </div> -->
-
+  {{ template "modals/check-restore" }}
+  {{ template "github-link" }}
   <script src="/static/js/main.js"></script>
 </body>
 </html>
