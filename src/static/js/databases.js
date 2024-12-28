@@ -8,6 +8,10 @@ $(window).on('click', function (event) {
     }
 })
 
+$('#app').on('click', '#restoreBackup-btn', function () {
+    $('#restoreModal').show()
+})
+
 $('#app').on('click', '#dbMenu-btn', function () {
     $('#databaseModal').show()
 })
