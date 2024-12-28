@@ -51,6 +51,11 @@ func (h *Handler) registrationHandler(c *gin.Context) {
 			Username: data.Username,
 			Password: system.Encrypt((data.Password)),
 		}
+		check := user.IsRegister(h.DB.Sql)
+		if !check {
+			c.HTML(http.StatusBadRequest, "registration.html", gin.H{"error": "пользователь уже зарегистрирован"})
+			return
+		}
 		if err := user.Save(h.DB.Sql); err != nil {
 			c.HTML(http.StatusOK, "registration.html", gin.H{"error": err.Error()})
 		}

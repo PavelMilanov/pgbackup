@@ -1,9 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 	"time"
 
@@ -35,7 +35,7 @@ func main() {
 
 	/// база данных
 	/// первичная инициализация задания для ручных бекапов
-	sqliteFIle := fmt.Sprintf("%s/pgbackup.db", config.DATA_DIR)
+	sqliteFIle := filepath.Join(config.DATA_DIR, "pgbackup.db")
 	sqlite := db.NewDatabase(sqliteFIle, scheduler)
 	defer db.CloseDatabase(sqlite.Sql)
 
