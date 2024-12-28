@@ -1,0 +1,14 @@
+{{ define "modals/check-restore" }}
+<!-- Модальное окно для подтверждения восстановления -->
+<div id="restoreModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Подтверждение восстановления</h2>
+      <p>Вы уверены, что хотите восстановить базу данных  из бэкапа?</p>
+      <p><strong>Внимание:</strong> Необходима пустая база данных!</p>
+    <form class="btn-form btn btn-secondary" action="/databases/backup/restore" method="post">
+        <button type="submit" id="modal-restoreBackup-btn" name="ID" value="{{ . }}" class="btn btn-primary">Подтвердить восстановление</button>
+    </form>
+    </div>
+  </div>
+{{ end}}
