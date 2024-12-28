@@ -132,16 +132,17 @@
             <form class="btn-form btn btn-primary" action="/databases/backup/download" method="get">
               <button type="submit" name="ID" value="{{.ID}}" class="btn btn-primary">скачать</button>
             </form>
-            <form class="btn-form btn btn-secondary" action="/databases/backup/restore" method="get">
-              <button type="submit" name="ID" value="{{.ID}}" class="btn btn-primary">восстановить</button>
+            <form class="btn-form btn btn-secondary" action="/databases/backup/delete" method="post">
+              <button type="submit" name="ID" value="{{.ID}}" class="btn btn-secondary">удалить</button>
             </form>
+            <button type="submit" id="restoreBackup-btn" class="btn btn-primary">восстановить</button>
           </td>
+          {{ template "modals/check-restore" . }}
         </tr>
         {{ end }}
       </tbody>
     </table>
   </div>
-  {{ template "modals/check-restore" }}
   {{ template "github-link" }}
   <script src="/static/js/main.js"></script>
 </body>

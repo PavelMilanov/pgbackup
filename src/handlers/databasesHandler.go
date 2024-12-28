@@ -218,3 +218,31 @@ func (h *Handler) deleteBackupHandler(c *gin.Context) {
 			{Name: "Настройки", URL: "/settings", IsVisible: false},
 		}})
 }
+
+func (h *Handler) restoreBackupHandler(c *gin.Context) {
+	var data web.BackupForm
+	if err := c.ShouldBind(&data); err != nil {
+		return
+	}
+	id, _ := strconv.Atoi(data.ID)
+	cfg := db.Backup{
+		ID: id,
+	}
+	cfg.Get(h.DB.Sql)
+	cfgDb, _ := db.GetDb(h.DB.Sql, cfg.DatabaseID)
+	cfg.Restore(cfgDb)
+	databases := db.GetDbAll(h.DB.Sql)
+	c.HTML(http.StatusOK, "databases.html", gin.H{
+		"header":    "Базы данных | PgBackup",
+		"databases": databases,
+		"notification": web.Notify{
+			Message: "Дамп удален!",
+			Type:    config.NOTIFY_STATUS["инфо"],
+		},
+		"pages": []web.Page{
+			{Name: "Главная", URL: "/", IsVisible: false},
+			{Name: "Расписание", URL: "/schedule", IsVisible: false},
+			{Name: "Базы данных", URL: "/databases", IsVisible: true},
+			{Name: "Настройки", URL: "/settings", IsVisible: false},
+		}})
+}
