@@ -107,6 +107,7 @@
           <th>Размер</th>
           <th>Время</th>
           <th>Статус</th>
+          <th>Действия</th>
         </tr>
       </thead>
       <tbody>
@@ -126,6 +127,11 @@
               Ошибка
             </span>
             {{end}}
+          </td>
+          <td>
+            <form class="btn-form btn btn-primary" action="/databases/backup/download" method="get">
+              <button type="submit" name="ID" value="{{.ID}}" class="btn btn-primary">скачать</button>
+            </form> 
           </td>
         </tr>
         {{ end }}
