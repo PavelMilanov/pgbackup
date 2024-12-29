@@ -7,6 +7,20 @@ window.onload = function () {
     }
 }
 
+$('.close').on('click', function () {
+    $(this).closest('.modal').hide()
+})
+
+$(window).on('click', function (event) {
+    if ($(event.target).hasClass('modal')) {
+        $(event.target).hide()
+    }
+})
+
+$('#app').on('click', '#restoreBackup-btn', function () {
+    $('#restoreModal').show()
+})
+
 $(document).ready(function () {
     const ctx = $('#storageChart')[0].getContext('2d')
 

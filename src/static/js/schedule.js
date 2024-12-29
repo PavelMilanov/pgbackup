@@ -17,7 +17,5 @@ $('#app').on('click', '#changeShedule', function () {
 })
 
 $('#app').on('click', '#deleteSchedule', function () {
-    var chedule = $('#deleteSchedule').val()
-    $('#DeleteScheduleID').val(chedule)
     $('#deleteScheduleModal').show()
 })

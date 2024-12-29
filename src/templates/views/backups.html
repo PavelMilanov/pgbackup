@@ -1,4 +1,28 @@
-{{ template "header" .}}
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ .header }}</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <link rel="stylesheet/less" href="/static/css/styles.less" />
+    <script src="https://cdn.jsdelivr.net/npm/less"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+</head>
+<body>
+    <header>
+        <h1>PgBackup</h1>
+    </header>
+    <nav>
+        {{ range .pages }}
+        {{ if .IsVisible }}
+        <a href="{{ .URL }}" class="active">{{ .Name }}</a>
+        {{ else }}
+        <a href="{{ .URL }}">{{ .Name }}</a>
+        {{ end }}
+        {{ end }}
+        <a href="/logout">Выйти</a>
+    </nav>
 <div class="container backup-card" id="app">
     <h2>Управление бекапами - {{.db.Alias}}</h2>
     <div class="card">
@@ -42,6 +66,8 @@
                          <form class="btn-form btn btn-secondary" action="/databases/backup/delete" method="post">
                              <button type="submit" name="ID" value="{{.ID}}" class="btn btn-secondary">удалить</button>
                          </form>
+                        <button type="submit" id="restoreBackup-btn" class="btn btn-primary">восстановить</button>
+                        {{ template "modals/check-restore" .ID }}
                     </td>
                 </tr>
                 {{ end }}

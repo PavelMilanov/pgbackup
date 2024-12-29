@@ -1,9 +1,11 @@
 package db
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -14,18 +16,17 @@ import (
 func (bk *Backup) Save(cfg Database, conn *SQLite) {
 	start := time.Now()
 	currTime := start.Format("2006-01-02-15:04") // шаблон GO для формата ГГГГ-мм-дд "2006-01-02 15:04:05" со временем
-	dumpName := currTime + ".dump.gz"
+	bk.Dump = currTime + ".dump.gz"
 	bk.Date = start.Format(time.RFC1123)
-	bk.Dump = dumpName
-	command := fmt.Sprintf("export PGPASSWORD=%s && pg_dump -h %s -U %s -p %d %s | gzip > %s", cfg.Password, cfg.Host, cfg.Username, cfg.Port, cfg.Name, bk.Directory+"/"+dumpName)
+	command := fmt.Sprintf("export PGPASSWORD=%s && pg_dump -h %s -U %s -p %d %s | gzip > %s", cfg.Password, cfg.Host, cfg.Username, cfg.Port, cfg.Name, filepath.Join(bk.Directory, bk.Dump))
 	_, err := exec.Command("sh", "-c", command).Output()
 	if err != nil {
-		errCommand := fmt.Sprintf("touch %s", bk.Directory+"/"+dumpName)
+		errCommand := fmt.Sprintf("touch %s", filepath.Join(bk.Directory, bk.Dump))
 		exec.Command("sh", "-c", errCommand).Output()
 		timer := time.Since(start).Seconds()
 		elapsed := fmt.Sprintf("%.3f сек", timer)
 		bk.LeadTime = elapsed
-		bk.getBackupSize(dumpName)
+		bk.getBackupSize(bk.Dump)
 		bk.Status = false
 		conn.Mutex.Lock()
 		result := conn.Sql.Create(&bk)
@@ -33,23 +34,34 @@ func (bk *Backup) Save(cfg Database, conn *SQLite) {
 		if result.Error != nil {
 			logrus.Error(result.Error)
 		}
-		logrus.Warnf("Ошибка при создании дампа %s", bk.Directory+"/"+bk.Dump)
+		logrus.Warnf("Ошибка при создании дампа %s", filepath.Join(bk.Directory, bk.Dump))
 		return
 	}
 	timer := time.Since(start).Seconds()
 	elapsed := fmt.Sprintf("%.3f сек", timer)
 	bk.LeadTime = elapsed
-	bk.getBackupSize(dumpName)
+	bk.getBackupSize(bk.Dump)
 	bk.Status = true
 	conn.Mutex.Lock()
 	result := conn.Sql.Create(&bk)
 	conn.Mutex.Unlock()
 	if result.Error != nil {
 		logrus.Error(result.Error)
-		os.Remove(bk.Directory + "/" + bk.Dump)
+		os.Remove(filepath.Join(bk.Directory, bk.Dump))
 		return
 	}
-	logrus.Infof("Создан дамп %s", bk.Directory+"/"+bk.Dump)
+	logrus.Infof("Создан дамп %s", filepath.Join(bk.Directory, bk.Dump))
+}
+
+func (bk *Backup) Restore(cfg Database) error {
+	command := fmt.Sprintf("export PGPASSWORD=%s && gunzip -c %s pg_dump -h %s -U %s -p %d %s", cfg.Password, filepath.Join(bk.Directory, bk.Dump), cfg.Host, cfg.Username, cfg.Port, cfg.Name)
+	out, err := exec.Command("sh", "-c", command).Output()
+	if err != nil {
+		fmt.Println(err)
+		return errors.New(string(out))
+	}
+	fmt.Println(string(out))
+	return nil
 }
 
 // Удаление файла бекапа и его метаданных.
@@ -65,7 +77,7 @@ func (bk *Backup) Delete(conn *SQLite) {
 		logrus.Errorf("Ошибка при удалении бекапа %s %v", bk.Dump, err)
 	} else {
 		os.Remove(bk.Dump)
-		logrus.Infof("Удален бекап %s", bk.Directory+"/"+bk.Dump)
+		logrus.Infof("Удален бекап %s", filepath.Join(bk.Directory, bk.Dump))
 	}
 }
 
@@ -117,7 +129,7 @@ func DeleteOldBackups(files []string, conn *SQLite) {
 			logrus.Error(result.Error)
 			continue
 		}
-		os.Remove(model.Directory + "/" + model.Dump)
+		os.Remove(filepath.Join(model.Directory, model.Dump))
 	}
 	logrus.Infof("Удалено %d бекапа", len(files))
 }

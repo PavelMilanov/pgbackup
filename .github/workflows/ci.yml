@@ -8,7 +8,7 @@ on:
         - 'Dockerfile'
         - docker-compose.yaml
       branches:
-      - main
+        - main
 
 jobs:
   build:
