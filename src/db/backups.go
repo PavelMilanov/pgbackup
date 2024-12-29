@@ -1,6 +1,7 @@
 package db
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -52,13 +53,15 @@ func (bk *Backup) Save(cfg Database, conn *SQLite) {
 	logrus.Infof("Создан дамп %s", filepath.Join(bk.Directory, bk.Dump))
 }
 
-func (bk *Backup) Restore(cfg Database) {
-	command := fmt.Sprintf("export PGPASSWORD=%s && pg_dump -h %s -U %s -p %d %s | gzip < %s", cfg.Password, cfg.Host, cfg.Username, cfg.Port, cfg.Name, bk.Directory+"/"+bk.Dump)
+func (bk *Backup) Restore(cfg Database) error {
+	command := fmt.Sprintf("export PGPASSWORD=%s && gunzip -c %s pg_dump -h %s -U %s -p %d %s", cfg.Password, filepath.Join(bk.Directory, bk.Dump), cfg.Host, cfg.Username, cfg.Port, cfg.Name)
 	out, err := exec.Command("sh", "-c", command).Output()
 	if err != nil {
 		fmt.Println(err)
+		return errors.New(string(out))
 	}
 	fmt.Println(string(out))
+	return nil
 }
 
 // Удаление файла бекапа и его метаданных.
