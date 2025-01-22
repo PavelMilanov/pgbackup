@@ -24,7 +24,7 @@ func (cfg *Database) CheckConnection() bool {
 
 // получение размера базы данных по имени.
 func (cfg *Database) GetDBSize() string {
-	command := fmt.Sprintf("export PGPASSWORD=%s && psql -h %s -U %s -p %d %s -c \"SELECT pg_size_pretty(pg_database_size('%s'))\"", cfg.Password, cfg.Host, cfg.Username, cfg.Port, cfg.Name, cfg.Name)
+	command := fmt.Sprintf("export PGPASSWORD=\"%s\" && psql -h %s -U %s -p %d %s -c \"SELECT pg_size_pretty(pg_database_size('%s'))\"", cfg.Password, cfg.Host, cfg.Username, cfg.Port, cfg.Name, cfg.Name)
 	output, err := exec.Command("sh", "-c", command).Output()
 	if err != nil {
 		logrus.Error("Ошибка: " + command)
