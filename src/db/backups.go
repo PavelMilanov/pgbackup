@@ -18,7 +18,7 @@ func (bk *Backup) Save(cfg Database, conn *SQLite) {
 	currTime := start.Format("2006-01-02-15:04") // шаблон GO для формата ГГГГ-мм-дд "2006-01-02 15:04:05" со временем
 	bk.Dump = currTime + ".dump.gz"
 	bk.Date = start.Format(time.RFC1123)
-	command := fmt.Sprintf("export PGPASSWORD=\"%s\" && pg_dump -h %s -U %s -p %d %s | gzip > %s", cfg.Password, cfg.Host, cfg.Username, cfg.Port, cfg.Name, filepath.Join(bk.Directory, bk.Dump))
+	command := fmt.Sprintf("export PGPASSWORD=\"%s\" && pg_dump -O -h %s -U %s -p %d %s | gzip > %s", cfg.Password, cfg.Host, cfg.Username, cfg.Port, cfg.Name, filepath.Join(bk.Directory, bk.Dump))
 	_, err := exec.Command("sh", "-c", command).Output()
 	if err != nil {
 		errCommand := fmt.Sprintf("touch %s", filepath.Join(bk.Directory, bk.Dump))
