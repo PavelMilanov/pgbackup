@@ -10,7 +10,6 @@ import (
 	"github.com/PavelMilanov/pgbackup/config"
 	"github.com/PavelMilanov/pgbackup/db"
 	"github.com/PavelMilanov/pgbackup/handlers"
-	"github.com/PavelMilanov/pgbackup/tasks"
 	"github.com/robfig/cron/v3"
 	"github.com/sirupsen/logrus"
 )
@@ -29,16 +28,6 @@ func init() {
 }
 
 func main() {
-	/// Фоновые задачи
-	location, _ := time.LoadLocation("Europe/Moscow")
-	scheduler := cron.New(cron.WithLocation(location))
-
-	/// база данных
-	/// первичная инициализация задания для ручных бекапов
-	sqliteFIle := filepath.Join(config.DATA_DIR, "pgbackup.db")
-	sqlite := db.NewDatabase(sqliteFIle, scheduler)
-	defer db.CloseDatabase(sqlite.Sql)
-
 	/// логгер
 	logrus.SetLevel(logrus.TraceLevel)
 	logrus.SetReportCaller(true)
@@ -47,15 +36,28 @@ func main() {
 		TimestampFormat: "2006/01/02 15:04:00",
 	})
 
-	logrus.Debug("Версия сборки: ", config.VERSION)
+	/// Фоновые задачи
+	location, _ := time.LoadLocation(os.Getenv("TZ"))
+	c := cron.New(cron.WithLocation(location))
 
-	/// фоновые задачи
-	go scheduler.Start()
-	defer scheduler.Stop()
-	newScheduler := tasks.NewTaskScheduler(*location)
-	newScheduler.Start(&sqlite, scheduler)
+	/// первичная инициализация задания для ручных бекапов
+	sqliteFIle := filepath.Join(config.DATA_DIR, "pgbackup.db")
+	sqlite := db.NewDatabase(sqliteFIle, c)
+	defer db.CloseDatabase(sqlite.Sql)
+	c.AddFunc("0 0 * * *", func() {
+		db.StartSystemTasks(&sqlite)
+	})
+	logrus.Debug("Системный планировщик запущен")
 
-	handler := handlers.NewHandler(&sqlite, scheduler)
+	c.AddFunc("@every 1m", func() {
+		db.CheckDBconnection(&sqlite)
+	})
+	logrus.Debug("Планировщик баз данных запущен")
+
+	c.Start()
+	defer c.Stop()
+
+	handler := handlers.NewHandler(&sqlite, c)
 	srv := new(Server)
 	go func() {
 		if err := srv.Run(handler.InitRouters()); err != nil {

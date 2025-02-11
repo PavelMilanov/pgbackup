@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/PavelMilanov/pgbackup/config"
 	"github.com/sirupsen/logrus"
 )
 
@@ -19,7 +20,7 @@ func (s *Server) Run(handler http.Handler) error {
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
-	logrus.Infof("Сервер запущен %+v", s.httpServer.Addr)
+	logrus.Infof("Сервер запущен %+v | версия: %s", s.httpServer.Addr, config.VERSION)
 	return s.httpServer.ListenAndServe()
 }
 

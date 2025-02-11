@@ -4,6 +4,7 @@ version=
 setenv:
 	@export JWT_KEY="very_secret_key"
 	@export AES_KEY="key3456789012345"
+	@export TZ="Europe/Moscow"
 
 # only for development
 postgres:
@@ -15,7 +16,7 @@ test_postgres:
 
 # only for development
 build:
-	@docker buildx build --platform linux/amd64 src -t pgbackup:dev
+	@docker buildx build --platform linux/amd64 src -t pgbackup:dev --build-arg VERSION=dev
 
 release:
 	@docker buildx build --platform linux/amd64 src -t rosomilanov/pgbackup:${version} --build-arg VERSION=${version}

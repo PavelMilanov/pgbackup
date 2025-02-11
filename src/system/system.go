@@ -23,7 +23,6 @@ func GetStorageInfo() []string {
 		return []string{"0G", "0G", ""}
 	}
 	output := string(cmd)
-	logrus.Infof("Состояние диска: %s", output)
 	return strings.Split(output, " ")
 }
 
@@ -47,7 +46,6 @@ func GetCPUInfo() int {
 	output, _ := strconv.ParseFloat(str2, 32)
 	dataFloat := math.Round(output*100) / 100
 	loadCPU := (dataFloat * 100)
-	logrus.Infof("Загрузка CPU: %d%%, количество процессоров: %d", int(loadCPU), countCPU)
 	return int(loadCPU) / countCPU
 }
 
@@ -64,7 +62,6 @@ func GetMemoryInfo() int {
 	usedMemory, _ := strconv.ParseFloat(output[1], 32)
 
 	loadMEMORY := (usedMemory / totalMemory) * 100
-	logrus.Infof("Загркузка RAM: %f%%", loadMEMORY)
 	return int(loadMEMORY)
 }
 

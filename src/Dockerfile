@@ -2,16 +2,20 @@ FROM golang:1.23-alpine AS builder
 
 RUN apk --update --no-cache add gcc musl-dev
 
-WORKDIR /build
+WORKDIR /
 
-COPY . /build
+COPY ./go.mod ./go.sum ./
+
+RUN go mod download
+
+COPY . ./
 
 ARG VERSION
 
 ENV VERSION="${VERSION}"
 ENV CGO_ENABLED=1
 
-RUN go build -ldflags="-s -w -X 'github.com/PavelMilanov/pgbackup/config.VERSION=${VERSION}'"
+RUN go install -ldflags="-s -w -X 'github.com/PavelMilanov/pgbackup/config.VERSION=${VERSION}'"
 
 FROM alpine:3.20
 
@@ -26,24 +30,19 @@ ENV GIN_MODE=release
 
 WORKDIR /app
 
-COPY --from=builder /build/pgbackup /app
+COPY --from=builder /go/bin/pgbackup /app/
 
 COPY templates/ /app/templates/
 COPY static/ /app/static/
 
-VOLUME [ "/app/dumps" ]
-VOLUME [ "/app/data" ]
-
 RUN apk --update --no-cache add postgresql-client tzdata sqlite-libs curl gzip && \
-    rm -rf /var/cache/apk/ && \
     addgroup -g ${UID_DOCKER} ${USER_DOCKER} && \
     adduser -u ${UID_DOCKER} -G ${USER_DOCKER} -s /bin/sh -D -H ${USER_DOCKER} && \
     chown -R ${USER_DOCKER}:${USER_DOCKER} /app
 
-
 EXPOSE 8080/tcp
 
-HEALTHCHECK --interval=1m --timeout=2s --start-period=2s --retries=3 CMD curl -f http://localhost:8080/api/check || exit 1
+HEALTHCHECK --interval=10m --timeout=3s --start-period=5s --retries=3 CMD curl -f http://localhost:8080/api/check || exit 1
 
 ENTRYPOINT ["./pgbackup" ]
 
