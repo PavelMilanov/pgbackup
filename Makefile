@@ -4,6 +4,7 @@ version=
 setenv:
 	@export JWT_KEY="very_secret_key"
 	@export AES_KEY="key3456789012345"
+	@export TZ="Europe/Moscow"
 
 # only for development
 postgres:

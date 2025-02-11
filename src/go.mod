@@ -1,6 +1,6 @@
 module github.com/PavelMilanov/pgbackup
 
-go 1.23.2
+go 1.23.6
 
 require (
 	github.com/gin-contrib/sessions v1.0.1
