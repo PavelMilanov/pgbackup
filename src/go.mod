@@ -3,6 +3,7 @@ module github.com/PavelMilanov/pgbackup
 go 1.23.6
 
 require (
+	github.com/AlexanderGrom/componenta v0.0.0-20180225195639-b173b6ed556d
 	github.com/gin-contrib/sessions v1.0.1
 	github.com/gin-gonic/gin v1.10.0
 	github.com/golang-jwt/jwt/v5 v5.2.1

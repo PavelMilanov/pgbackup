@@ -12,7 +12,7 @@ import (
 )
 
 // Проверка подключения к базе данных
-func (cfg *Database) CheckConnection() bool {
+func (cfg *Database) checkConnection() bool {
 	command := fmt.Sprintf("pg_isready -h %s -U %s -d %s -p %d", cfg.Host, cfg.Username, cfg.Name, cfg.Port)
 	_, err := exec.Command("sh", "-c", command).Output()
 	if err != nil {
@@ -23,7 +23,7 @@ func (cfg *Database) CheckConnection() bool {
 }
 
 // получение размера базы данных по имени.
-func (cfg *Database) GetDBSize() string {
+func (cfg *Database) getDBSize() string {
 	command := fmt.Sprintf("export PGPASSWORD=\"%s\" && psql -h %s -U %s -p %d %s -c \"SELECT pg_size_pretty(pg_database_size('%s'))\"", cfg.Password, cfg.Host, cfg.Username, cfg.Port, cfg.Name, cfg.Name)
 	output, err := exec.Command("sh", "-c", command).Output()
 	if err != nil {
@@ -43,8 +43,8 @@ func (cfg *Database) GetDBSize() string {
 // Добавляет данные о базе данных в служебную БД.
 // Перед добавлением в таблицу проверяется подключение.
 func (cfg *Database) Save(sql *gorm.DB) error {
-	status := cfg.CheckConnection()
-	size := cfg.GetDBSize()
+	status := cfg.checkConnection()
+	size := cfg.getDBSize()
 	if !status || size == "" {
 		return errors.New("Не удалось подключиться к базе данных " + cfg.Alias)
 	}

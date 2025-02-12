@@ -119,7 +119,7 @@ func (bk *Backup) getBackupSize(filename string) {
 
 // Удаление дампов из базы данных по условию.
 // Используется для планировщик для удалениея старых дампов.
-func DeleteOldBackups(files []string, conn *SQLite) {
+func deleteOldBackups(files []string, conn *SQLite) {
 	var model Backup
 	for _, file := range files {
 		conn.Mutex.Lock()

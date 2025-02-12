@@ -23,11 +23,11 @@ var testScheduler = cron.New(cron.WithLocation(location))
 var testDb = NewDatabase("test.db", testScheduler)
 
 func TestCheckConnection(t *testing.T) {
-	testConfig.CheckConnection()
+	testConfig.checkConnection()
 }
 
 func TestGetDBSize(t *testing.T) {
-	testConfig.GetDBSize()
+	testConfig.getDBSize()
 }
 
 func TestGetDb(t *testing.T) {

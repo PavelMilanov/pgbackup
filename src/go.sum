@@ -1,3 +1,5 @@
+github.com/AlexanderGrom/componenta v0.0.0-20180225195639-b173b6ed556d h1:zLnSHkbQ7cAMf9iUF/Ujidgwnm6GevWBXGmatFqyiTk=
+github.com/AlexanderGrom/componenta v0.0.0-20180225195639-b173b6ed556d/go.mod h1:8MaZ/jk7zIm3TsXAw7NgQINmywxZs8Rd5xRF7lzDctM=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/Masterminds/semver/v3 v3.1.1/go.mod h1:VPu/7SZ7ePZ3QOrcuXROw5FAcLl4a0cBrbBpGY/8hQs=
 github.com/bytedance/sonic v1.11.6 h1:oUp34TzMlL+OY1OUWxHqsdkgC/Zfc85zGqw9siXjrc0=

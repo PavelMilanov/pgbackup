@@ -44,7 +44,7 @@ func main() {
 	sqliteFIle := filepath.Join(config.DATA_DIR, "pgbackup.db")
 	sqlite := db.NewDatabase(sqliteFIle, c)
 	defer db.CloseDatabase(sqlite.Sql)
-	c.AddFunc("0 0 * * *", func() {
+	c.AddFunc("*/1 * * * *", func() { // 0 0 * * *
 		db.StartSystemTasks(&sqlite)
 	})
 	logrus.Debug("Системный планировщик запущен")
