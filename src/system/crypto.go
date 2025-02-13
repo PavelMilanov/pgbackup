@@ -1,26 +1,62 @@
 package system
 
 import (
-	"github.com/AlexanderGrom/componenta/crypt"
-	"github.com/PavelMilanov/pgbackup/config"
-	"github.com/sirupsen/logrus"
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/rand"
+	"encoding/base64"
+	"errors"
+	"io"
 )
 
-// Шифрование строки по алгоритму AES.
-func Encrypt(plaintext string) string {
-	c, err := crypt.Encrypt(plaintext, string(config.JWT_KEY))
+// Шифрование строки по алгоритму AES-256.
+func Encrypt(plaintext string, key []byte) (string, error) {
+	block, err := aes.NewCipher(key)
 	if err != nil {
-		logrus.Fatal("Encrypt:", err)
+		return "", err
 	}
 
-	return c
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return "", err
+	}
+
+	nonce := make([]byte, gcm.NonceSize())
+	if _, err = io.ReadFull(rand.Reader, nonce); err != nil {
+		return "", err
+	}
+
+	ciphertext := gcm.Seal(nonce, nonce, []byte(plaintext), nil)
+	return base64.StdEncoding.EncodeToString(ciphertext), nil
 }
 
-// Дешифрование строки по алгоритму AES.
-func Decrypt(ciphertext string) string {
-	s, err := crypt.Decrypt(ciphertext, string(config.JWT_KEY))
+// Дешифрование строки по алгоритму AES-256.
+func Decrypt(encodedText string, key []byte) (string, error) {
+	ciphertext, err := base64.StdEncoding.DecodeString(encodedText)
 	if err != nil {
-		logrus.Fatal("Decrypt:", err)
+		return "", err
 	}
-	return s
+
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return "", err
+	}
+
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return "", err
+	}
+
+	nonceSize := gcm.NonceSize()
+	if len(ciphertext) < nonceSize {
+		return "", errors.New("malformed ciphertext")
+	}
+
+	nonce, ciphertext := ciphertext[:nonceSize], ciphertext[nonceSize:]
+	plaintext, err := gcm.Open(nil, nonce, ciphertext, nil)
+	if err != nil {
+		return "", err
+	}
+
+	return string(plaintext), nil
 }

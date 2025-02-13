@@ -1,6 +1,8 @@
 package db
 
 import (
+	"github.com/PavelMilanov/pgbackup/config"
+	"github.com/PavelMilanov/pgbackup/system"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
@@ -18,9 +20,14 @@ func (cfg *User) Save(sql *gorm.DB) error {
 
 // Проверка, зарегистрирован ли пользователь
 func (cfg *User) IsRegister(sql *gorm.DB) bool {
-	result := sql.Select("ID").Where("Username = ? AND Password = ?", cfg.Username, cfg.Password).First(&cfg)
+	result := sql.Select("ID").Where("Username = ?", cfg.Username).First(&cfg)
 	if result.Error != nil || result.RowsAffected == 0 {
 		logrus.Error(result.Error)
+		return false
+	}
+	decryptPassword, _ := system.Decrypt(cfg.Password, config.AES_KEY)
+	cfg.Password = decryptPassword
+	if cfg.Password != decryptPassword {
 		return false
 	}
 	return true

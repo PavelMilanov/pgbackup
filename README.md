@@ -28,6 +28,7 @@ ___
 Для запуска необходимы следующие переменные окружения:
 
 `JWT_KEY`: ***(Не рекомендовано хранить в открытом виде)*** ключ для генерации токенов аутентификации;
+`AES_KEY`: ***(Размер должен быть 16,24,32 смиволов)*** ключ для шифрования по алгоритму AES-256;
 данных.
 
 - Ручной запуск:
@@ -36,6 +37,7 @@ ___
 docker run -d --name pgbackup -p 8080:8080 \ 
 	-v ./dumps:/app/dumps:rw -v ./data:/app/data:rw \
 	-e JWT_KEY=<токен JWT> \
+	-e AES_KEY=<токен AES>
 	--restart=always pavelmilanov/pgbackup:latest
 ```
 
@@ -50,6 +52,7 @@ services:
 	restart: always
 	environment:
 		JWT_KEY: very_secret_string
+		AES_KEY: very_secret_string
 	volumes:
 		- ./dumps:/app/dumps:rw
 		- ./data:/app/data:rw

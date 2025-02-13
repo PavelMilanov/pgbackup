@@ -3,12 +3,21 @@ package system
 import "testing"
 
 func TestEncrypt(t *testing.T) {
-	str := "hello world"
-	cryptoStr := Encrypt(str)
-	decryptStr := Decrypt(cryptoStr)
-	t.Logf("Encrypt: %s != Decrypt: %s", str, decryptStr)
-	if decryptStr != str {
-		t.Errorf("Encrypt: %s != Decrypt: %s", decryptStr, str)
-		return
+	key := []byte("32-char-key-for-AES-256!")
+
+	testText := []string{"hello world", "world", "hello world !", "hello world", "admin", "admin"}
+	for _, text := range testText {
+		cryptoStr, err := Encrypt(text, key)
+		if err != nil {
+			t.Error(err)
+		}
+		decryptStr, err := Decrypt(cryptoStr, key)
+		if err != nil {
+			t.Error(err)
+		}
+		if decryptStr != text {
+			t.Errorf("Encrypt: %s != Decrypt: %s", decryptStr, text)
+		}
+		t.Logf("Text: %s, Encrypted: %s, Decrypted: %s", text, cryptoStr, decryptStr)
 	}
 }

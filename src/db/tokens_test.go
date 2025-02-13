@@ -3,6 +3,7 @@ package db
 import (
 	"testing"
 
+	"github.com/PavelMilanov/pgbackup/config"
 	"github.com/PavelMilanov/pgbackup/system"
 )
 
@@ -12,7 +13,12 @@ func TestGenerate(t *testing.T) {
 }
 
 func TestRegistration(t *testing.T) {
-	var user = User{Username: "user", Password: system.Encrypt("password")}
+	encryptPassword, err := system.Encrypt("password", config.AES_KEY)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	var user = User{Username: "user", Password: encryptPassword}
 	if err := user.Save(testDb.Sql); err != nil {
 		t.Log(err)
 	}
@@ -22,7 +28,12 @@ func TestRegistration(t *testing.T) {
 }
 
 func TestValidation(t *testing.T) {
-	var user = User{Username: "user", Password: system.Encrypt("password")}
+	encryptPassword, err := system.Encrypt("password", config.AES_KEY)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	var user = User{Username: "user", Password: encryptPassword}
 	token := user.GetToken(testDb.Sql)
 
 	if valid := token.Validate(); !valid {

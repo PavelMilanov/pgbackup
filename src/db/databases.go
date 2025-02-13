@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 
+	"github.com/PavelMilanov/pgbackup/config"
 	"github.com/PavelMilanov/pgbackup/system"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
@@ -14,11 +15,12 @@ import (
 // Проверка подключения к базе данных
 func (cfg *Database) checkConnection() bool {
 	command := fmt.Sprintf("pg_isready -h %s -U %s -d %s -p %d", cfg.Host, cfg.Username, cfg.Name, cfg.Port)
-	_, err := exec.Command("sh", "-c", command).Output()
-	if err != nil {
-		logrus.Error("Ошибка: " + command)
+	out, err := exec.Command("sh", "-c", command).Output()
+	if err != nil || string(out) == "" {
+		logrus.Error("Ошибка: ", command, out)
 		return false
 	}
+	logrus.Debug(string(out))
 	return true
 }
 
@@ -50,10 +52,10 @@ func (cfg *Database) Save(sql *gorm.DB) error {
 	}
 	cfg.Status = status
 	cfg.Size = size
-	encryptedUsername := system.Encrypt(cfg.Username)
-	cfg.Username = encryptedUsername
-	encryptedPassword := system.Encrypt(cfg.Password)
-	cfg.Password = encryptedPassword
+	username, _ := system.Encrypt(cfg.Username, config.AES_KEY)
+	password, _ := system.Encrypt(cfg.Password, config.AES_KEY)
+	cfg.Username = username
+	cfg.Password = password
 	result := sql.Create(&cfg)
 	if result.Error != nil {
 		logrus.Error(result.Error)
@@ -116,10 +118,10 @@ func GetDb(sql *gorm.DB, id int) (Database, error) {
 	if result.Error != nil {
 		return db, result.Error
 	}
-	descriptedUsername := system.Decrypt(db.Username)
-	db.Username = descriptedUsername
-	descriptedPassword := system.Decrypt(db.Password)
-	db.Password = descriptedPassword
+	username, _ := system.Decrypt(db.Username, config.AES_KEY)
+	password, _ := system.Decrypt(db.Password, config.AES_KEY)
+	db.Username = username
+	db.Password = password
 	return db, nil
 }
 

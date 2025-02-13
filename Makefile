@@ -3,6 +3,7 @@ version=
 # only for development
 setenv:
 	@export JWT_KEY="very_secret_key"
+	@export AES_KEY="32-char-key-for-AES-256!"
 	@export TZ="Europe/Moscow"
 
 # only for development

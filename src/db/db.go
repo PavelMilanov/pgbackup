@@ -78,8 +78,10 @@ func StartSystemTasks(conn *SQLite) {
 	deleteOldBackups(files, conn)
 	DB := GetDbAll(conn.Sql)
 	for _, item := range DB {
-		item.Username = system.Decrypt(item.Username)
-		item.Password = system.Decrypt(item.Password)
+		username, _ := system.Decrypt(item.Username, config.AES_KEY)
+		password, _ := system.Decrypt(item.Password, config.AES_KEY)
+		item.Username = username
+		item.Password = password
 		size := item.getDBSize()
 		item.Size = size
 		conn.Mutex.Lock()

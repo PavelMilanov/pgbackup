@@ -1,11 +1,9 @@
 package db
 
 import (
-	"os"
 	"testing"
 	"time"
 
-	"github.com/PavelMilanov/pgbackup/system"
 	"github.com/robfig/cron/v3"
 )
 
@@ -36,14 +34,4 @@ func TestGetDb(t *testing.T) {
 		t.Errorf("%v", err)
 	}
 	t.Log(db)
-}
-
-func TestEncrypAndDecrypt(t *testing.T) {
-	os.Setenv("AES_KEY", "key3456789012345")
-	text := "hello world"
-	encrypted := system.Encrypt("hello world")
-	decrypted := system.Decrypt(encrypted)
-	if text != decrypted {
-		t.Fatalf("%s не равен %s", text, decrypted)
-	}
 }

@@ -3,11 +3,13 @@ package handlers
 import (
 	"net/http"
 
+	"github.com/PavelMilanov/pgbackup/config"
 	"github.com/PavelMilanov/pgbackup/db"
 	"github.com/PavelMilanov/pgbackup/system"
 	"github.com/PavelMilanov/pgbackup/web"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
 func (h *Handler) loginHandler(c *gin.Context) {
@@ -21,7 +23,7 @@ func (h *Handler) loginHandler(c *gin.Context) {
 		}
 		user := db.User{
 			Username: data.Username,
-			Password: system.Encrypt((data.Password)),
+			Password: data.Password,
 		}
 		if check := user.IsRegister(h.DB.Sql); !check {
 			c.HTML(http.StatusBadRequest, "login.html", gin.H{
@@ -47,9 +49,14 @@ func (h *Handler) registrationHandler(c *gin.Context) {
 			c.HTML(http.StatusBadRequest, "registration.html", gin.H{"error": "пароли не совпадают"})
 			return
 		}
+		encryptPassword, err := system.Encrypt(data.Password, config.AES_KEY)
+		if err != nil {
+			logrus.Error(err)
+			return
+		}
 		user := db.User{
 			Username: data.Username,
-			Password: system.Encrypt((data.Password)),
+			Password: encryptPassword,
 		}
 		if err := user.Save(h.DB.Sql); err != nil {
 			c.HTML(http.StatusOK, "registration.html", gin.H{"error": err.Error()})
