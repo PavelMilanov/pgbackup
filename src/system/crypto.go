@@ -1,57 +1,62 @@
 package system
 
 import (
-	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
+	"crypto/rand"
 	"encoding/base64"
 	"errors"
-
-	"github.com/PavelMilanov/pgbackup/config"
-	"github.com/sirupsen/logrus"
+	"io"
 )
 
-// Шифрование строки по алгоритму AES.
-func Encrypt(plaintext string) string {
-	bc, err := aes.NewCipher(config.AES_KEY)
+// Шифрование строки по алгоритму AES-256.
+func Encrypt(plaintext string, key []byte) (string, error) {
+	block, err := aes.NewCipher(key)
 	if err != nil {
-		logrus.Error(err)
+		return "", err
 	}
-	paddedText := pad([]byte(plaintext), aes.BlockSize)
-	dst := make([]byte, len(paddedText))
-	cipher.NewCBCEncrypter(bc, config.AES_KEY[:aes.BlockSize]).CryptBlocks(dst, paddedText)
-	return base64.StdEncoding.EncodeToString(dst)
+
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return "", err
+	}
+
+	nonce := make([]byte, gcm.NonceSize())
+	if _, err = io.ReadFull(rand.Reader, nonce); err != nil {
+		return "", err
+	}
+
+	ciphertext := gcm.Seal(nonce, nonce, []byte(plaintext), nil)
+	return base64.StdEncoding.EncodeToString(ciphertext), nil
 }
 
-// Дешифрование строки по алгоритму AES.
-func Decrypt(ciphertext string) string {
-	bc, err := aes.NewCipher(config.AES_KEY)
+// Дешифрование строки по алгоритму AES-256.
+func Decrypt(encodedText string, key []byte) (string, error) {
+	ciphertext, err := base64.StdEncoding.DecodeString(encodedText)
 	if err != nil {
-		logrus.Fatal(err)
+		return "", err
 	}
-	ciphertextBytes, _ := base64.StdEncoding.DecodeString(ciphertext)
-	res := make([]byte, len(ciphertextBytes))
-	cipher.NewCBCDecrypter(bc, config.AES_KEY[:aes.BlockSize]).CryptBlocks(res, ciphertextBytes)
-	unpaddedText, err := unpad(res)
+
+	block, err := aes.NewCipher(key)
 	if err != nil {
-		logrus.Fatal(err)
+		return "", err
 	}
-	return string(unpaddedText)
-}
 
-// Функция добавляет padding по стандарту PKCS#7
-func pad(src []byte, blockSize int) []byte {
-	padding := blockSize - len(src)%blockSize
-	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
-	return append(src, padtext...)
-}
-
-// Функция удаляет padding по стандарту PKCS#7
-func unpad(src []byte) ([]byte, error) {
-	padding := src[len(src)-1]
-	length := len(src) - int(padding)
-	if length < 0 {
-		return nil, errors.New("invalid padding")
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return "", err
 	}
-	return src[:length], nil
+
+	nonceSize := gcm.NonceSize()
+	if len(ciphertext) < nonceSize {
+		return "", errors.New("malformed ciphertext")
+	}
+
+	nonce, ciphertext := ciphertext[:nonceSize], ciphertext[nonceSize:]
+	plaintext, err := gcm.Open(nil, nonce, ciphertext, nil)
+	if err != nil {
+		return "", err
+	}
+
+	return string(plaintext), nil
 }

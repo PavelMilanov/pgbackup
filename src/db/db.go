@@ -75,23 +75,26 @@ func initBackupsTasks(conn *SQLite, timer *cron.Cron) {
 func StartSystemTasks(conn *SQLite) {
 	settings, _ := GetSettings(conn.Sql)
 	files := system.ParseOldFiles(float64(settings.BackupCount))
-	DeleteOldBackups(files, conn)
+	deleteOldBackups(files, conn)
 	DB := GetDbAll(conn.Sql)
 	for _, item := range DB {
-		size := item.GetDBSize()
+		username, _ := system.Decrypt(item.Username, config.AES_KEY)
+		password, _ := system.Decrypt(item.Password, config.AES_KEY)
+		item.Username = username
+		item.Password = password
+		size := item.getDBSize()
 		item.Size = size
 		conn.Mutex.Lock()
 		conn.Sql.Save(&item)
 		conn.Mutex.Unlock()
 	}
-
 }
 
 // Задача проверки соединения с базами.
 func CheckDBconnection(conn *SQLite) {
 	DB := GetDbAll(conn.Sql)
 	for _, item := range DB {
-		status := item.CheckConnection()
+		status := item.checkConnection()
 		if item.Status && !status {
 			item.Status = status
 			conn.Mutex.Lock()
@@ -103,7 +106,7 @@ func CheckDBconnection(conn *SQLite) {
 			conn.Mutex.Lock()
 			conn.Sql.Save(&item)
 			conn.Mutex.Unlock()
-			logrus.Debugf("Восстановлено соединение с базой данных %s", item.Alias)
+			logrus.Infof("Восстановлено соединение с базой данных %s", item.Alias)
 		}
 	}
 

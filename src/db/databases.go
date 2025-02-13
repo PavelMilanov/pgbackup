@@ -6,24 +6,26 @@ import (
 	"os"
 	"os/exec"
 
+	"github.com/PavelMilanov/pgbackup/config"
 	"github.com/PavelMilanov/pgbackup/system"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
 
 // Проверка подключения к базе данных
-func (cfg *Database) CheckConnection() bool {
+func (cfg *Database) checkConnection() bool {
 	command := fmt.Sprintf("pg_isready -h %s -U %s -d %s -p %d", cfg.Host, cfg.Username, cfg.Name, cfg.Port)
-	_, err := exec.Command("sh", "-c", command).Output()
-	if err != nil {
-		logrus.Error("Ошибка: " + command)
+	out, err := exec.Command("sh", "-c", command).Output()
+	if err != nil || string(out) == "" {
+		logrus.Error("Ошибка: ", command, out)
 		return false
 	}
+	logrus.Debug(string(out))
 	return true
 }
 
 // получение размера базы данных по имени.
-func (cfg *Database) GetDBSize() string {
+func (cfg *Database) getDBSize() string {
 	command := fmt.Sprintf("export PGPASSWORD=\"%s\" && psql -h %s -U %s -p %d %s -c \"SELECT pg_size_pretty(pg_database_size('%s'))\"", cfg.Password, cfg.Host, cfg.Username, cfg.Port, cfg.Name, cfg.Name)
 	output, err := exec.Command("sh", "-c", command).Output()
 	if err != nil {
@@ -43,17 +45,17 @@ func (cfg *Database) GetDBSize() string {
 // Добавляет данные о базе данных в служебную БД.
 // Перед добавлением в таблицу проверяется подключение.
 func (cfg *Database) Save(sql *gorm.DB) error {
-	status := cfg.CheckConnection()
-	size := cfg.GetDBSize()
+	status := cfg.checkConnection()
+	size := cfg.getDBSize()
 	if !status || size == "" {
 		return errors.New("Не удалось подключиться к базе данных " + cfg.Alias)
 	}
 	cfg.Status = status
 	cfg.Size = size
-	encryptedUsername := system.Encrypt(cfg.Username)
-	cfg.Username = encryptedUsername
-	encryptedPassword := system.Encrypt(cfg.Password)
-	cfg.Password = encryptedPassword
+	username, _ := system.Encrypt(cfg.Username, config.AES_KEY)
+	password, _ := system.Encrypt(cfg.Password, config.AES_KEY)
+	cfg.Username = username
+	cfg.Password = password
 	result := sql.Create(&cfg)
 	if result.Error != nil {
 		logrus.Error(result.Error)
@@ -116,10 +118,10 @@ func GetDb(sql *gorm.DB, id int) (Database, error) {
 	if result.Error != nil {
 		return db, result.Error
 	}
-	descriptedUsername := system.Decrypt(db.Username)
-	db.Username = descriptedUsername
-	descriptedPassword := system.Decrypt(db.Password)
-	db.Password = descriptedPassword
+	username, _ := system.Decrypt(db.Username, config.AES_KEY)
+	password, _ := system.Decrypt(db.Password, config.AES_KEY)
+	db.Username = username
+	db.Password = password
 	return db, nil
 }
 
