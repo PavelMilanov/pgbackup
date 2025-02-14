@@ -4,3 +4,4 @@ test.db
 .obsidian
 dumps/
 data/
+.env

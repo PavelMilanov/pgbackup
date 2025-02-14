@@ -19,15 +19,10 @@ func init() {
 	os.Mkdir(config.BACKUP_DIR, 0755)
 	// создаем директорию для базы
 	os.Mkdir(config.DATA_DIR, 0755)
-
-	jwt := os.Getenv("JWT_KEY")
-	aes := os.Getenv("AES_KEY")
-	if jwt == "" || aes == "" {
-		logrus.Fatalf("Не указана переменная окружения JWT_KEY или AES_KEY")
-	}
 }
 
 func main() {
+	env := config.NewEnv()
 	/// логгер
 	logrus.SetLevel(logrus.TraceLevel)
 	logrus.SetReportCaller(true)
@@ -57,7 +52,7 @@ func main() {
 	c.Start()
 	defer c.Stop()
 
-	handler := handlers.NewHandler(&sqlite, c)
+	handler := handlers.NewHandler(&sqlite, c, env)
 	srv := new(Server)
 	go func() {
 		if err := srv.Run(handler.InitRouters()); err != nil {

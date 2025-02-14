@@ -2,12 +2,12 @@ package handlers
 
 import (
 	"net/http"
-	"text/template"
+	"time"
 
 	"github.com/PavelMilanov/pgbackup/config"
 	"github.com/PavelMilanov/pgbackup/db"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/sessions"
-	gormsessions "github.com/gin-contrib/sessions/gorm"
 	"github.com/gin-gonic/gin"
 	cron "github.com/robfig/cron/v3"
 	"github.com/sirupsen/logrus"
@@ -17,10 +17,11 @@ import (
 type Handler struct {
 	DB   *db.SQLite
 	CRON *cron.Cron
+	ENV  *config.Env
 }
 
-func NewHandler(conn *db.SQLite, scheduler *cron.Cron) *Handler {
-	return &Handler{DB: conn, CRON: scheduler}
+func NewHandler(conn *db.SQLite, scheduler *cron.Cron, env *config.Env) *Handler {
+	return &Handler{DB: conn, CRON: scheduler, ENV: env}
 }
 
 // Основной middleware для авторизации.
@@ -48,44 +49,34 @@ func authMiddleware(sql *gorm.DB) gin.HandlerFunc {
 	}
 }
 
-// Базовый middleware безопасности.
-func baseSecurityMiddleware(host string) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		if host == "*" {
-			return
-		} else if c.Request.Host != host {
-			logrus.Debug("Host invalid: ", c.Request.Host)
-			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Invalid host header"})
-			return
-		}
-		c.Header("X-Frame-Options", "DENY")
-		c.Header("Content-Security-Policy", "default-src 'self'; connect-src *; font-src *; script-src-elem * 'unsafe-inline'; img-src * data:; style-src * 'unsafe-inline';")
-		c.Header("X-XSS-Protection", "1; mode=block")
-		c.Header("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload")
-		c.Header("Referrer-Policy", "strict-origin")
-		c.Header("X-Content-Type-Options", "nosniff")
-		c.Header("Permissions-Policy", "geolocation=(),midi=(),sync-xhr=(),microphone=(),camera=(),magnetometer=(),gyroscope=(),fullscreen=(self),payment=()")
-		c.Next()
-	}
-}
-
 func (h *Handler) InitRouters() *gin.Engine {
 	router := gin.Default()
-	store := gormsessions.NewStore(h.DB.Sql, true, []byte("mysessions"))
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{h.ENV.URL},
+		AllowMethods:     []string{"GET", "POST", "DELETE"},
+		AllowHeaders:     []string{"Origin", "Authorization", "Content-Type"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           24 * time.Hour,
+	}))
+	// store := gormsessions.NewStore(h.DB.Sql, true, []byte("mysessions"))
 
-	router.Use(baseSecurityMiddleware(config.HOST))
-	router.Use(sessions.Sessions("token", store))
+	// router.Use(sessions.Sessions("token", store))
 
-	router.SetFuncMap(template.FuncMap{"add": func(x, y int) int { return x + y }})
-	router.LoadHTMLGlob("templates/**/*")
-	router.Static("/static/", "./static")
+	// router.SetFuncMap(template.FuncMap{"add": func(x, y int) int { return x + y }})
+	// router.LoadHTMLGlob("templates/**/*")
+	// router.Static("/static/", "./static")
 
 	router.GET("/registration", h.registrationHandler)
 	router.POST("/registration", h.registrationHandler)
 	router.GET("/login", h.loginHandler)
 	router.POST("/login", h.loginHandler)
 
-	web := router.Group("/", authMiddleware(h.DB.Sql))
+	v2 := router.Group("/v2/")
+	{
+		v2.GET("/", h.mainHandler)
+	}
+	web := router.Group("/")
 	{
 		web.GET("/logout", h.logoutHandler)
 		web.POST("/logout", h.logoutHandler)
